@@ -28,6 +28,13 @@
 			remoteGlobalIDString = 7D7BD7C1195418CB00AC2E4E;
 			remoteInfo = JSON;
 		};
+		7DCA6F871955776800F3ABEA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7D7BD7B9195418CB00AC2E4E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7D7BD7C1195418CB00AC2E4E;
+			remoteInfo = JSON;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -159,6 +166,7 @@
 			dependencies = (
 				7D7BD7D0195418CC00AC2E4E /* PBXTargetDependency */,
 				7DCA6F861955776800F3ABEA /* PBXTargetDependency */,
+				7DCA6F881955776800F3ABEA /* PBXTargetDependency */,
 			);
 			name = JSONTests;
 			productName = JSONTests;
@@ -247,6 +255,11 @@
 			isa = PBXTargetDependency;
 			target = 7D7BD7C1195418CB00AC2E4E /* JSON */;
 			targetProxy = 7DCA6F851955776800F3ABEA /* PBXContainerItemProxy */;
+		};
+		7DCA6F881955776800F3ABEA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7D7BD7C1195418CB00AC2E4E /* JSON */;
+			targetProxy = 7DCA6F871955776800F3ABEA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -20,7 +20,15 @@ class JSONTests: XCTestCase {
             XCTFail()
         }
     }
-    
+
+    func testNullStringValue() {
+        let string : String? = nil
+        let value = JSValue(string)
+        if value.string {
+            XCTFail()
+        }
+    }
+
     func testIntegerValue() {
         let value : JSValue = 123
         if let number = value.number {
@@ -30,13 +38,29 @@ class JSONTests: XCTestCase {
             XCTFail()
         }
     }
-    
+
+    func testNullIntegerValue() {
+        let number : Int? = nil
+        let value = JSValue(number)
+        if value.number {
+            XCTFail()
+        }
+    }
+
     func testDoubleValue() {
         let value : JSValue = 3.234957
         if let number = value.number {
             XCTAssertEqual(number, 3.234957)
         }
         else {
+            XCTFail()
+        }
+    }
+    
+    func testNullDoubleValue() {
+        let number : Double? = nil
+        let value = JSValue(number)
+        if value.number {
             XCTFail()
         }
     }
@@ -51,6 +75,15 @@ class JSONTests: XCTestCase {
         }
     }
     
+    func testNullBoolValue() {
+        let bool : Bool? = nil
+        let value = JSValue(bool)
+        if value.bool {
+            XCTFail()
+        }
+    }
+
+    
     func testBoolFalseValue() {
         let value : JSValue = JSFalse
         if let bool = value.bool {
@@ -61,17 +94,33 @@ class JSONTests: XCTestCase {
         }
     }
 
-//    func testNullValue() {
-//        // Test disabled for bug in Swift.
-//        let value = JSValue(nil)
-//        switch value {
-//        case .JSNull:
-//            break;
-//            
-//        default:
-//            XCTFail()
-//        }
-//    }
+    func testNullValue() {
+        // Test disabled for bug in Swift.
+        let value = JSNull
+        switch value {
+        case .JSNull:
+            break;
+            
+        default:
+            XCTFail()
+        }
+    }
+    
+    func testNullArrayValue() {
+        let array : Array<JSValue>? = nil
+        let value = JSValue(array)
+        if value.array {
+            XCTFail()
+        }
+    }
+    
+    func testNullDictionaryValue() {
+        let dict : Dictionary<String, JSValue>? = nil
+        let value = JSValue(dict)
+        if value.object {
+            XCTFail()
+        }
+    }
     
     func testBasicArray() {
         let value : JSON = [1, "Dog", 3.412, JSTrue]

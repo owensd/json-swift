@@ -14,6 +14,9 @@ typealias JSValue = JSON
 let JSTrue = JSValue(true)
 let JSFalse = JSValue(false)
 
+// Special handling for "null" as there seems to be no good way to do JSValue(nil) for all types
+let JSNull = JSValue.JSNull
+
 /**
  *  A representative type for all possible JSON values.
  *
@@ -30,7 +33,7 @@ enum JSON : LogicValue {
     case JSObject(Dictionary<String, JSValue>)
     case JSArray(JSValue[])
     case JSBool(Bool)
-    case JSNull     // this is not currently supported due to bugs in Swift...
+    case JSNull
     
     /*
      * Respresents a valid that is not reprentable in JSON.
@@ -47,8 +50,58 @@ enum JSON : LogicValue {
         }
     }
 
-    init(_ value: Bool) {
-        self = .JSBool(value)
+    init(_ value: Bool?) {
+        if let bool = value {
+            self = .JSBool(bool)
+        }
+        else {
+            self = .JSNull
+        }
+    }
+    
+    init(_ value: Double?) {
+        if let number = value {
+            self = .JSNumber(number)
+        }
+        else {
+            self = .JSNull
+        }
+    }
+    
+    init(_ value: Int?) {
+        if let number = value {
+            self = .JSNumber(Double(number))
+        }
+        else {
+            self = .JSNull
+        }
+    }
+    
+    init(_ value: String?) {
+        if let string = value {
+            self = .JSString(string)
+        }
+        else {
+            self = .JSNull
+        }
+    }
+    
+    init(_ value: Array<JSValue>?) {
+        if let array = value {
+            self = .JSArray(array)
+        }
+        else {
+            self = .JSNull
+        }
+    }
+    
+    init(_ value: Dictionary<String, JSValue>?) {
+        if let dict = value {
+            self = .JSObject(dict)
+        }
+        else {
+            self = .JSNull
+        }
     }
     
     init(_ rawValue: AnyObject?) {
