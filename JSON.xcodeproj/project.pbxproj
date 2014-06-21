@@ -10,6 +10,7 @@
 		7D7BD7C8195418CB00AC2E4E /* JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D7BD7C7195418CB00AC2E4E /* JSON.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7D7BD7CE195418CC00AC2E4E /* JSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D7BD7C2195418CB00AC2E4E /* JSON.framework */; };
 		7D7BD7D5195418CC00AC2E4E /* JSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7BD7D4195418CC00AC2E4E /* JSONTests.swift */; };
+		7D7BD7E119541A2800AC2E4E /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7BD7E019541A2800AC2E4E /* JSON.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,8 @@
 		7D7BD7CD195418CC00AC2E4E /* JSONTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JSONTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D7BD7D3195418CC00AC2E4E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D7BD7D4195418CC00AC2E4E /* JSONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONTests.swift; sourceTree = "<group>"; };
+		7D7BD7DE195418EE00AC2E4E /* Readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
+		7D7BD7E019541A2800AC2E4E /* JSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +76,8 @@
 			children = (
 				7D7BD7C7195418CB00AC2E4E /* JSON.h */,
 				7D7BD7C5195418CB00AC2E4E /* Supporting Files */,
+				7D7BD7DE195418EE00AC2E4E /* Readme.md */,
+				7D7BD7E019541A2800AC2E4E /* JSON.swift */,
 			);
 			path = JSON;
 			sourceTree = "<group>";
@@ -210,6 +215,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D7BD7E119541A2800AC2E4E /* JSON.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -400,6 +406,7 @@
 				7D7BD7DA195418CC00AC2E4E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		7D7BD7DB195418CC00AC2E4E /* Build configuration list for PBXNativeTarget "JSONTests" */ = {
 			isa = XCConfigurationList;
@@ -408,6 +415,7 @@
 				7D7BD7DD195418CC00AC2E4E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
