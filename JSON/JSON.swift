@@ -22,7 +22,15 @@ let JSNull = JSValue.JSNull
  *
  *  See http://json.org for a full description.
  */
-enum JSON : LogicValue {
+enum JSON {
+    
+    /**
+     *  Provides a set of all of the valid encoding types when using data that needs to be stored
+     *  within the contents of a string value.
+     */
+    enum Encodings : String {
+        case base64 = "data:text/plain;base64,"
+    }
     
     /*
      * All of the possible values representable by JSON.
@@ -35,21 +43,8 @@ enum JSON : LogicValue {
     case JSBool(Bool)
     case JSNull
     
-    /*
-     * Respresents a valid that is not reprentable in JSON.
-     */
-    case InvalidValue
+    case Invalid
     
-    func getLogicValue() -> Bool {
-        switch self {
-        case .JSBool(let bool):
-            return bool
-            
-        default:
-            return false
-        }
-    }
-
     init(_ value: Bool?) {
         if let bool = value {
             self = .JSBool(bool)
@@ -104,6 +99,12 @@ enum JSON : LogicValue {
         }
     }
     
+    init(_ bytes: Byte[]) {
+        let data = NSData(bytes: bytes, length: bytes.count)
+        let encoded = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding76CharacterLineLength)
+        self = .JSString("\(Encodings.base64.toRaw())\(encoded)")
+    }
+    
     init(_ rawValue: AnyObject?) {
         if let value : AnyObject = rawValue {
             switch value {
@@ -121,8 +122,9 @@ enum JSON : LogicValue {
                         newDict[key] = JSValue(v)
                     }
                     else {
-                        self = .InvalidValue
-                        break;
+                        assert(true, "Invalid key type; expected String")
+                        self = .Invalid
+                        return
                     }
                 }
                 self = .JSObject(newDict)
@@ -143,11 +145,12 @@ enum JSON : LogicValue {
                 self = .JSNull
                 
             default:
-                self = .InvalidValue
+                assert(true, "This location should never be reached")
+                self = .Invalid
             }
         }
         else {
-            self = .InvalidValue
+            self = .JSNull
         }
     }
     
@@ -158,56 +161,14 @@ enum JSON : LogicValue {
         return jsonObject == nil ? nil : JSValue(jsonObject)
     }
     
-    func stringify() -> String? {
-        //
-        // NOTE: Using NSJSONSerialization method currently fails with a bad access on the types...
-        // I think it has to do the with the types in the array and issues with bridging Dictionary<> and NSDictionary.
-        //
-        //var data : NSData? = nil
-        //switch self {
-        //case .JSArray(let array):
-        //    data = NSJSONSerialization.dataWithJSONObject(array, options: NSJSONWritingOptions.PrettyPrinted, error: nil)
-        //    
-        //case .JSObject(let dict):
-        //    data = NSJSONSerialization.dataWithJSONObject(dict, options: NSJSONWritingOptions.PrettyPrinted, error: nil)
-        //    
-        //default:
-        //    data = nil
-        //}
-        //
-        //return data == nil ? nil : NSString(data: data, encoding: NSUTF8StringEncoding)
-        
+    func stringify(indent: String = "  ") -> String? {
         switch self {
-        case .InvalidValue:
+        case .Invalid:
+            assert(true, "The JSON value is invalid")
             return nil
             
         default:
-            return _prettyPrint(0)
-        }
-    }
-    
-    func _prettyPrint(level: Int) -> String {
-        let indent = join("  ", map(0...level, { (item: Int) in "" }))
-        let nextIndent = indent + "  "
-        
-        switch self {
-        case .JSBool(let bool):
-            return bool ? "true" : "false"
-            
-        case .JSNumber(let number):
-            return "\(number)"
-            
-        case .JSString(let string):
-            return "\"\(string)\""
-            
-        case .JSArray(let array):
-            return "[\n" + join(",\n", array.map({ "\(nextIndent)\($0._prettyPrint(level + 1))" })) + "\n\(indent)]"
-            
-        case .JSObject(let dict):
-            return "{\n" + join(",\n", map(dict, { "\(nextIndent)\"\($0)\" : \($1._prettyPrint(level + 1))"})) + "\n\(indent)}"
-            
-        default:
-            return ""
+            return _prettyPrint(indent, 0)
         }
     }
     
@@ -219,6 +180,25 @@ enum JSON : LogicValue {
         default:
             return nil
         }
+    }
+    
+    var decodedString: Byte[]? {
+        switch self {
+        case .JSString(let encodedStringWithPrefix):
+            if encodedStringWithPrefix.hasPrefix(Encodings.base64.toRaw()) {
+                let encodedString = encodedStringWithPrefix.substringFromIndex(Encodings.base64.toRaw().lengthOfBytesUsingEncoding(NSUTF8StringEncoding))
+                let decoded = NSData(base64EncodedString: encodedString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
+
+                let bytesPointer = UnsafePointer<Byte>(decoded.bytes)
+                let bytes = UnsafeArray<Byte>(start: bytesPointer, length: decoded.length)
+                return Byte[](bytes)
+            }
+            
+        default:
+            return nil
+        }
+            
+        return nil
     }
     
     var number : Double? {
@@ -281,6 +261,44 @@ enum JSON : LogicValue {
         }
     }
 }
+
+/*
+ * Private APIs for JSON.
+ */
+extension JSON {
+    func _prettyPrint(indent: String, _ level: Int) -> String {
+        let currentIndent = join(indent, map(0...level, { (item: Int) in "" }))
+        let nextIndent = currentIndent + "  "
+        
+        switch self {
+        case .JSBool(let bool):
+            return bool ? "true" : "false"
+            
+        case .JSNumber(let number):
+            return "\(number)"
+            
+        case .JSString(let string):
+            return "\"\(string)\""
+            
+        case .JSArray(let array):
+            return "[\n" + join(",\n", array.map({ "\(nextIndent)\($0._prettyPrint(indent, level + 1))" })) + "\n\(currentIndent)]"
+            
+        case .JSObject(let dict):
+            return "{\n" + join(",\n", map(dict, { "\(nextIndent)\"\($0)\" : \($1._prettyPrint(indent, level + 1))"})) + "\n\(currentIndent)}"
+            
+        case .JSNull:
+            return "null"
+            
+        case .Invalid:
+            assert(true, "This should never be reached")
+            return ""
+        }
+    }
+}
+
+//
+// MARK: Literal Convertibles to allow in-place boxing from literal values.
+//
 
 extension JSON : IntegerLiteralConvertible {
     static func convertFromIntegerLiteral(value: Int) -> JSON {

@@ -47,6 +47,24 @@ class JSONTests: XCTestCase {
         }
     }
 
+    func testNSNumberValue() {
+        let value = JSValue(NSNumber(integer: 123))
+        if let number = value.number {
+            XCTAssertEqual(number, 123)
+        }
+        else {
+            XCTFail()
+        }
+    }
+    
+    func testNullNSNumberValue() {
+        let number : NSNumber? = nil
+        let value = JSValue(number)
+        if value.number {
+            XCTFail()
+        }
+    }
+
     func testDoubleValue() {
         let value : JSValue = 3.234957
         if let number = value.number {
@@ -177,6 +195,24 @@ class JSONTests: XCTestCase {
         XCTAssertEqualObjects(json["blogs"]?["blog"]?[0]?["id"]?.number!, 73)
         XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
     }
+    
+    func testFlickrResultWithNSTypes() {
+        var jsonString = "{ \"stat\": \"ok\", \"blogs\": { \"blog\": [ { \"id\" : 73, \"name\" : \"Bloxus test\", \"needspassword\" : true, \"url\" : \"http://remote.bloxus.com/\" }, { \"id\" : 74, \"name\" : \"Manila Test\", \"needspassword\" : false, \"url\" : \"http://flickrtest1.userland.com/\" } ] } }"
+        var flickr : AnyObject! = NSJSONSerialization.JSONObjectWithData(jsonString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false), options: NSJSONReadingOptions.MutableContainers, error: nil)
+        
+        if let dict = flickr as? NSDictionary {
+            var json = JSON(dict)
+            
+            XCTAssertEqualObjects(json["stat"]?.string!, "ok")
+            XCTAssertTrue(json["blogs"]?["blog"] != nil)
+            
+            XCTAssertEqualObjects(json["blogs"]?["blog"]?[0]?["id"]?.number!, 73)
+            XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
+        }
+        else {
+            XCTFail("The JSON object should have been a dictionary.")
+        }
+    }
 
     func testParse() {
         var jsonString = "{ \"stat\": \"ok\", \"blogs\": { \"blog\": [ { \"id\" : 73, \"name\" : \"Bloxus test\", \"needspassword\" : true, \"url\" : \"http://remote.bloxus.com/\" }, { \"id\" : 74, \"name\" : \"Manila Test\", \"needspassword\" : false, \"url\" : \"http://flickrtest1.userland.com/\" } ] } }"
@@ -219,5 +255,30 @@ class JSONTests: XCTestCase {
         var expectedString = "{\n  \"blogs\" : {\n    \"blog\" : [\n      {\n        \"url\" : \"http://remote.bloxus.com/\",\n        \"id\" : 73.0,\n        \"name\" : \"Bloxus test\",\n        \"needspassword\" : true\n      },\n      {\n        \"url\" : \"http://flickrtest1.userland.com/\",\n        \"id\" : 74.0,\n        \"name\" : \"Manila Test\",\n        \"needspassword\" : false\n      }\n    ]\n  },\n  \"stat\" : \"ok\"\n}"
         XCTAssertNotNil(jsonString)
         XCTAssertEqualObjects(jsonString, expectedString)
+    }
+    
+    func testEncodingBase64() {
+        let bytes : Byte[] = [1, 2, 3, 4]
+        let value = JSValue(bytes)
+        if let string = value.string {
+            XCTAssertEqualObjects(string, "data:text/plain;base64,AQIDBA==")
+        }
+        else {
+            XCTFail()
+        }
+    }
+    
+    func testDecodingBase64() {
+        let bytes : Byte[] = [1, 2, 3, 4]
+        let value = JSValue(bytes)
+        if let decodedBytes = value.decodedString {
+            XCTAssertEqual(bytes[0], decodedBytes[0])
+            XCTAssertEqual(bytes[1], decodedBytes[1])
+            XCTAssertEqual(bytes[2], decodedBytes[2])
+            XCTAssertEqual(bytes[3], decodedBytes[3])
+        }
+        else {
+            XCTFail()
+        }
     }
 }
