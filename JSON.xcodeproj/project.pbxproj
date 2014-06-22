@@ -44,7 +44,6 @@
 		7D7BD7CD195418CC00AC2E4E /* JSONTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JSONTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D7BD7D3195418CC00AC2E4E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D7BD7D4195418CC00AC2E4E /* JSONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONTests.swift; sourceTree = "<group>"; };
-		7D7BD7DE195418EE00AC2E4E /* Readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 		7D7BD7E019541A2800AC2E4E /* JSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -90,7 +89,6 @@
 			children = (
 				7D7BD7C7195418CB00AC2E4E /* JSON.h */,
 				7D7BD7C5195418CB00AC2E4E /* Supporting Files */,
-				7D7BD7DE195418EE00AC2E4E /* Readme.md */,
 				7D7BD7E019541A2800AC2E4E /* JSON.swift */,
 			);
 			path = JSON;
