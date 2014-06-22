@@ -311,4 +311,82 @@ class JSONTests: XCTestCase {
             XCTFail()
         }
     }
+    
+    func testEquatableNullTrue() {
+        let areEqual = JSNull == JSNull
+        XCTAssertTrue(areEqual)
+    }
+    
+    func testEquatableBoolTrue() {
+        let areEqual = JSTrue == JSTrue
+        XCTAssertTrue(areEqual)
+    }
+    
+    func testEquatableBoolFalse() {
+        let areEqual = JSTrue == JSFalse
+        XCTAssertFalse(areEqual)
+    }
+    
+    func testEquatableStringTrue() {
+        let lhs = JSValue("hello")
+        let rhs = JSValue("hello")
+        let areEqual = lhs == rhs
+        XCTAssertTrue(areEqual)
+    }
+    
+    func testEquatableStringFalse() {
+        let lhs = JSValue("hello")
+        let rhs = JSValue("world")
+        let areEqual = lhs == rhs
+        XCTAssertFalse(areEqual)
+    }
+    
+    func testEquatableNumberTrue() {
+        let lhs = JSValue(1234)
+        let rhs = JSValue(1234)
+        let areEqual = lhs == rhs
+        XCTAssertTrue(areEqual)
+    }
+    
+    func testEquatableNumberFalse() {
+        let lhs = JSValue(1234)
+        let rhs = JSValue(123.4)
+        let areEqual = lhs == rhs
+        XCTAssertFalse(areEqual)
+    }
+    
+    func testEquatableArrayTrue() {
+        let lhs = JSValue([1, 3, 5])
+        let rhs = JSValue([1, 3, 5])
+        let areEqual = lhs == rhs
+        XCTAssertTrue(areEqual)
+    }
+    
+    func testEquatableArrayFalse() {
+        let lhs = JSValue([1, 3, 5])
+        let rhs = JSValue([1, 3, 7])
+        let areEqual = lhs == rhs
+        XCTAssertFalse(areEqual)
+    }
+    
+    func testEquatableObjectTrue() {
+        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let rhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let areEqual = lhs == rhs
+        XCTAssertTrue(areEqual)
+    }
+    
+    func testEquatableObjectFalse() {
+        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let rhs = JSValue(["key3" : 1, "key2" : 3, "key1" : 5])
+        let areEqual = lhs == rhs
+        XCTAssertFalse(areEqual)
+    }
+    
+    func testEquatableTypeMismatch() {
+        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let rhs = JSValue([1, 3, 5])
+        let areEqual = lhs == rhs
+        XCTAssertFalse(areEqual)
+    }
 }

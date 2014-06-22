@@ -22,7 +22,7 @@ let JSNull = JSValue.JSNull
  *
  *  See http://json.org for a full description.
  */
-enum JSON {
+enum JSON : Equatable {
     
     /**
      *  Provides a set of all of the valid encoding types when using data that needs to be stored
@@ -265,6 +265,32 @@ enum JSON {
         }
     }
 }
+
+func ==(lhs: JSON, rhs: JSON) -> Bool {
+    switch (lhs, rhs) {
+    case (.JSNull, .JSNull):
+        return true
+        
+    case (.JSBool(let lhsValue), .JSBool(let rhsValue)):
+        return lhsValue == rhsValue
+
+    case (.JSString(let lhsValue), .JSString(let rhsValue)):
+        return lhsValue == rhsValue
+
+    case (.JSNumber(let lhsValue), .JSNumber(let rhsValue)):
+        return lhsValue == rhsValue
+
+    case (.JSArray(let lhsValue), .JSArray(let rhsValue)):
+        return lhsValue == rhsValue
+
+    case (.JSObject(let lhsValue), .JSObject(let rhsValue)):
+        return lhsValue == rhsValue
+        
+    default:
+        return false
+    }
+}
+
 
 /*
  * Private APIs for JSON.
