@@ -196,6 +196,36 @@ class JSONTests: XCTestCase {
         XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
     }
     
+    func testFlickrWithDictAnyObjectResult() {
+        var flickr : Dictionary<String, AnyObject> = [
+            "stat": "ok",
+            "blogs": [
+                "blog": [
+                    [
+                        "id" : 73,
+                        "name" : "Bloxus test",
+                        "needspassword" : true,
+                        "url" : "http://remote.bloxus.com/"
+                    ],
+                    [
+                        "id" : 74,
+                        "name" : "Manila Test",
+                        "needspassword" : false,
+                        "url" : "http://flickrtest1.userland.com/"
+                    ]
+                ]
+            ]
+        ]
+        
+        var json = JSON(flickr)
+        
+        XCTAssertEqualObjects(json["stat"]?.string!, "ok")
+        XCTAssertTrue(json["blogs"]?["blog"] != nil)
+        
+        XCTAssertEqualObjects(json["blogs"]?["blog"]?[0]?["id"]?.number!, 73)
+        XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
+    }
+    
     func testFlickrResultWithNSTypes() {
         var jsonString = "{ \"stat\": \"ok\", \"blogs\": { \"blog\": [ { \"id\" : 73, \"name\" : \"Bloxus test\", \"needspassword\" : true, \"url\" : \"http://remote.bloxus.com/\" }, { \"id\" : 74, \"name\" : \"Manila Test\", \"needspassword\" : false, \"url\" : \"http://flickrtest1.userland.com/\" } ] } }"
         var flickr : AnyObject! = NSJSONSerialization.JSONObjectWithData(jsonString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false), options: NSJSONReadingOptions.MutableContainers, error: nil)

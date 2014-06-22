@@ -99,10 +99,14 @@ enum JSON {
         }
     }
     
-    init(_ bytes: Byte[]) {
+    init(_ bytes: Byte[], encoding: Encodings = Encodings.base64) {
         let data = NSData(bytes: bytes, length: bytes.count)
-        let encoded = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding76CharacterLineLength)
-        self = .JSString("\(Encodings.base64.toRaw())\(encoded)")
+        
+        switch encoding {
+        case .base64:
+            let encoded = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding76CharacterLineLength)
+            self = .JSString("\(encoding.toRaw())\(encoded)")
+        }
     }
     
     init(_ rawValue: AnyObject?) {
