@@ -12,7 +12,7 @@ import JSON
 class JSONTests: XCTestCase {
     
     func testStringValue() {
-        let value : JSValue = "hello world"
+        let value : JSONValue = "hello world"
         if let string = value.string {
             XCTAssertEqualObjects(string, "hello world")
         }
@@ -23,14 +23,14 @@ class JSONTests: XCTestCase {
 
     func testNullStringValue() {
         let string : String? = nil
-        let value = JSValue(string)
+        let value = JSONValue(string)
         if value.string {
             XCTFail()
         }
     }
 
     func testIntegerValue() {
-        let value : JSValue = 123
+        let value : JSONValue = 123
         if let number = value.number {
             XCTAssertEqual(number, 123)
         }
@@ -41,14 +41,14 @@ class JSONTests: XCTestCase {
 
     func testNullIntegerValue() {
         let number : Int? = nil
-        let value = JSValue(number)
+        let value = JSONValue(number)
         if value.number {
             XCTFail()
         }
     }
 
     func testNSNumberValue() {
-        let value = JSValue(NSNumber(integer: 123))
+        let value = JSONValue(NSNumber(integer: 123))
         if let number = value.number {
             XCTAssertEqual(number, 123)
         }
@@ -59,14 +59,14 @@ class JSONTests: XCTestCase {
     
     func testNullNSNumberValue() {
         let number : NSNumber? = nil
-        let value = JSValue(number)
+        let value = JSONValue(number)
         if value.number {
             XCTFail()
         }
     }
 
     func testDoubleValue() {
-        let value : JSValue = 3.234957
+        let value : JSONValue = 3.234957
         if let number = value.number {
             XCTAssertEqual(number, 3.234957)
         }
@@ -77,14 +77,14 @@ class JSONTests: XCTestCase {
     
     func testNullDoubleValue() {
         let number : Double? = nil
-        let value = JSValue(number)
+        let value = JSONValue(number)
         if value.number {
             XCTFail()
         }
     }
     
     func testBoolTrueValue() {
-        let value : JSValue = JSValue(true)
+        let value : JSONValue = JSONValue(true)
         if let bool = value.bool {
             XCTAssertEqual(bool, true)
         }
@@ -95,7 +95,7 @@ class JSONTests: XCTestCase {
     
     func testNullBoolValue() {
         let bool : Bool? = nil
-        let value = JSValue(bool)
+        let value = JSONValue(bool)
         if value.bool {
             XCTFail()
         }
@@ -103,7 +103,7 @@ class JSONTests: XCTestCase {
 
     
     func testBoolFalseValue() {
-        let value : JSValue = JSFalse
+        let value : JSONValue = JSFalse
         if let bool = value.bool {
             XCTAssertEqual(bool, false)
         }
@@ -114,9 +114,9 @@ class JSONTests: XCTestCase {
 
     func testNullValue() {
         // Test disabled for bug in Swift.
-        let value = JSNull
+        let value = JSONNull
         switch value {
-        case .JSNull:
+        case .JSONNull:
             break;
             
         default:
@@ -125,16 +125,16 @@ class JSONTests: XCTestCase {
     }
     
     func testNullArrayValue() {
-        let array : Array<JSValue>? = nil
-        let value = JSValue(array)
+        let array : Array<JSONValue>? = nil
+        let value = JSONValue(array)
         if value.array {
             XCTFail()
         }
     }
     
     func testNullDictionaryValue() {
-        let dict : Dictionary<String, JSValue>? = nil
-        let value = JSValue(dict)
+        let dict : Dictionary<String, JSONValue>? = nil
+        let value = JSONValue(dict)
         if value.object {
             XCTFail()
         }
@@ -227,8 +227,8 @@ class JSONTests: XCTestCase {
     }
     
     func testFlickrResultWithNSTypes() {
-        var jsonString = "{ \"stat\": \"ok\", \"blogs\": { \"blog\": [ { \"id\" : 73, \"name\" : \"Bloxus test\", \"needspassword\" : true, \"url\" : \"http://remote.bloxus.com/\" }, { \"id\" : 74, \"name\" : \"Manila Test\", \"needspassword\" : false, \"url\" : \"http://flickrtest1.userland.com/\" } ] } }"
-        var flickr : AnyObject! = NSJSONSerialization.JSONObjectWithData(jsonString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false), options: NSJSONReadingOptions.MutableContainers, error: nil)
+        var String = "{ \"stat\": \"ok\", \"blogs\": { \"blog\": [ { \"id\" : 73, \"name\" : \"Bloxus test\", \"needspassword\" : true, \"url\" : \"http://remote.bloxus.com/\" }, { \"id\" : 74, \"name\" : \"Manila Test\", \"needspassword\" : false, \"url\" : \"http://flickrtest1.userland.com/\" } ] } }"
+        var flickr : AnyObject! = NSJSONSerialization.JSONObjectWithData(String.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false), options: NSJSONReadingOptions.MutableContainers, error: nil)
         
         if let dict = flickr as? NSDictionary {
             var json = JSON(dict)
@@ -245,9 +245,9 @@ class JSONTests: XCTestCase {
     }
 
     func testParse() {
-        var jsonString = "{ \"stat\": \"ok\", \"blogs\": { \"blog\": [ { \"id\" : 73, \"name\" : \"Bloxus test\", \"needspassword\" : true, \"url\" : \"http://remote.bloxus.com/\" }, { \"id\" : 74, \"name\" : \"Manila Test\", \"needspassword\" : false, \"url\" : \"http://flickrtest1.userland.com/\" } ] } }"
+        var String = "{ \"stat\": \"ok\", \"blogs\": { \"blog\": [ { \"id\" : 73, \"name\" : \"Bloxus test\", \"needspassword\" : true, \"url\" : \"http://remote.bloxus.com/\" }, { \"id\" : 74, \"name\" : \"Manila Test\", \"needspassword\" : false, \"url\" : \"http://flickrtest1.userland.com/\" } ] } }"
 
-        var parsedJson = JSON.parse(jsonString)
+        var parsedJson = JSON.parse(String)
         if let json = parsedJson {
             XCTAssertEqualObjects(json["stat"]?.string!, "ok")
             XCTAssertTrue(json["blogs"]?["blog"] != nil)
@@ -281,15 +281,15 @@ class JSONTests: XCTestCase {
             ]
         ]
         
-        var jsonString = json.stringify()
+        var String = json.stringify()
         var expectedString = "{\n  \"blogs\" : {\n    \"blog\" : [\n      {\n        \"url\" : \"http://remote.bloxus.com/\",\n        \"id\" : 73.0,\n        \"name\" : \"Bloxus test\",\n        \"needspassword\" : true\n      },\n      {\n        \"url\" : \"http://flickrtest1.userland.com/\",\n        \"id\" : 74.0,\n        \"name\" : \"Manila Test\",\n        \"needspassword\" : false\n      }\n    ]\n  },\n  \"stat\" : \"ok\"\n}"
-        XCTAssertNotNil(jsonString)
-        XCTAssertEqualObjects(jsonString, expectedString)
+        XCTAssertNotNil(String)
+        XCTAssertEqualObjects(String, expectedString)
     }
     
     func testEncodingBase64() {
         let bytes : Byte[] = [1, 2, 3, 4]
-        let value = JSValue(bytes)
+        let value = JSONValue(bytes)
         if let string = value.string {
             XCTAssertEqualObjects(string, "data:text/plain;base64,AQIDBA==")
         }
@@ -300,7 +300,7 @@ class JSONTests: XCTestCase {
     
     func testDecodingBase64() {
         let bytes : Byte[] = [1, 2, 3, 4]
-        let value = JSValue(bytes)
+        let value = JSONValue(bytes)
         if let decodedBytes = value.decodedString {
             XCTAssertEqual(bytes[0], decodedBytes[0])
             XCTAssertEqual(bytes[1], decodedBytes[1])
@@ -313,7 +313,7 @@ class JSONTests: XCTestCase {
     }
     
     func testEquatableNullTrue() {
-        let areEqual = JSNull == JSNull
+        let areEqual = JSONNull == JSONNull
         XCTAssertTrue(areEqual)
     }
     
@@ -328,64 +328,64 @@ class JSONTests: XCTestCase {
     }
     
     func testEquatableStringTrue() {
-        let lhs = JSValue("hello")
-        let rhs = JSValue("hello")
+        let lhs = JSONValue("hello")
+        let rhs = JSONValue("hello")
         let areEqual = lhs == rhs
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableStringFalse() {
-        let lhs = JSValue("hello")
-        let rhs = JSValue("world")
+        let lhs = JSONValue("hello")
+        let rhs = JSONValue("world")
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableNumberTrue() {
-        let lhs = JSValue(1234)
-        let rhs = JSValue(1234)
+        let lhs = JSONValue(1234)
+        let rhs = JSONValue(1234)
         let areEqual = lhs == rhs
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableNumberFalse() {
-        let lhs = JSValue(1234)
-        let rhs = JSValue(123.4)
+        let lhs = JSONValue(1234)
+        let rhs = JSONValue(123.4)
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableArrayTrue() {
-        let lhs = JSValue([1, 3, 5])
-        let rhs = JSValue([1, 3, 5])
+        let lhs = JSONValue([1, 3, 5])
+        let rhs = JSONValue([1, 3, 5])
         let areEqual = lhs == rhs
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableArrayFalse() {
-        let lhs = JSValue([1, 3, 5])
-        let rhs = JSValue([1, 3, 7])
+        let lhs = JSONValue([1, 3, 5])
+        let rhs = JSONValue([1, 3, 7])
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableObjectTrue() {
-        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
-        let rhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let lhs = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let rhs = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
         let areEqual = lhs == rhs
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableObjectFalse() {
-        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
-        let rhs = JSValue(["key3" : 1, "key2" : 3, "key1" : 5])
+        let lhs = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let rhs = JSONValue(["key3" : 1, "key2" : 3, "key1" : 5])
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableTypeMismatch() {
-        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
-        let rhs = JSValue([1, 3, 5])
+        let lhs = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let rhs = JSONValue([1, 3, 5])
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }

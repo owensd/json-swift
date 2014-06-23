@@ -8,21 +8,22 @@
 
 import Foundation
 
-typealias JSValue = JSON
+// Alias to make using a JSON structure for a single value more natural.
+typealias JSONValue = JSON
 
 // There is currently no BoolLiteralConvertible protocol to implement we need to hardcode this.
-let JSTrue = JSValue(true)
-let JSFalse = JSValue(false)
+let JSTrue = JSONValue(true)
+let JSFalse = JSONValue(false)
 
-// Special handling for "null" as there seems to be no good way to do JSValue(nil) for all types
-let JSNull = JSValue.JSNull
+// Special handling for "null" as there seems to be no good way to do JSONValue(nil) for all types
+let JSONNull = JSONValue.JSONNull
 
 /**
  *  A representative type for all possible JSON values.
  *
  *  See http://json.org for a full description.
  */
-enum JSON : Equatable {
+enum JSON : Equatable, Printable {
     
     /**
      *  Provides a set of all of the valid encoding types when using data that needs to be stored
@@ -36,66 +37,68 @@ enum JSON : Equatable {
      * All of the possible values representable by JSON.
      */
     
-    case JSString(String)
-    case JSNumber(Double)
-    case JSObject(Dictionary<String, JSValue>)
-    case JSArray(JSValue[])
-    case JSBool(Bool)
-    case JSNull
+    case JSONString(Swift.String)
+    case JSONNumber(Double)
+    case JSONObject(Dictionary<String, JSONValue>)
+    case JSONArray(JSONValue[])
+    case JSONBool(Bool)
+    case JSONNull
     
-    case Invalid
+    // This case is only supported for bridging NS* types because of the AnyObject requirement.
+    // This should NOT be used externally.
+    case _Invalid
     
     init(_ value: Bool?) {
         if let bool = value {
-            self = .JSBool(bool)
+            self = .JSONBool(bool)
         }
         else {
-            self = .JSNull
+            self = .JSONNull
         }
     }
     
     init(_ value: Double?) {
         if let number = value {
-            self = .JSNumber(number)
+            self = .JSONNumber(number)
         }
         else {
-            self = .JSNull
+            self = .JSONNull
         }
     }
     
     init(_ value: Int?) {
         if let number = value {
-            self = .JSNumber(Double(number))
+            self = .JSONNumber(Double(number))
         }
         else {
-            self = .JSNull
+            self = .JSONNull
         }
     }
     
     init(_ value: String?) {
         if let string = value {
-            self = .JSString(string)
+            self = .JSONString(string)
         }
         else {
-            self = .JSNull
+            self = .JSONNull
         }
     }
     
-    init(_ value: Array<JSValue>?) {
+    init(_ value: Array<JSONValue>?) {
         if let array = value {
-            self = .JSArray(array)
+            self = .JSONArray(array)
         }
         else {
-            self = .JSNull
+            self = .JSONNull
         }
     }
     
-    init(_ value: Dictionary<String, JSValue>?) {
+    init(_ value: Dictionary<String, JSONValue>?) {
         if let dict = value {
-            self = .JSObject(dict)
+            self = .JSONObject(dict)
         }
         else {
-            self = .JSNull
+            self = .JSONNull
         }
     }
     
@@ -105,7 +108,7 @@ enum JSON : Equatable {
         switch encoding {
         case .base64:
             let encoded = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding76CharacterLineLength)
-            self = .JSString("\(encoding.toRaw())\(encoded)")
+            self = .JSONString("\(encoding.toRaw())\(encoded)")
         }
     }
     
@@ -113,61 +116,67 @@ enum JSON : Equatable {
         if let value : AnyObject = rawValue {
             switch value {
             case let array as NSArray:
-                var newArray : JSValue[] = []
+                var newArray : JSONValue[] = []
                 for item : AnyObject in array {
-                    newArray += JSValue(item)
+                    newArray += JSONValue(item)
                 }
-                self = .JSArray(newArray)
+                self = .JSONArray(newArray)
                 
             case let dict as NSDictionary:
-                var newDict : Dictionary<String, JSValue> = [:]
+                var newDict : Dictionary<String, JSONValue> = [:]
                 for (k : AnyObject, v : AnyObject) in dict {
                     if let key = k as? String {
-                        newDict[key] = JSValue(v)
+                        newDict[key] = JSONValue(v)
                     }
                     else {
                         assert(true, "Invalid key type; expected String")
-                        self = .Invalid
+                        self = ._Invalid
                         return
                     }
                 }
-                self = .JSObject(newDict)
+                self = .JSONObject(newDict)
                 
             case let string as NSString:
-                self = .JSString(string)
+                self = .JSONString(string)
                 
             case let number as NSNumber:
                 println(number.objCType)
                 if number.objCType == "c" {
-                    self = .JSBool(number.boolValue)
+                    self = .JSONBool(number.boolValue)
                 }
                 else {
-                    self = .JSNumber(number.doubleValue)
+                    self = .JSONNumber(number.doubleValue)
                 }
                 
             case let null as NSNull:
-                self = .JSNull
+                self = .JSONNull
                 
             default:
                 assert(true, "This location should never be reached")
-                self = .Invalid
+                self = ._Invalid
             }
         }
         else {
-            self = .JSNull
+            self = .JSONNull
         }
     }
-    
+
+    /**
+     * Returns the \c JSON represented by the string or \c nil if the string is invalid JSON.
+     */
     static func parse(jsonString : String) -> JSON? {
         var data = jsonString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
         var jsonObject : AnyObject! = NSJSONSerialization.JSONObjectWithData(data, options: .MutableContainers, error: nil)
         
-        return jsonObject == nil ? nil : JSValue(jsonObject)
+        return jsonObject == nil ? nil : JSONValue(jsonObject)
     }
     
+    /**
+     * Create a pretty-printed representation of the \c JSON.
+     */
     func stringify(indent: String = "  ") -> String? {
         switch self {
-        case .Invalid:
+        case ._Invalid:
             assert(true, "The JSON value is invalid")
             return nil
             
@@ -176,9 +185,12 @@ enum JSON : Equatable {
         }
     }
     
+    /**
+     * Retrieves the \c String representation of the value, or \c nil.
+     */
     var string : String? {
         switch self {
-        case .JSString(let value):
+        case .JSONString(let value):
             return value
             
         default:
@@ -186,13 +198,68 @@ enum JSON : Equatable {
         }
     }
     
+    /**
+     * Retrieves the \c Double representation of the value, or \c nil.
+     */
+    var number : Double? {
+        switch self {
+        case .JSONNumber(let value):
+            return value
+            
+        default:
+            return nil
+        }
+    }
+    
+    /**
+     * Retrieves the \c Dictionary<String, JSONValue> representation of the value, or \c nil.
+     */
+    var object : Dictionary<String, JSONValue>? {
+        switch self {
+        case .JSONObject(let value):
+            return value
+            
+        default:
+            return nil
+        }
+    }
+    
+    /**
+     * Retrieves the \c Array<JSONValue> representation of the value, or \c nil.
+     */
+    var array : Array<JSONValue>? {
+        switch self {
+        case .JSONArray(let value):
+            return value
+            
+        default:
+            return nil
+        }
+    }
+    
+    /**
+     * Retrieves the \c Bool representation of the value, or \c nil.
+     */
+    var bool : Bool? {
+        switch self {
+        case .JSONBool(let value):
+            return value
+
+        default:
+            return nil
+        }
+    }
+    
+    /**
+     * Returns the raw dencoded bytes of the value that was stored in the \c string value.
+     */
     var decodedString: Byte[]? {
         switch self {
-        case .JSString(let encodedStringWithPrefix):
+        case .JSONString(let encodedStringWithPrefix):
             if encodedStringWithPrefix.hasPrefix(Encodings.base64.toRaw()) {
                 let encodedString = encodedStringWithPrefix.substringFromIndex(Encodings.base64.toRaw().lengthOfBytesUsingEncoding(NSUTF8StringEncoding))
                 let decoded = NSData(base64EncodedString: encodedString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
-
+                
                 let bytesPointer = UnsafePointer<Byte>(decoded.bytes)
                 let bytes = UnsafeArray<Byte>(start: bytesPointer, length: decoded.length)
                 return Byte[](bytes)
@@ -204,50 +271,13 @@ enum JSON : Equatable {
             
         return nil
     }
-    
-    var number : Double? {
-        switch self {
-        case .JSNumber(let value):
-            return value
-            
-        default:
-            return nil
-        }
-    }
-    
-    var object : Dictionary<String, JSValue>? {
-        switch self {
-        case .JSObject(let value):
-            return value
-            
-        default:
-            return nil
-        }
-    }
-    
-    var array : Array<JSValue>? {
-        switch self {
-        case .JSArray(let value):
-            return value
-            
-        default:
-            return nil
-        }
-    }
-    
-    var bool : Bool? {
-        switch self {
-        case .JSBool(let value):
-            return value
 
-        default:
-            return nil
-        }
-    }
-
-    subscript(key: String) -> JSValue? {
+    /**
+     * Attempts to treat the \c JSONValue as a dictionary and return the item with the given key.
+     */
+    subscript(key: String) -> JSONValue? {
         switch self {
-        case .JSObject(let dict):
+        case .JSONObject(let dict):
             return dict[key]
             
         default:
@@ -255,35 +285,50 @@ enum JSON : Equatable {
         }
     }
 
-    subscript(index: Int) -> JSValue? {
+    /**
+     * Attempts to treat the \c JSONValue as an array and return the item at the index.
+     */
+    subscript(index: Int) -> JSONValue? {
         switch self {
-        case .JSArray(let array):
+        case .JSONArray(let array):
             return array[index]
             
         default:
             return nil
         }
     }
+    
+    /**
+     * Prints out the description of the JSON value as pretty-printed JSON.
+     */
+    var description: String {
+        if let jsonString = stringify() {
+            return jsonString
+        }
+        else {
+            return "<INVALID JSON>"
+        }
+    }
 }
 
 func ==(lhs: JSON, rhs: JSON) -> Bool {
     switch (lhs, rhs) {
-    case (.JSNull, .JSNull):
+    case (.JSONNull, .JSONNull):
         return true
         
-    case (.JSBool(let lhsValue), .JSBool(let rhsValue)):
+    case (.JSONBool(let lhsValue), .JSONBool(let rhsValue)):
         return lhsValue == rhsValue
 
-    case (.JSString(let lhsValue), .JSString(let rhsValue)):
+    case (.JSONString(let lhsValue), .JSONString(let rhsValue)):
         return lhsValue == rhsValue
 
-    case (.JSNumber(let lhsValue), .JSNumber(let rhsValue)):
+    case (.JSONNumber(let lhsValue), .JSONNumber(let rhsValue)):
         return lhsValue == rhsValue
 
-    case (.JSArray(let lhsValue), .JSArray(let rhsValue)):
+    case (.JSONArray(let lhsValue), .JSONArray(let rhsValue)):
         return lhsValue == rhsValue
 
-    case (.JSObject(let lhsValue), .JSObject(let rhsValue)):
+    case (.JSONObject(let lhsValue), .JSONObject(let rhsValue)):
         return lhsValue == rhsValue
         
     default:
@@ -301,25 +346,25 @@ extension JSON {
         let nextIndent = currentIndent + "  "
         
         switch self {
-        case .JSBool(let bool):
+        case .JSONBool(let bool):
             return bool ? "true" : "false"
             
-        case .JSNumber(let number):
+        case .JSONNumber(let number):
             return "\(number)"
             
-        case .JSString(let string):
+        case .JSONString(let string):
             return "\"\(string)\""
             
-        case .JSArray(let array):
+        case .JSONArray(let array):
             return "[\n" + join(",\n", array.map({ "\(nextIndent)\($0._prettyPrint(indent, level + 1))" })) + "\n\(currentIndent)]"
             
-        case .JSObject(let dict):
+        case .JSONObject(let dict):
             return "{\n" + join(",\n", map(dict, { "\(nextIndent)\"\($0)\" : \($1._prettyPrint(indent, level + 1))"})) + "\n\(currentIndent)}"
             
-        case .JSNull:
+        case .JSONNull:
             return "null"
             
-        case .Invalid:
+        case ._Invalid:
             assert(true, "This should never be reached")
             return ""
         }
@@ -332,38 +377,38 @@ extension JSON {
 
 extension JSON : IntegerLiteralConvertible {
     static func convertFromIntegerLiteral(value: Int) -> JSON {
-        return .JSNumber(Double(value))
+        return .JSONNumber(Double(value))
     }
 }
 
 extension JSON : FloatLiteralConvertible {
     static func convertFromFloatLiteral(value: Double) -> JSON {
-        return .JSNumber(value)
+        return .JSONNumber(value)
     }
 }
 
 extension JSON : StringLiteralConvertible {
     static func convertFromStringLiteral(value: String) -> JSON {
-        return .JSString(value)
+        return .JSONString(value)
     }
     static func convertFromExtendedGraphemeClusterLiteral(value: String) -> JSON {
-        return .JSString(value)
+        return .JSONString(value)
     }
 }
 
 extension JSON : ArrayLiteralConvertible {
-    static func convertFromArrayLiteral(elements: JSValue...) -> JSON {
-        return .JSArray(elements)
+    static func convertFromArrayLiteral(elements: JSONValue...) -> JSON {
+        return .JSONArray(elements)
     }
 }
 
 extension JSON : DictionaryLiteralConvertible {
-    static func convertFromDictionaryLiteral(elements: (String, JSValue)...) -> JSON {
-        var dict = Dictionary<String, JSValue>()
+    static func convertFromDictionaryLiteral(elements: (String, JSONValue)...) -> JSON {
+        var dict = Dictionary<String, JSONValue>()
         for (k, v) in elements {
             dict[k] = v
         }
         
-        return .JSObject(dict)
+        return .JSONObject(dict)
     }
 }
