@@ -140,7 +140,6 @@ enum JSON : Equatable, Printable {
                 self = .JSONString(string)
                 
             case let number as NSNumber:
-                println(number.objCType)
                 if number.objCType == "c" {
                     self = .JSONBool(number.boolValue)
                 }
