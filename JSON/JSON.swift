@@ -39,8 +39,8 @@ enum JSON : Equatable, Printable {
     
     case JSONString(Swift.String)
     case JSONNumber(Double)
-    case JSONObject(Dictionary<String, JSONValue>)
-    case JSONArray(JSONValue[])
+    case JSONObject([String : JSONValue])
+    case JSONArray([JSONValue])
     case JSONBool(Bool)
     case JSONNull
     
@@ -102,7 +102,7 @@ enum JSON : Equatable, Printable {
         }
     }
     
-    init(_ bytes: Byte[], encoding: Encodings = Encodings.base64) {
+    init(_ bytes: [Byte], encoding: Encodings = Encodings.base64) {
         let data = NSData(bytes: bytes, length: bytes.count)
         
         switch encoding {
@@ -116,7 +116,7 @@ enum JSON : Equatable, Printable {
         if let value : AnyObject = rawValue {
             switch value {
             case let array as NSArray:
-                var newArray : JSONValue[] = []
+                var newArray = [JSONValue]()
                 for item : AnyObject in array {
                     newArray += JSONValue(item)
                 }
@@ -167,8 +167,8 @@ enum JSON : Equatable, Printable {
     static func parse(jsonString : String) -> JSON? {
         var data = jsonString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
         var jsonObject : AnyObject! = NSJSONSerialization.JSONObjectWithData(data, options: .MutableContainers, error: nil)
-        
-        return jsonObject == nil ? nil : JSONValue(jsonObject)
+
+        return jsonObject ? JSONValue(jsonObject) : nil
     }
     
     /**
@@ -253,7 +253,7 @@ enum JSON : Equatable, Printable {
     /**
      * Returns the raw dencoded bytes of the value that was stored in the \c string value.
      */
-    var decodedString: Byte[]? {
+    var decodedString: [Byte]? {
         switch self {
         case .JSONString(let encodedStringWithPrefix):
             if encodedStringWithPrefix.hasPrefix(Encodings.base64.toRaw()) {
@@ -262,7 +262,7 @@ enum JSON : Equatable, Printable {
                 
                 let bytesPointer = UnsafePointer<Byte>(decoded.bytes)
                 let bytes = UnsafeArray<Byte>(start: bytesPointer, length: decoded.length)
-                return Byte[](bytes)
+                return [Byte](bytes)
             }
             
         default:
@@ -410,5 +410,11 @@ extension JSON : DictionaryLiteralConvertible {
         }
         
         return .JSONObject(dict)
+    }
+}
+
+extension JSON : NilLiteralConvertible {
+    static func convertFromNilLiteral() -> JSON {
+        return JSONNull
     }
 }

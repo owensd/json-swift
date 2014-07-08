@@ -123,6 +123,13 @@ class JSONTests: XCTestCase {
             XCTFail()
         }
     }
+
+    func testNilValue() {
+        let value : JSONValue = nil
+        if value != JSONNull {
+            XCTFail()
+        }
+    }
     
     func testNullArrayValue() {
         let array : Array<JSONValue>? = nil
@@ -288,7 +295,7 @@ class JSONTests: XCTestCase {
     }
     
     func testEncodingBase64() {
-        let bytes : Byte[] = [1, 2, 3, 4]
+        let bytes : [Byte] = [1, 2, 3, 4]
         let value = JSONValue(bytes)
         if let string = value.string {
             XCTAssertEqualObjects(string, "data:text/plain;base64,AQIDBA==")
@@ -299,7 +306,7 @@ class JSONTests: XCTestCase {
     }
     
     func testDecodingBase64() {
-        let bytes : Byte[] = [1, 2, 3, 4]
+        let bytes : [Byte] = [1, 2, 3, 4]
         let value = JSONValue(bytes)
         if let decodedBytes = value.decodedString {
             XCTAssertEqual(bytes[0], decodedBytes[0])
