@@ -129,7 +129,7 @@ enum JSON : Equatable, Printable {
                         newDict[key] = JSONValue(v)
                     }
                     else {
-                        assert(true, "Invalid key type; expected String")
+                        assert(false, "Invalid key type; expected String")
                         self = ._Invalid
                         return
                     }
@@ -151,7 +151,7 @@ enum JSON : Equatable, Printable {
                 self = .JSONNull
                 
             default:
-                assert(true, "This location should never be reached")
+                assert(false, "This location should never be reached")
                 self = ._Invalid
             }
         }
@@ -176,7 +176,7 @@ enum JSON : Equatable, Printable {
     func stringify(indent: String = "  ") -> String? {
         switch self {
         case ._Invalid:
-            assert(true, "The JSON value is invalid")
+            assert(false, "The JSON value is invalid")
             return nil
             
         default:
@@ -364,7 +364,7 @@ extension JSON {
             return "null"
             
         case ._Invalid:
-            assert(true, "This should never be reached")
+            assert(false, "This should never be reached")
             return ""
         }
     }
