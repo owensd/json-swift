@@ -132,7 +132,7 @@ class JSONTests: XCTestCase {
     }
     
     func testNullArrayValue() {
-        let array : Array<JSONValue>? = nil
+        let array : [JSONValue]? = nil
         let value = JSONValue(array)
         if value.array {
             XCTFail()
@@ -140,7 +140,7 @@ class JSONTests: XCTestCase {
     }
     
     func testNullDictionaryValue() {
-        let dict : Dictionary<String, JSONValue>? = nil
+        let dict : [String : JSONValue]? = nil
         let value = JSONValue(dict)
         if value.object {
             XCTFail()
@@ -204,7 +204,7 @@ class JSONTests: XCTestCase {
     }
     
     func testFlickrWithDictAnyObjectResult() {
-        var flickr : Dictionary<String, AnyObject> = [
+        var flickr : [String : AnyObject] = [
             "stat": "ok",
             "blogs": [
                 "blog": [
