@@ -84,7 +84,7 @@ enum JSON : Equatable, Printable {
         }
     }
     
-    init(_ value: Array<JSONValue>?) {
+    init(_ value: [JSONValue]?) {
         if let array = value {
             self = .JSONArray(array)
         }
@@ -93,7 +93,7 @@ enum JSON : Equatable, Printable {
         }
     }
     
-    init(_ value: Dictionary<String, JSONValue>?) {
+    init(_ value: [String : JSONValue]?) {
         if let dict = value {
             self = .JSONObject(dict)
         }
@@ -123,7 +123,7 @@ enum JSON : Equatable, Printable {
                 self = .JSONArray(newArray)
                 
             case let dict as NSDictionary:
-                var newDict : Dictionary<String, JSONValue> = [:]
+                var newDict = [String : JSONValue]()
                 for (k : AnyObject, v : AnyObject) in dict {
                     if let key = k as? String {
                         newDict[key] = JSONValue(v)
@@ -213,7 +213,7 @@ enum JSON : Equatable, Printable {
     /**
      * Retrieves the \c Dictionary<String, JSONValue> representation of the value, or \c nil.
      */
-    var object : Dictionary<String, JSONValue>? {
+    var object : [String : JSONValue]? {
         switch self {
         case .JSONObject(let value):
             return value
@@ -226,7 +226,7 @@ enum JSON : Equatable, Printable {
     /**
      * Retrieves the \c Array<JSONValue> representation of the value, or \c nil.
      */
-    var array : Array<JSONValue>? {
+    var array : [JSONValue]? {
         switch self {
         case .JSONArray(let value):
             return value
@@ -403,7 +403,7 @@ extension JSON : ArrayLiteralConvertible {
 
 extension JSON : DictionaryLiteralConvertible {
     static func convertFromDictionaryLiteral(elements: (String, JSONValue)...) -> JSON {
-        var dict = Dictionary<String, JSONValue>()
+        var dict = [String : JSONValue]()
         for (k, v) in elements {
             dict[k] = v
         }
