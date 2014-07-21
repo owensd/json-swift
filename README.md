@@ -12,13 +12,13 @@ Some sample usage from one of the tests:
                 [
                     "id" : 73,
                     "name" : "Bloxus test",
-                    "needspassword" : JSTrue,
+                    "needspassword" : true,
                     "url" : "http://remote.bloxus.com/"
                 ],
                 [
                     "id" : 74,
                     "name" : "Manila Test",
-                    "needspassword" : JSFalse,
+                    "needspassword" : false,
                     "url" : "http://flickrtest1.userland.com/"
                 ]
             ]
