@@ -246,24 +246,28 @@ public enum JSON : Equatable, Printable {
     }
 
     /// Attempts to treat the `JSONValue` as a dictionary and return the item with the given key.
-    public subscript(key: String) -> JSONValue? {
+    public subscript(key: String) -> JSONValue {
         switch self {
         case .JSONObject(let dict):
-            return dict[key]
+            if let result = dict[key] {
+                return result
+            } else {
+                return JSONNull
+            }
             
         default:
-            return nil
+            return JSONNull
         }
     }
 
     /// Attempts to treat the `JSONValue` as an array and return the item at the index.
-    public subscript(index: Int) -> JSONValue? {
+    public subscript(index: Int) -> JSONValue {
         switch self {
         case .JSONArray(let array):
             return array[index]
             
         default:
-            return nil
+            return JSONNull
         }
     }
     
