@@ -25,8 +25,8 @@ Some sample usage from one of the tests:
         ]
     ]
     
-    XCTAssertEqualObjects(json["stat"]?.string!, "ok")
-    XCTAssertTrue(json["blogs"]?["blog"] != nil)
+    XCTAssertEqualObjects(json["stat"].string!, "ok")
+    XCTAssertTrue(json["blogs"]["blog"] != nil)
 
-    XCTAssertEqualObjects(json["blogs"]?["blog"]?[0]?["id"]?.number!, 73)
-    XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
+    XCTAssertEqualObjects(json["blogs"]["blog"][0]["id"].number!, 73)
+    XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
