@@ -413,10 +413,10 @@ extension JSON: BooleanLiteralConvertible {
 extension JSON: LogicValue {
     public func getLogicValue() -> Bool {
         switch self {
-        case ._Invalid: return false
-        case .JSONNull: return false
-        case .JSONBool: return true
-        default:        return true
+        case ._Invalid:
+            return false
+        default:
+            return true
         }
     }
 }
