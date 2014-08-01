@@ -247,27 +247,45 @@ public enum JSON : Equatable, Printable {
 
     /// Attempts to treat the `JSONValue` as a dictionary and return the item with the given key.
     public subscript(key: String) -> JSONValue {
-        switch self {
-        case .JSONObject(let dict):
-            if let result = dict[key] {
-                return result
-            } else {
+        get {
+            switch self {
+            case .JSONObject(let dict):
+                if let result = dict[key] {
+                    return result
+                } else {
+                    return JSONNull
+                }
+                
+            default:
                 return JSONNull
             }
-            
-        default:
-            return JSONNull
+        }
+        set {
+            if let dict = self.object {
+                var copy = dict
+                copy[key] = newValue
+                self = JSONValue(copy)
+            }
         }
     }
 
     /// Attempts to treat the `JSONValue` as an array and return the item at the index.
     public subscript(index: Int) -> JSONValue {
-        switch self {
-        case .JSONArray(let array):
-            return array[index]
-            
-        default:
-            return JSONNull
+        get {
+            switch self {
+            case .JSONArray(let array):
+                return array[index]
+                
+            default:
+                return JSONNull
+            }
+        }
+        set {
+            if let array = self.array {
+                var copy = array
+                copy[index] = newValue
+                self = JSONValue(copy)
+            }
         }
     }
     

@@ -395,4 +395,22 @@ class JSONTests: XCTestCase {
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
+    
+    func testArrayAssignment() {
+        var array = JSONValue([1, 2, 3, 4] as [Int])
+        array[2] = 10
+        
+        XCTAssertEqual(countElements(array.array!), 4)
+        XCTAssertEqual(array.array![2], 10)
+        
+    }
+    
+    func testDictionaryAssignment() {
+        var dict = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        dict["key2"] = 10
+        
+        XCTAssertEqual(countElements(dict.object!), 3)
+        let value = dict.object!["key2"]
+        XCTAssertEqual(value!.number!, 10)
+    }
 }
