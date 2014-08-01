@@ -413,4 +413,33 @@ class JSONTests: XCTestCase {
         let value = dict.object!["key2"]
         XCTAssertEqual(value!.number!, 10)
     }
+    
+    func testLogicValueTrue() {
+        let dictionary: JSONValue = [:]
+        let array: JSONValue = [ nil, 0, "" ]
+        let number: JSONValue = 0
+        let trueValue: JSONValue = true
+        let falseValue: JSONValue = false
+        
+        var pass = false
+        if dictionary && array && number && trueValue && falseValue {
+            pass = true
+        }
+        
+        XCTAssertTrue(pass)
+    }
+    
+    func testLogicValueFalse() {
+        let justNil: JSONValue = nil
+        
+        let someJSON = JSONValue(["key1": 1, "key2": 3, "key3": 5])
+        let notFound = someJSON["key42"]
+        
+        var pass = true
+        if justNil || notFound {
+            pass = false
+        }
+        
+        XCTAssertTrue(pass)
+    }
 }
