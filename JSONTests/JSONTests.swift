@@ -195,11 +195,11 @@ class JSONTests: XCTestCase {
             ]
         ]
         
-        XCTAssertTrue(json["stat"]?.string! == "ok")
-        XCTAssertTrue(json["blogs"]?["blog"] != nil)
+        XCTAssertTrue(json["stat"].string! == "ok")
+        XCTAssertTrue(json["blogs"]["blog"] != nil)
   
-        XCTAssertTrue(json["blogs"]?["blog"]?[0]?["id"]?.number! == 73)
-        XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
+        XCTAssertTrue(json["blogs"]["blog"][0]["id"].number! == 73)
+        XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
     }
     
     func testFlickrWithDictAnyObjectResult() {
@@ -225,11 +225,11 @@ class JSONTests: XCTestCase {
         
         var json = JSON(flickr)
         
-        XCTAssertTrue(json["stat"]?.string! == "ok")
-        XCTAssertTrue(json["blogs"]?["blog"] != nil)
+        XCTAssertTrue(json["stat"].string! == "ok")
+        XCTAssertTrue(json["blogs"]["blog"] != nil)
         
-        XCTAssertTrue(json["blogs"]?["blog"]?[0]?["id"]?.number! == 73)
-        XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
+        XCTAssertTrue(json["blogs"]["blog"][0]["id"].number! == 73)
+        XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
     }
     
     func testFlickrResultWithNSTypes() {
@@ -239,11 +239,11 @@ class JSONTests: XCTestCase {
         if let dict = flickr as? NSDictionary {
             var json = JSON(dict)
             
-            XCTAssertTrue(json["stat"]?.string! == "ok")
-            XCTAssertTrue(json["blogs"]?["blog"] != nil)
+            XCTAssertTrue(json["stat"].string! == "ok")
+            XCTAssertTrue(json["blogs"]["blog"] != nil)
             
-            XCTAssertTrue(json["blogs"]?["blog"]?[0]?["id"]?.number! == 73)
-            XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
+            XCTAssertTrue(json["blogs"]["blog"][0]["id"].number! == 73)
+            XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
         }
         else {
             XCTFail("The JSON object should have been a dictionary.")
@@ -255,11 +255,11 @@ class JSONTests: XCTestCase {
 
         var parsedJson = JSON.parse(String)
         if let json = parsedJson {
-            XCTAssertTrue(json["stat"]?.string! == "ok")
-            XCTAssertTrue(json["blogs"]?["blog"] != nil)
+            XCTAssertTrue(json["stat"].string! == "ok")
+            XCTAssertTrue(json["blogs"]["blog"] != nil)
             
-            XCTAssertTrue(json["blogs"]?["blog"]?[0]?["id"]?.number! == 73)
-            XCTAssertTrue(json["blogs"]?["blog"]?[0]?["needspassword"]?.bool!)
+            XCTAssertTrue(json["blogs"]["blog"][0]["id"].number! == 73)
+            XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
         }
         else {
             XCTFail()

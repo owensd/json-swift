@@ -130,7 +130,7 @@ public enum JSON : Equatable, Printable {
                 self = .JSONString(string)
                 
             case let number as NSNumber:
-                if number.objCType == "c" {
+                if String.fromCString(number.objCType) == "c" {
                     self = .JSONBool(number.boolValue)
                 }
                 else {
@@ -220,11 +220,6 @@ public enum JSON : Equatable, Printable {
         case .JSONBool(let value):
             return value
             
-        // there seems to be an issue with the NSJSONSerialization and types going across the boundary...
-        // The bool values are not differentiable from numbers...
-        case .JSONNumber(let value):
-            return value == 0
-
         default:
             return nil
         }
@@ -251,24 +246,28 @@ public enum JSON : Equatable, Printable {
     }
 
     /// Attempts to treat the `JSONValue` as a dictionary and return the item with the given key.
-    public subscript(key: String) -> JSONValue? {
+    public subscript(key: String) -> JSONValue {
         switch self {
         case .JSONObject(let dict):
-            return dict[key]
+            if let result = dict[key] {
+                return result
+            } else {
+                return JSONNull
+            }
             
         default:
-            return nil
+            return JSONNull
         }
     }
 
     /// Attempts to treat the `JSONValue` as an array and return the item at the index.
-    public subscript(index: Int) -> JSONValue? {
+    public subscript(index: Int) -> JSONValue {
         switch self {
         case .JSONArray(let array):
             return array[index]
             
         default:
-            return nil
+            return JSONNull
         }
     }
     
