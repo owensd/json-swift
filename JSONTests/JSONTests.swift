@@ -113,7 +113,6 @@ class JSONTests: XCTestCase {
     }
 
     func testNullValue() {
-        // Test disabled for bug in Swift.
         let value = JSONNull
         switch value {
         case .JSONNull:
