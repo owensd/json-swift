@@ -393,19 +393,19 @@ public func ==(lhs: JSONValue, rhs: JSONValue) -> Bool {
 // MARK: Literal Convertibles to allow in-place boxing from literal values.
 //
 
-extension JSON : IntegerLiteralConvertible {
+extension JSONValue: IntegerLiteralConvertible {
     public static func convertFromIntegerLiteral(value: Int) -> JSONValue {
         return .JSONNumber(Double(value))
     }
 }
 
-extension JSON : FloatLiteralConvertible {
+extension JSONValue: FloatLiteralConvertible {
     public static func convertFromFloatLiteral(value: Double) -> JSONValue {
         return .JSONNumber(value)
     }
 }
 
-extension JSON : StringLiteralConvertible {
+extension JSONValue: StringLiteralConvertible {
     public static func convertFromStringLiteral(value: String) -> JSONValue {
         return .JSONString(value)
     }
@@ -414,13 +414,13 @@ extension JSON : StringLiteralConvertible {
     }
 }
 
-extension JSON : ArrayLiteralConvertible {
+extension JSONValue: ArrayLiteralConvertible {
     public static func convertFromArrayLiteral(elements: JSONValue...) -> JSONValue {
         return .JSONArray(elements)
     }
 }
 
-extension JSON : DictionaryLiteralConvertible {
+extension JSONValue: DictionaryLiteralConvertible {
     public static func convertFromDictionaryLiteral(elements: (String, JSONValue)...) -> JSONValue {
         var dict = [String : JSONValue]()
         for (k, v) in elements {
@@ -431,19 +431,19 @@ extension JSON : DictionaryLiteralConvertible {
     }
 }
 
-extension JSON : NilLiteralConvertible {
+extension JSONValue: NilLiteralConvertible {
     public static func convertFromNilLiteral() -> JSONValue {
         return .JSONNull
     }
 }
 
-extension JSON: BooleanLiteralConvertible {
+extension JSONValue: BooleanLiteralConvertible {
     public static func convertFromBooleanLiteral(value: BooleanLiteralType) -> JSONValue {
         return JSONBool(value)
     }
 }
 
-extension JSON: LogicValue {
+extension JSONValue: LogicValue {
     public func getLogicValue() -> Bool {
         switch self {
         case .JSONError:
