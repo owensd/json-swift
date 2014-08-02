@@ -166,7 +166,7 @@ public enum JSONValue : Equatable, Printable {
     }
     
     /// Retrieves the `String` representation of the value, or `nil`.
-    public var string : String? {
+    public var string: String? {
         switch self {
         case .JSONString(let value):
             return value
@@ -177,7 +177,7 @@ public enum JSONValue : Equatable, Printable {
     }
     
     /// Retrieves the `Double` representation of the value, or `nil`.
-    public var number : Double? {
+    public var number: Double? {
         switch self {
         case .JSONNumber(let value):
             return value
@@ -187,8 +187,19 @@ public enum JSONValue : Equatable, Printable {
         }
     }
     
+    /// Retrieves the `Int` representation of the value, or `nil`.
+    public var integer: Int? {
+        switch self {
+        case .JSONNumber(let value):
+            return Int(value)
+            
+        default:
+            return nil
+        }
+    }
+    
     /// Retrieves the `Dictionary<String, JSONValue>` representation of the value, or `nil`.
-    public var object : [String : JSONValue]? {
+    public var object: [String : JSONValue]? {
         switch self {
         case .JSONObject(let value):
             return value
@@ -199,7 +210,7 @@ public enum JSONValue : Equatable, Printable {
     }
     
     /// Retrieves the `Array<JSONValue>` representation of the value, or `nil`.
-    public var array : [JSONValue]? {
+    public var array: [JSONValue]? {
         switch self {
         case .JSONArray(let value):
             return value
@@ -210,7 +221,7 @@ public enum JSONValue : Equatable, Printable {
     }
     
     /// Retrieves the `Bool` representation of the value, or `nil`.
-    public var bool : Bool? {
+    public var bool: Bool? {
         switch self {
         case .JSONBool(let value):
             return value

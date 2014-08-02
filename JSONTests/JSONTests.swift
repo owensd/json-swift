@@ -456,4 +456,9 @@ class JSONTests: XCTestCase {
             XCTFail()
         }
     }
+    
+    func testIntValue() {
+        let json: JSONValue = 42
+        XCTAssertEqual(json.integer!, 42)
+    }
 }
