@@ -415,31 +415,34 @@ class JSONTests: XCTestCase {
     }
     
     func testLogicValueTrue() {
-        let dictionary: JSONValue = [:]
-        let array: JSONValue = [ nil, 0, "" ]
-        let number: JSONValue = 0
+        let dictionaryValue: JSONValue = [:]
+        let arrayValue: JSONValue = [ nil, 0, "" ]
+        let numberValue: JSONValue = 0
         let trueValue: JSONValue = true
         let falseValue: JSONValue = false
+        let nilValue: JSONValue = nil
         
-        var pass = false
-        if dictionary && array && number && trueValue && falseValue {
-            pass = true
+        for value in [dictionaryValue, arrayValue, numberValue, trueValue, falseValue, nilValue] {
+            var pass = false
+            if value {
+                pass = true
+            }
+            XCTAssertTrue(pass)
         }
-        
-        XCTAssertTrue(pass)
     }
     
     func testLogicValueFalse() {
-        let justNil: JSONValue = nil
+        let data: AnyObject = NSDate()
+        let invalidJSON = JSONValue(data)
+        let validJSON = JSONValue(["key1": 1, "key2": 3, "key3": 5])
         
-        let someJSON = JSONValue(["key1": 1, "key2": 3, "key3": 5])
-        let notFound = someJSON["key42"]
-        
-        var pass = true
-        if justNil || notFound {
-            pass = false
+        if invalidJSON {
+            XCTFail()
         }
         
-        XCTAssertTrue(pass)
+        if validJSON["key9000"] {
+            let object = validJSON["key9000"]
+            XCTFail()
+        }
     }
 }
