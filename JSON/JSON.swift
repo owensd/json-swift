@@ -138,6 +138,24 @@ public enum JSONValue : Equatable, Printable {
             self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
         }
     }
+    
+    public init(_ rawData: NSData?) {
+        if let data = rawData {
+            var error: NSError?
+            if let jsonObject: AnyObject = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) {
+                self = JSONValue(jsonObject)
+            } else if let error = error {
+                self = .JSONError(error)
+            } else {
+                let info = [NSLocalizedDescriptionKey:"JSON parser error: Invalid JSON data"]
+                self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
+            }
+        } else {
+            let info = [NSLocalizedDescriptionKey:"JSON parser error: Creating JSONValue with nil NSData"]
+            self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
+        }
+        
+    }
 
     /// Returns the `JSON` represented by the string or `nil` if the string is invalid JSON.
     public static func parse(jsonString : String) -> JSON? {
@@ -294,7 +312,7 @@ public enum JSONValue : Equatable, Printable {
         }
     }
     
-    func prettyPrint(indent: String = "  ", level: Int = 0, baseIndent: String? = nil) -> String {
+    private func prettyPrint(indent: String = "  ", level: Int = 0, baseIndent: String? = nil) -> String {
         var currentIndent: String
         if let baseIndent = baseIndent {
             currentIndent = baseIndent
@@ -336,8 +354,8 @@ public enum JSONValue : Equatable, Printable {
     }
     
     /// Create a pretty-printed representation of the `JSONValue`.
-    public func stringify(indent: String = "  ") -> String {
-        return prettyPrint(indent: indent)
+    public func stringify(indent: String = "  ", level: Int = 0, baseIndent: String? = nil) -> String {
+        return prettyPrint(indent: indent, level: level, baseIndent: baseIndent)
     }
     
     /// Create a pretty-printed representation of the `JSONValue`.
