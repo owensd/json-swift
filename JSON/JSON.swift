@@ -237,7 +237,7 @@ public enum JSONValue : Equatable, Printable {
         }
     }
     
-    /// Retrieves the `NSError` representation of the value, or `nil`
+    /// Retrieves the `NSError` representation of the value, or `nil`.
     public var error : NSError? {
         switch self {
         case .JSONError(let value):
@@ -245,6 +245,17 @@ public enum JSONValue : Equatable, Printable {
             
         default:
             return nil
+        }
+    }
+    
+    /// Returns true if the `JSONValue` contains a meaningful JSON value, false if an error occurred.
+    public var hasValue : Bool {
+        switch self {
+        case .JSONError:
+            return false
+            
+        default:
+            return true
         }
     }
     
@@ -468,16 +479,5 @@ extension JSONValue: NilLiteralConvertible {
 extension JSONValue: BooleanLiteralConvertible {
     public static func convertFromBooleanLiteral(value: BooleanLiteralType) -> JSONValue {
         return JSONBool(value)
-    }
-}
-
-extension JSONValue: LogicValue {
-    public func getLogicValue() -> Bool {
-        switch self {
-        case .JSONError:
-            return false
-        default:
-            return true
-        }
     }
 }

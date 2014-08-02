@@ -425,7 +425,7 @@ class JSONTests: XCTestCase {
         XCTAssertEqual(value!.number!, 10)
     }
     
-    func testLogicValueTrue() {
+    func testHasValueTrue() {
         let dictionaryValue: JSONValue = [:]
         let arrayValue: JSONValue = [ nil, 0, "" ]
         let numberValue: JSONValue = 0
@@ -434,11 +434,7 @@ class JSONTests: XCTestCase {
         let nilValue: JSONValue = nil
         
         for value in [dictionaryValue, arrayValue, numberValue, trueValue, falseValue, nilValue] {
-            var pass = false
-            if value {
-                pass = true
-            }
-            XCTAssertTrue(pass)
+            XCTAssertTrue(value.hasValue)
         }
     }
     
@@ -447,14 +443,8 @@ class JSONTests: XCTestCase {
         let invalidJSON = JSONValue(data)
         let validJSON = JSONValue(["key1": 1, "key2": 3, "key3": 5])
         
-        if invalidJSON {
-            XCTFail()
-        }
-        
-        if validJSON["key9000"] {
-            let object = validJSON["key9000"]
-            XCTFail()
-        }
+        XCTAssertFalse(invalidJSON.hasValue)
+        XCTAssertFalse(validJSON["key4"].hasValue)
     }
     
     func testIntValue() {
