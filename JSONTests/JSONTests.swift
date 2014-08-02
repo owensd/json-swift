@@ -113,7 +113,7 @@ class JSONTests: XCTestCase {
     }
 
     func testNullValue() {
-        let value = JSONNull
+        let value = JSONValue.JSONNull
         switch value {
         case .JSONNull:
             break;
@@ -124,8 +124,8 @@ class JSONTests: XCTestCase {
     }
 
     func testNilValue() {
-        let value : JSONValue = nil
-        if value != JSONNull {
+        let value: JSONValue = nil
+        if value != .JSONNull {
             XCTFail()
         }
     }
@@ -319,7 +319,7 @@ class JSONTests: XCTestCase {
     }
     
     func testEquatableNullTrue() {
-        let areEqual = JSONNull == JSONNull
+        let areEqual = JSONValue.JSONNull == JSONValue.JSONNull
         XCTAssertTrue(areEqual)
     }
     
