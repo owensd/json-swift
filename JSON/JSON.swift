@@ -9,15 +9,12 @@
 import Foundation
 
 // Alias to make using a JSON structure for a single value more natural.
-public typealias JSONValue = JSON
-
-// Special handling for "null" as there seems to be no good way to do JSONValue(nil) for all types
-public let JSONNull = JSONValue.JSONNull
+public typealias JSON = JSONValue
 
 /// A representative type for all possible JSON values.
 ///
 /// See http://json.org for a full description.
-public enum JSON : Equatable, Printable {
+public enum JSONValue : Equatable, Printable {
     
     /// Provides a set of all of the valid encoding types when using data that needs to be 
     /// within the contents of a string value.
@@ -26,17 +23,13 @@ public enum JSON : Equatable, Printable {
     }
     
     /// All of the possible values representable by JSON.
-    
     case JSONString(Swift.String)
     case JSONNumber(Double)
     case JSONObject([String : JSONValue])
     case JSONArray([JSONValue])
     case JSONBool(Bool)
     case JSONNull
-    
-    // This case is only supported for bridging NS* types because of the AnyObject requirement.
-    // This should NOT be used externally.
-    case _Invalid
+    case JSONError(NSError)
     
     public init(_ value: Bool?) {
         if let bool = value {
@@ -99,28 +92,31 @@ public enum JSON : Equatable, Printable {
         case .base64:
             let encoded = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding76CharacterLineLength)
             self = .JSONString("\(encoding.toRaw())\(encoded)")
+            
+        default:
+            let info = [NSLocalizedDescriptionKey: "JSON parser error: Unknown encoding"]
+            self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
         }
     }
     
     public init(_ rawValue: AnyObject?) {
-        if let value : AnyObject = rawValue {
+        if let value: AnyObject = rawValue {
             switch value {
             case let array as NSArray:
                 var newArray = [JSONValue]()
-                for item : AnyObject in array {
+                for item: AnyObject in array {
                     newArray += JSONValue(item)
                 }
                 self = .JSONArray(newArray)
                 
             case let dict as NSDictionary:
-                var newDict = [String : JSONValue]()
-                for (k : AnyObject, v : AnyObject) in dict {
+                var newDict = [String: JSONValue]()
+                for (k: AnyObject, v: AnyObject) in dict {
                     if let key = k as? String {
                         newDict[key] = JSONValue(v)
-                    }
-                    else {
-                        assert(false, "Invalid key type; expected String")
-                        self = ._Invalid
+                    } else {
+                        let info = [NSLocalizedDescriptionKey: "JSON parser error: Invalid key type; expected String"]
+                        self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
                         return
                     }
                 }
@@ -132,8 +128,7 @@ public enum JSON : Equatable, Printable {
             case let number as NSNumber:
                 if String.fromCString(number.objCType) == "c" {
                     self = .JSONBool(number.boolValue)
-                }
-                else {
+                } else {
                     self = .JSONNumber(number.doubleValue)
                 }
                 
@@ -141,13 +136,31 @@ public enum JSON : Equatable, Printable {
                 self = .JSONNull
                 
             default:
-                assert(false, "This location should never be reached")
-                self = ._Invalid
+                let info = [NSLocalizedDescriptionKey: "JSON parser error: Given object is not a JSON value"]
+                self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
             }
+        } else {
+            let info = [NSLocalizedDescriptionKey: "JSON parser error: Trying to implicitly create a JSON null"]
+            self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
         }
-        else {
-            self = .JSONNull
+    }
+    
+    public init(_ rawData: NSData?) {
+        if let data = rawData {
+            var error: NSError?
+            if let jsonObject: AnyObject = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) {
+                self = JSONValue(jsonObject)
+            } else if let error = error {
+                self = .JSONError(error)
+            } else {
+                let info = [NSLocalizedDescriptionKey:"JSON parser error: Invalid JSON data"]
+                self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
+            }
+        } else {
+            let info = [NSLocalizedDescriptionKey:"JSON parser error: Creating JSONValue with nil NSData"]
+            self = .JSONError(NSError(domain: "JSONErrorDomain", code: 1000, userInfo: info))
         }
+        
     }
 
     /// Returns the `JSON` represented by the string or `nil` if the string is invalid JSON.
@@ -156,18 +169,6 @@ public enum JSON : Equatable, Printable {
         var jsonObject : AnyObject! = NSJSONSerialization.JSONObjectWithData(data, options: .MutableContainers, error: nil)
 
         return jsonObject ? JSONValue(jsonObject) : nil
-    }
-    
-     /// Create a pretty-printed representation of the `JSON`.
-    public func stringify(indent: String = "  ") -> String? {
-        switch self {
-        case ._Invalid:
-            assert(false, "The JSON value is invalid")
-            return nil
-            
-        default:
-            return prettyPrint(indent, 0)
-        }
     }
     
     /// Retrieves the `String` representation of the value, or `nil`.
@@ -186,6 +187,17 @@ public enum JSON : Equatable, Printable {
         switch self {
         case .JSONNumber(let value):
             return value
+            
+        default:
+            return nil
+        }
+    }
+    
+    /// Retrieves the `Int` representation of the value, or `nil`.
+    public var integer : Int? {
+        switch self {
+        case .JSONNumber(let value):
+            return Int(value)
             
         default:
             return nil
@@ -225,6 +237,28 @@ public enum JSON : Equatable, Printable {
         }
     }
     
+    /// Retrieves the `NSError` representation of the value, or `nil`.
+    public var error : NSError? {
+        switch self {
+        case .JSONError(let value):
+            return value
+            
+        default:
+            return nil
+        }
+    }
+    
+    /// Returns true if the `JSONValue` contains a meaningful JSON value, false if an error occurred.
+    public var hasValue : Bool {
+        switch self {
+        case .JSONError:
+            return false
+            
+        default:
+            return true
+        }
+    }
+    
     /// Returns the raw dencoded bytes of the value that was stored in the `string` value.
     public var decodedString: [Byte]? {
         switch self {
@@ -253,18 +287,30 @@ public enum JSON : Equatable, Printable {
                 if let result = dict[key] {
                     return result
                 } else {
-                    return JSONNull
+                    let info = [NSLocalizedDescriptionKey: "JSON path error: Incorrect path \"\(key)\"", "JSONErrorPath": key]
+                    return .JSONError(NSError(domain: "JSONErrorDomain", code: 1001, userInfo: info))
                 }
+            
+            case .JSONError(let error):
+                if let oldInfo = error.userInfo {
+                    if let oldPath = oldInfo["JSONErrorPath"] as? NSString {
+                        let info = [NSLocalizedDescriptionKey: "JSON path error: Incorrect path \"\(oldPath)/\(key)\"",
+                            "JSONErrorPath": "\(oldPath)/\(key)"]
+                        return .JSONError(NSError(domain: "JSONErrorDomain", code: 1001, userInfo: info))
+                    }
+                }
+                return self
                 
             default:
-                return JSONNull
+                let info = [NSLocalizedDescriptionKey: "JSON path error: Incorrect path \"\(key)\"", "JSONErrorPath": key]
+                return .JSONError(NSError(domain: "JSONErrorDomain", code: 1001, userInfo: info))
             }
         }
         set {
             if let dict = self.object {
                 var copy = dict
                 copy[key] = newValue
-                self = JSONValue(copy)
+                self = .JSONObject(copy)
             }
         }
     }
@@ -274,33 +320,90 @@ public enum JSON : Equatable, Printable {
         get {
             switch self {
             case .JSONArray(let array):
-                return array[index]
+                if index >= 0 && index < array.count {
+                    return array[index]
+                } else {
+                    let info = [NSLocalizedDescriptionKey: "JSON path error: Incorrect path \"\(index)\"", "JSONErrorPath": index]
+                    return .JSONError(NSError(domain: "JSONErrorDomain", code: 1001, userInfo: info))
+                }
+                
+            case .JSONError(let error):
+                if let oldInfo = error.userInfo {
+                    if let oldPath = oldInfo["JSONErrorPath"] as? NSString {
+                        let info = [NSLocalizedDescriptionKey: "JSON path error: Incorrect path \"\(oldPath)/\(index)\"",
+                            "JSONErrorPath": "\(oldPath)/\(index)"]
+                        return .JSONError(NSError(domain: "JSONErrorDomain", code: 1001, userInfo: info))
+                    }
+                }
+                return self
                 
             default:
-                return JSONNull
+                let info = [NSLocalizedDescriptionKey: "JSON path error: Incorrect path \"\(index)\"", "JSONErrorPath": index]
+                return .JSONError(NSError(domain: "JSONErrorDomain", code: 1001, userInfo: info))
             }
         }
         set {
             if let array = self.array {
                 var copy = array
                 copy[index] = newValue
-                self = JSONValue(copy)
+                self = .JSONArray(copy)
             }
         }
     }
     
-    /// Prints out the description of the JSON value as pretty-printed JSON.
+    private func prettyPrint(indent: String = "  ", level: Int = 0, baseIndent: String? = nil) -> String {
+        var currentIndent: String
+        if let baseIndent = baseIndent {
+            currentIndent = baseIndent
+        } else {
+            currentIndent = join("", [String](count: level, repeatedValue: indent))
+        }
+        let nextIndent = currentIndent + indent
+        
+        switch self {
+        case .JSONBool(let bool):
+            return bool ? "true" : "false"
+            
+        case .JSONNumber(let number):
+            return "\(number)"
+            
+        case .JSONString(let string):
+            return "\"\(string)\""
+            
+        case .JSONArray(let array):
+            let children = array.map { item -> String in
+                let child = item.prettyPrint(indent: indent, level: level + 1, baseIndent: nextIndent)
+                return "\(nextIndent)\(child)"
+            }
+            return "[\n" + join(",\n", children) + "\n\(currentIndent)]"
+            
+        case .JSONObject(let dict):
+            let children = map(dict) { key, value -> String in
+                let child = value.prettyPrint(indent: indent, level: level + 1, baseIndent: nextIndent)
+                return "\(nextIndent)\"\(key)\" : \(child)"
+            }
+            return "{\n" + join(",\n", children) + "\n\(currentIndent)}"
+            
+        case .JSONNull:
+            return "null"
+            
+        case .JSONError(let error):
+            return error.localizedDescription
+        }
+    }
+    
+    /// Create a pretty-printed representation of the `JSONValue`.
+    public func stringify(indent: String = "  ", level: Int = 0, baseIndent: String? = nil) -> String {
+        return prettyPrint(indent: indent, level: level, baseIndent: baseIndent)
+    }
+    
+    /// Create a pretty-printed representation of the `JSONValue`.
     public var description: String {
-        if let jsonString = stringify() {
-            return jsonString
-        }
-        else {
-            return "<INVALID JSON>"
-        }
+        return prettyPrint()
     }
 }
 
-public func ==(lhs: JSON, rhs: JSON) -> Bool {
+public func ==(lhs: JSONValue, rhs: JSONValue) -> Bool {
     switch (lhs, rhs) {
     case (.JSONNull, .JSONNull):
         return true
@@ -325,70 +428,39 @@ public func ==(lhs: JSON, rhs: JSON) -> Bool {
     }
 }
 
-extension JSON {
-    func prettyPrint(indent: String, _ level: Int) -> String {
-        let currentIndent = join(indent, map(0...level, { (item: Int) in "" }))
-        let nextIndent = currentIndent + "  "
-        
-        switch self {
-        case .JSONBool(let bool):
-            return bool ? "true" : "false"
-            
-        case .JSONNumber(let number):
-            return "\(number)"
-            
-        case .JSONString(let string):
-            return "\"\(string)\""
-            
-        case .JSONArray(let array):
-            return "[\n" + join(",\n", array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) + "\n\(currentIndent)]"
-            
-        case .JSONObject(let dict):
-            return "{\n" + join(",\n", map(dict, { "\(nextIndent)\"\($0)\" : \($1.prettyPrint(indent, level + 1))"})) + "\n\(currentIndent)}"
-            
-        case .JSONNull:
-            return "null"
-            
-        case ._Invalid:
-            assert(false, "This should never be reached")
-            return ""
-        }
-    }
-}
-
 //
 // MARK: Literal Convertibles to allow in-place boxing from literal values.
 //
 
-extension JSON : IntegerLiteralConvertible {
-    public static func convertFromIntegerLiteral(value: Int) -> JSON {
+extension JSONValue: IntegerLiteralConvertible {
+    public static func convertFromIntegerLiteral(value: Int) -> JSONValue {
         return .JSONNumber(Double(value))
     }
 }
 
-extension JSON : FloatLiteralConvertible {
-    public static func convertFromFloatLiteral(value: Double) -> JSON {
+extension JSONValue: FloatLiteralConvertible {
+    public static func convertFromFloatLiteral(value: Double) -> JSONValue {
         return .JSONNumber(value)
     }
 }
 
-extension JSON : StringLiteralConvertible {
-    public static func convertFromStringLiteral(value: String) -> JSON {
+extension JSONValue: StringLiteralConvertible {
+    public static func convertFromStringLiteral(value: String) -> JSONValue {
         return .JSONString(value)
     }
-    public static func convertFromExtendedGraphemeClusterLiteral(value: String) -> JSON {
+    public static func convertFromExtendedGraphemeClusterLiteral(value: String) -> JSONValue {
         return .JSONString(value)
     }
 }
 
-extension JSON : ArrayLiteralConvertible {
-    public static func convertFromArrayLiteral(elements: JSONValue...) -> JSON {
+extension JSONValue: ArrayLiteralConvertible {
+    public static func convertFromArrayLiteral(elements: JSONValue...) -> JSONValue {
         return .JSONArray(elements)
     }
 }
 
-extension JSON : DictionaryLiteralConvertible {
-    public static func convertFromDictionaryLiteral(elements: (String, JSONValue)...) -> JSON {
+extension JSONValue: DictionaryLiteralConvertible {
+    public static func convertFromDictionaryLiteral(elements: (String, JSONValue)...) -> JSONValue {
         var dict = [String : JSONValue]()
         for (k, v) in elements {
             dict[k] = v
@@ -398,14 +470,14 @@ extension JSON : DictionaryLiteralConvertible {
     }
 }
 
-extension JSON : NilLiteralConvertible {
-    public static func convertFromNilLiteral() -> JSON {
-        return JSONNull
+extension JSONValue: NilLiteralConvertible {
+    public static func convertFromNilLiteral() -> JSONValue {
+        return .JSONNull
     }
 }
 
-extension JSON: BooleanLiteralConvertible {
-    public static func convertFromBooleanLiteral(value: BooleanLiteralType) -> JSON {
+extension JSONValue: BooleanLiteralConvertible {
+    public static func convertFromBooleanLiteral(value: BooleanLiteralType) -> JSONValue {
         return JSONBool(value)
     }
 }

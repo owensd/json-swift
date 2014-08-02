@@ -83,6 +83,17 @@ class JSONTests: XCTestCase {
         }
     }
     
+    func testErrorValue() {
+        let someJSON: JSONValue = ["key1": 1, "key2": 3, "key3": 5]
+        let invalidPath = someJSON["key4"]
+        
+        if let error = invalidPath.error {
+            XCTAssertEqual(error.code, 1001)
+        } else {
+            XCTFail()
+        }
+    }
+    
     func testBoolTrueValue() {
         let value : JSONValue = JSONValue(true)
         if let bool = value.bool {
@@ -113,7 +124,7 @@ class JSONTests: XCTestCase {
     }
 
     func testNullValue() {
-        let value = JSONNull
+        let value = JSONValue.JSONNull
         switch value {
         case .JSONNull:
             break;
@@ -124,8 +135,8 @@ class JSONTests: XCTestCase {
     }
 
     func testNilValue() {
-        let value : JSONValue = nil
-        if value != JSONNull {
+        let value: JSONValue = nil
+        if value != .JSONNull {
             XCTFail()
         }
     }
@@ -319,7 +330,7 @@ class JSONTests: XCTestCase {
     }
     
     func testEquatableNullTrue() {
-        let areEqual = JSONNull == JSONNull
+        let areEqual = JSONValue.JSONNull == JSONValue.JSONNull
         XCTAssertTrue(areEqual)
     }
     
@@ -412,5 +423,32 @@ class JSONTests: XCTestCase {
         XCTAssertEqual(countElements(dict.object!), 3)
         let value = dict.object!["key2"]
         XCTAssertEqual(value!.number!, 10)
+    }
+    
+    func testHasValueTrue() {
+        let dictionaryValue: JSONValue = [:]
+        let arrayValue: JSONValue = [ nil, 0, "" ]
+        let numberValue: JSONValue = 0
+        let trueValue: JSONValue = true
+        let falseValue: JSONValue = false
+        let nilValue: JSONValue = nil
+        
+        for value in [dictionaryValue, arrayValue, numberValue, trueValue, falseValue, nilValue] {
+            XCTAssertTrue(value.hasValue)
+        }
+    }
+    
+    func testLogicValueFalse() {
+        let data: AnyObject = NSDate()
+        let invalidJSON = JSONValue(data)
+        let validJSON = JSONValue(["key1": 1, "key2": 3, "key3": 5])
+        
+        XCTAssertFalse(invalidJSON.hasValue)
+        XCTAssertFalse(validJSON["key4"].hasValue)
+    }
+    
+    func testIntValue() {
+        let json: JSONValue = 42
+        XCTAssertEqual(json.integer!, 42)
     }
 }
