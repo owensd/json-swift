@@ -91,7 +91,7 @@ Don't worry if the objects you are trying to access do not exist. The result of 
 
 ```swift
 let urlNode = json["blogs"]["blog"][2]["url"]
-if urlNode {
+if urlNode.hasValue {
     let urlString = urlNode.string!
 } else {
     let error = urlNode.error!
@@ -99,7 +99,7 @@ if urlNode {
 }
 ```
 
-`JSONValue` is a `LogicValue`, so why the absence of errors can be checked by putting it in an if statement. In case `urlNode` is not found, at least we will see where the error occurred. In this case the message will hint us that the error began at [2] subscript.
+In the `if` condition we check if no error occurred. In case `urlNode` is not found, at least we will see where the error occurred. In this case the message will hint us that the error began at [2] subscript.
 
 ### Modifying JSON tree
 
