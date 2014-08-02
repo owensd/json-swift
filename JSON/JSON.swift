@@ -220,6 +220,17 @@ public enum JSONValue : Equatable, Printable {
         }
     }
     
+    /// Retrieves the `NSError` representation of the value, or `nil`
+    public var error: NSError? {
+        switch self {
+        case .JSONError(let value):
+            return value
+            
+        default:
+            return nil
+        }
+    }
+    
     /// Returns the raw dencoded bytes of the value that was stored in the `string` value.
     public var decodedString: [Byte]? {
         switch self {

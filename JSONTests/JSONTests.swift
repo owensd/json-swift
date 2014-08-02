@@ -83,6 +83,17 @@ class JSONTests: XCTestCase {
         }
     }
     
+    func testErrorValue() {
+        let someJSON: JSONValue = ["key1": 1, "key2": 3, "key3": 5]
+        let invalidPath = someJSON["key4"]
+        
+        if let error = invalidPath.error {
+            XCTAssertEqual(error.code, 1001)
+        } else {
+            XCTFail()
+        }
+    }
+    
     func testBoolTrueValue() {
         let value : JSONValue = JSONValue(true)
         if let bool = value.bool {
