@@ -108,7 +108,7 @@ public enum JSON : Equatable, Printable {
             case let array as NSArray:
                 var newArray = [JSONValue]()
                 for item : AnyObject in array {
-                    newArray += JSONValue(item)
+                    newArray += [JSONValue(item)]
                 }
                 self = .JSONArray(newArray)
                 
@@ -234,7 +234,7 @@ public enum JSON : Equatable, Printable {
                 let decoded = NSData(base64EncodedString: encodedString, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
                 
                 let bytesPointer = UnsafePointer<Byte>(decoded.bytes)
-                let bytes = UnsafeArray<Byte>(start: bytesPointer, length: decoded.length)
+                let bytes = UnsafeBufferPointer<Byte>(start: bytesPointer, length: decoded.length)
                 return [Byte](bytes)
             }
             
