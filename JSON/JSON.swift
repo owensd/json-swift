@@ -284,17 +284,22 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 // MARK: Convenience extensions, including ObjC interop.
 //
 extension JSValue {
+    /// Initializes a new `JSValue` with a `[Byte]`.
     public init(_ bytes: [Byte], encoding: Encodings = Encodings.base64) {
         let data = NSData(bytes: bytes, length: bytes.count)
-        
+        self.init(data, encoding: encoding)
+    }
+
+    /// Initializes a new `JSValue` with a `[Byte]`.
+    public init(_ data: NSData, encoding: Encodings = Encodings.base64) {
         switch encoding {
         case .base64:
             let encoded = data.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding76CharacterLineLength)
             self = .JSString("\(encoding.toRaw())\(encoded)")
         }
     }
-    
-    ///
+
+    /// Initializes a new `JSValue` from an `AnyObject?`. If a failure occurs, the `JSValue` will be `Invalid`.
     public init(_ rawValue: AnyObject?) {
         if let value : AnyObject = rawValue {
             switch value {
