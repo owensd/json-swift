@@ -7,12 +7,12 @@
 //
 
 import XCTest
-import JSON
+import JSONLib
 
 class JSONTests: XCTestCase {
     
     func testStringValue() {
-        let value : JSONValue = "hello world"
+        let value : JSValue = "hello world"
         if let string = value.string {
             XCTAssertEqual(string, "hello world")
         }
@@ -23,14 +23,14 @@ class JSONTests: XCTestCase {
 
     func testNullStringValue() {
         let string : String? = nil
-        let value = JSONValue(string)
-        if value.string {
+        let value = JSValue(string)
+        if value.string != nil {
             XCTFail()
         }
     }
 
     func testIntegerValue() {
-        let value : JSONValue = 123
+        let value : JSValue = 123
         if let number = value.number {
             XCTAssertEqual(number, 123)
         }
@@ -41,14 +41,14 @@ class JSONTests: XCTestCase {
 
     func testNullIntegerValue() {
         let number : Int? = nil
-        let value = JSONValue(number)
-        if value.number {
+        let value = JSValue(number)
+        if value.number != nil {
             XCTFail()
         }
     }
 
     func testNSNumberValue() {
-        let value = JSONValue(NSNumber(integer: 123))
+        let value = JSValue(NSNumber(integer: 123))
         if let number = value.number {
             XCTAssertEqual(number, 123)
         }
@@ -59,14 +59,14 @@ class JSONTests: XCTestCase {
     
     func testNullNSNumberValue() {
         let number : NSNumber? = nil
-        let value = JSONValue(number)
-        if value.number {
+        let value = JSValue(number)
+        if value.number != nil {
             XCTFail()
         }
     }
 
     func testDoubleValue() {
-        let value : JSONValue = 3.234957
+        let value : JSValue = 3.234957
         if let number = value.number {
             XCTAssertEqual(number, 3.234957)
         }
@@ -77,14 +77,14 @@ class JSONTests: XCTestCase {
     
     func testNullDoubleValue() {
         let number : Double? = nil
-        let value = JSONValue(number)
-        if value.number {
+        let value = JSValue(number)
+        if value.number != nil {
             XCTFail()
         }
     }
     
     func testBoolTrueValue() {
-        let value : JSONValue = JSONValue(true)
+        let value : JSValue = JSValue(true)
         if let bool = value.bool {
             XCTAssertEqual(bool, true)
         }
@@ -95,15 +95,15 @@ class JSONTests: XCTestCase {
     
     func testNullBoolValue() {
         let bool : Bool? = nil
-        let value = JSONValue(bool)
-        if value.bool {
+        let value = JSValue(bool)
+        if value.bool != nil {
             XCTFail()
         }
     }
 
     
     func testBoolFalseValue() {
-        let value : JSONValue = false
+        let value : JSValue = false
         if let bool = value.bool {
             XCTAssertEqual(bool, false)
         }
@@ -112,36 +112,13 @@ class JSONTests: XCTestCase {
         }
     }
 
-    func testNullValue() {
-        let value = JSONNull
+    func testNilValue() {
+        let value: JSON = nil
         switch value {
-        case .JSONNull:
+        case .JSNull:
             break;
             
         default:
-            XCTFail()
-        }
-    }
-
-    func testNilValue() {
-        let value : JSONValue = nil
-        if value != JSONNull {
-            XCTFail()
-        }
-    }
-    
-    func testNullArrayValue() {
-        let array : [JSONValue]? = nil
-        let value = JSONValue(array)
-        if value.array {
-            XCTFail()
-        }
-    }
-    
-    func testNullDictionaryValue() {
-        let dict : [String : JSONValue]? = nil
-        let value = JSONValue(dict)
-        if value.object {
             XCTFail()
         }
     }
@@ -254,7 +231,7 @@ class JSONTests: XCTestCase {
         var String = "{ \"stat\": \"ok\", \"blogs\": { \"blog\": [ { \"id\" : 73, \"name\" : \"Bloxus test\", \"needspassword\" : true, \"url\" : \"http://remote.bloxus.com/\" }, { \"id\" : 74, \"name\" : \"Manila Test\", \"needspassword\" : false, \"url\" : \"http://flickrtest1.userland.com/\" } ] } }"
 
         var parsedJson = JSON.parse(String)
-        if let json = parsedJson {
+        if let json = parsedJson.value {
             XCTAssertTrue(json["stat"].string! == "ok")
             XCTAssertTrue(json["blogs"]["blog"] != nil)
             
@@ -267,7 +244,7 @@ class JSONTests: XCTestCase {
     }
     
     func testStringify() {
-        var json : JSON = [
+        let json : JSON = [
             "stat": "ok",
             "blogs": [
                 "blog": [
@@ -287,15 +264,18 @@ class JSONTests: XCTestCase {
             ]
         ]
         
-        var string = json.stringify()
-        var expectedString = "{\n  \"blogs\" : {\n    \"blog\" : [\n      {\n        \"url\" : \"http://remote.bloxus.com/\",\n        \"id\" : 73.0,\n        \"name\" : \"Bloxus test\",\n        \"needspassword\" : true\n      },\n      {\n        \"url\" : \"http://flickrtest1.userland.com/\",\n        \"id\" : 74.0,\n        \"name\" : \"Manila Test\",\n        \"needspassword\" : false\n      }\n    ]\n  },\n  \"stat\" : \"ok\"\n}"
-        XCTAssertNotNil(string)
-        XCTAssertTrue(string == expectedString)
+        let string = json.stringify()
+        XCTAssertFalse(string.failed)
+
+        let jsonFromString = JSON.parse(string.value!)
+        XCTAssertFalse(jsonFromString.failed)
+        XCTAssertEqual(jsonFromString.value!["stat"].string!, "ok")
+        XCTAssertEqual(jsonFromString.value!["blogs"]["blog"][0]["name"].string!, "Bloxus test")
     }
     
     func testEncodingBase64() {
         let bytes : [Byte] = [1, 2, 3, 4]
-        let value = JSONValue(bytes)
+        let value = JSValue(bytes)
         if let string = value.string {
             XCTAssertEqual(string, "data:text/plain;base64,AQIDBA==")
         }
@@ -306,7 +286,7 @@ class JSONTests: XCTestCase {
     
     func testDecodingBase64() {
         let bytes : [Byte] = [1, 2, 3, 4]
-        let value = JSONValue(bytes)
+        let value = JSValue(bytes)
         if let decodedBytes = value.decodedString {
             XCTAssertEqual(bytes[0], decodedBytes[0])
             XCTAssertEqual(bytes[1], decodedBytes[1])
@@ -319,94 +299,98 @@ class JSONTests: XCTestCase {
     }
     
     func testEquatableNullTrue() {
-        let areEqual = JSONNull == JSONNull
+        let x: JSON = nil
+        let y: JSON = nil
+        let areEqual = x == y
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableBoolTrue() {
-        let areEqual = JSONValue(true) == JSONValue(true)
+        let areEqual = JSValue(true) == JSValue(true)
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableBoolFalse() {
-        let areEqual = JSONValue(true) == JSONValue(false)
+        let areEqual = JSValue(true) == JSValue(false)
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableStringTrue() {
-        let lhs = JSONValue("hello")
-        let rhs = JSONValue("hello")
+        let lhs = JSValue("hello")
+        let rhs = JSValue("hello")
         let areEqual = lhs == rhs
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableStringFalse() {
-        let lhs = JSONValue("hello")
-        let rhs = JSONValue("world")
+        let lhs = JSValue("hello")
+        let rhs = JSValue("world")
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableNumberTrue() {
-        let lhs = JSONValue(1234)
-        let rhs = JSONValue(1234)
+        let lhs = JSValue(1234)
+        let rhs = JSValue(1234)
         let areEqual = lhs == rhs
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableNumberFalse() {
-        let lhs = JSONValue(1234)
-        let rhs = JSONValue(123.4)
+        let lhs = JSValue(1234)
+        let rhs = JSValue(123.4)
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableArrayTrue() {
-        let lhs = JSONValue([1, 3, 5] as [Int])    // FIXME: compiler has an issue without the cast
-        let rhs = JSONValue([1, 3, 5] as [Int])    // FIXME: compiler has an issue without the cast
+        let lhs = JSValue([1, 3, 5] as [Int])    // FIXME: compiler has an issue without the qualifier
+        let rhs = JSValue([1, 3, 5] as [Int])    // FIXME: compiler has an issue without the qualifier
         let areEqual = lhs == rhs
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableArrayFalse() {
-        let lhs = JSONValue([1, 3, 5] as [Int])    // FIXME: compiler has an issue without the cast
-        let rhs = JSONValue([1, 3, 7] as [Int])    // FIXME: compiler has an issue without the cast
+        let lhs = JSValue([1, 3, 5] as [Int])    // FIXME: compiler has an issue without the qualifier
+        let rhs = JSValue([1, 3, 7] as [Int])    // FIXME: compiler has an issue without the qualifier
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableObjectTrue() {
-        let lhs = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
-        let rhs = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let rhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
         let areEqual = lhs == rhs
         XCTAssertTrue(areEqual)
     }
     
     func testEquatableObjectFalse() {
-        let lhs = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
-        let rhs = JSONValue(["key3" : 1, "key2" : 3, "key1" : 5])
+        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let rhs = JSValue(["key3" : 1, "key2" : 3, "key1" : 5])
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testEquatableTypeMismatch() {
-        let lhs = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
-        let rhs = JSONValue([1, 3, 5] as [Int])     // FIXME: compiler has an issue without the cast
+        let lhs = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let items = [1, 3, 5]
+        let rhs = JSValue(items)
+        
         let areEqual = lhs == rhs
         XCTAssertFalse(areEqual)
     }
     
     func testArrayAssignment() {
-        var array = JSONValue([1, 2, 3, 4] as [Int])
+        var items = [1, 2, 3, 4]
+        var array = JSValue(items)
         array[2] = 10
         
         XCTAssertEqual(countElements(array.array!), 4)
         XCTAssertEqual(array.array![2], 10)
-        
     }
     
     func testDictionaryAssignment() {
-        var dict = JSONValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        var dict = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
         dict["key2"] = 10
         
         XCTAssertEqual(countElements(dict.object!), 3)

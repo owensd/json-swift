@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7D7BD7C1195418CB00AC2E4E"
-               BuildableName = "JSON.framework"
+               BuildableName = "JSONLib.framework"
                BlueprintName = "JSON"
                ReferencedContainer = "container:JSON.xcodeproj">
             </BuildableReference>
@@ -49,6 +49,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "7D7BD7C1195418CB00AC2E4E"
+            BuildableName = "JSONLib.framework"
+            BlueprintName = "JSON"
+            ReferencedContainer = "container:JSON.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
