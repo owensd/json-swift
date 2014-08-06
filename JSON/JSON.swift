@@ -28,13 +28,25 @@ public enum JSValue : Equatable, Printable {
     /// All of the error codes when parsing JSON.
     public enum ErrorCodes: Int {
         /// A integer that is outside of the safe range was attempted to be set.
-        case InvalidIntegerValue     = 1
+        case InvalidIntegerValue        = 1
         
         /// Error when converting a dictionary and the key is not of type `String`.
-        case InvalidKeyType          = 2
+        case InvalidKeyType
         
         /// An unsupported type is attempting to be parsed.
-        case UnsupportedType         = 3
+        case UnsupportedType
+        
+        /// Error used when attempting to convert a value to an type it does not represent.
+        case InvalidType
+        
+        /// Error used when attempting to convert a value to an type when the value is null.
+        case NullValue
+        
+        /// Error used when attempting to retrieve a dictionary item with an invalid key.
+        case InvalidKeyValue
+
+        /// Error used when attempting to retrieve an array item with an invalid index.
+        case InvalidIndexValue
     }
     
     
@@ -74,7 +86,7 @@ public enum JSValue : Equatable, Printable {
         assert(value <= JSValue.MaximumSafeInt)
         
         if (value < JSValue.MinimumSafeInt || value > JSValue.MaximumSafeInt) {
-            let info = [LocalizedErrorDescriptionKey: "Invalid integer value of '\(value)'. Integers must be within the range \(JSValue.MinimumSafeInt) and \(JSValue.MaximumSafeInt)"]
+            let info = [LocalizedDescriptionKey: "Invalid integer value of '\(value)'. Integers must be within the range \(JSValue.MinimumSafeInt) and \(JSValue.MaximumSafeInt)"]
             self = .Invalid(Error(code: JSValue.ErrorCodes.InvalidIntegerValue.toRaw(), domain: JSValueErrorDomain, userInfo: info))
         }
         
@@ -127,58 +139,83 @@ public enum JSValue : Equatable, Printable {
         }
     }
     
-    /// Retrieves the `String` representation of the value, or `nil`.
-    public var string : String? {
+    public var string : FailableOf<String> {
         switch self {
-        case .JSString(let value):
-            return value
+        case .Invalid(let error):
+            return FailableOf(error)
+            
+        case .JSString(let string):
+            return FailableOf(string)
             
         default:
-            return nil
+            return FailableOf(Error(
+                code: JSValue.ErrorCodes.InvalidType.toRaw(),
+                domain: JSValueErrorDomain,
+                userInfo: [LocalizedDescriptionKey: "The specified value is not of type 'String'."]))
         }
     }
     
-    /// Retrieves the `Double` representation of the value, or `nil`.
-    public var number : Double? {
+    public var number : FailableOf<Double> {
         switch self {
-        case .JSNumber(let value):
-            return value
+        case .Invalid(let error):
+            return FailableOf(error)
+            
+        case .JSNumber(let double):
+            return FailableOf(double)
             
         default:
-            return nil
+            return FailableOf(Error(
+                code: JSValue.ErrorCodes.InvalidType.toRaw(),
+                domain: JSValueErrorDomain,
+                userInfo: [LocalizedDescriptionKey: "The specified value is not of type 'Double'."]))
         }
     }
     
-    /// Retrieves the `Dictionary<String, JSValue>` representation of the value, or `nil`.
-    public var object : [String : JSValue]? {
+    public var object : FailableOf<[String:JSValue]> {
         switch self {
-        case .JSObject(let value):
-            return value
+        case .Invalid(let error):
+            return FailableOf(error)
+            
+        case .JSObject(let object):
+            return FailableOf(object)
             
         default:
-            return nil
+            return FailableOf(Error(
+                code: JSValue.ErrorCodes.InvalidType.toRaw(),
+                domain: JSValueErrorDomain,
+                userInfo: [LocalizedDescriptionKey: "The specified value is not of type '[String:JSValue]'."]))
         }
     }
     
-    /// Retrieves the `Array<JSValue>` representation of the value, or `nil`.
-    public var array : [JSValue]? {
+    public var array : FailableOf<[JSValue]> {
         switch self {
-        case .JSArray(let value):
-            return value
+        case .Invalid(let error):
+            return FailableOf(error)
+            
+        case .JSArray(let array):
+            return FailableOf(array)
             
         default:
-            return nil
+            return FailableOf(Error(
+                code: JSValue.ErrorCodes.InvalidType.toRaw(),
+                domain: JSValueErrorDomain,
+                userInfo: [LocalizedDescriptionKey: "The specified value is not of type '[JSValue]'."]))
         }
     }
     
-    /// Retrieves the `Bool` representation of the value, or `nil`.
-    public var bool : Bool? {
+    public var bool : FailableOf<Bool> {
         switch self {
-        case .JSBool(let value):
-            return value
+        case .Invalid(let error):
+            return FailableOf(error)
+            
+        case .JSBool(let bool):
+            return FailableOf(bool)
             
         default:
-            return nil
+            return FailableOf(Error(
+                code: JSValue.ErrorCodes.InvalidType.toRaw(),
+                domain: JSValueErrorDomain,
+                userInfo: [LocalizedDescriptionKey: "The specified value is not of type 'Bool'."]))
         }
     }
     
@@ -210,15 +247,23 @@ public enum JSValue : Equatable, Printable {
                 if let result = dict[key] {
                     return result
                 } else {
-                    return JSNull
+                    let error = Error(
+                        code: JSValue.ErrorCodes.InvalidKeyValue.toRaw(),
+                        domain: JSValueErrorDomain,
+                        userInfo: [LocalizedDescriptionKey: "There is no value stored with key: '\(key)'."])
+                    return JSValue.Invalid(error)
                 }
                 
             default:
-                return JSNull
+                let error = Error(
+                    code: JSValue.ErrorCodes.InvalidType.toRaw(),
+                    domain: JSValueErrorDomain,
+                    userInfo: [LocalizedDescriptionKey: "Cannot index by string on a non-dictionary value."])
+                return JSValue.Invalid(error)
             }
         }
         set {
-            if var dict = self.object {
+            if var dict = self.object.value {
                 dict[key] = newValue
                 self = JSValue(dict)
             }
@@ -230,14 +275,26 @@ public enum JSValue : Equatable, Printable {
         get {
             switch self {
             case .JSArray(let array):
+                if index < 0 || index >= array.count {
+                    let error = Error(
+                        code: JSValue.ErrorCodes.InvalidIndexValue.toRaw(),
+                        domain: JSValueErrorDomain,
+                        userInfo: [LocalizedDescriptionKey: "The index (\(index)) is not valid for the range [0, \(array.count))."])
+                    return JSValue.Invalid(error)
+                }
+
                 return array[index]
                 
             default:
-                return JSNull
+                let error = Error(
+                    code: JSValue.ErrorCodes.InvalidType.toRaw(),
+                    domain: JSValueErrorDomain,
+                    userInfo: [LocalizedDescriptionKey: "Cannot index into a non-array value."])
+                return JSValue.Invalid(error)
             }
         }
         set {
-            if var array = self.array {
+            if var array = self.array.value {
                 array[index] = newValue
                 self = JSValue(array)
             }
@@ -284,6 +341,29 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 // MARK: Convenience extensions, including ObjC interop.
 //
 extension JSValue {
+    
+    /// :returns: `true` if the `JSValue` is not invalid, `false` otherwise.
+    public var hasValue: Bool {
+        switch self {
+        case .Invalid(_):
+            return false
+            
+        default:
+            return true
+        }
+    }
+    
+    /// :returns: The `Error` instance for the invalid state of the `JSValue`.
+    public var error: Error? {
+        switch self {
+        case .Invalid(let error):
+            return error
+            
+        default:
+            return nil
+        }
+    }
+    
     /// Initializes a new `JSValue` with a `[Byte]`.
     public init(_ bytes: [Byte], encoding: Encodings = Encodings.base64) {
         let data = NSData(bytes: bytes, length: bytes.count)
@@ -317,7 +397,7 @@ extension JSValue {
                         newDict[key] = JSValue(v)
                     }
                     else {
-                        let info = [LocalizedErrorDescriptionKey: "Invalid key type; expected String"]
+                        let info = [LocalizedDescriptionKey: "Invalid key type; expected String"]
                         let error = Error(code: JSValue.ErrorCodes.InvalidKeyType.toRaw(), domain: JSValueErrorDomain, userInfo: info)
                         self = .Invalid(error)
                         return
@@ -340,7 +420,7 @@ extension JSValue {
                 self = .JSNull
                 
             default:
-                let info = [LocalizedErrorDescriptionKey: "Unsupported JSON type attempting to be serialized."]
+                let info = [LocalizedDescriptionKey: "Unsupported JSON type attempting to be serialized."]
                 let error = Error(code: JSValue.ErrorCodes.UnsupportedType.toRaw(), domain: JSValueErrorDomain, userInfo: info)
                 self = .Invalid(error)
             }

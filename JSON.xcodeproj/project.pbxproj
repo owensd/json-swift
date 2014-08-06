@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7D004875199099930009F5F5 /* JSON.functional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D004874199099930009F5F5 /* JSON.functional.swift */; };
+		7D28ECA1199205F100F14B63 /* Functional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D28ECA0199205F100F14B63 /* Functional.swift */; };
 		7D7BD7C8195418CB00AC2E4E /* JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D7BD7C7195418CB00AC2E4E /* JSON.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7D7BD7CE195418CC00AC2E4E /* JSONLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D7BD7C2195418CB00AC2E4E /* JSONLib.framework */; };
 		7D7BD7D5195418CC00AC2E4E /* JSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7BD7D4195418CC00AC2E4E /* JSONTests.swift */; };
@@ -54,6 +56,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7D004874199099930009F5F5 /* JSON.functional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSON.functional.swift; sourceTree = "<group>"; };
+		7D28ECA0199205F100F14B63 /* Functional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Functional.swift; sourceTree = "<group>"; };
 		7D7BD7C2195418CB00AC2E4E /* JSONLib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = JSONLib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D7BD7C6195418CB00AC2E4E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D7BD7C7195418CB00AC2E4E /* JSON.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
@@ -108,8 +112,10 @@
 				7D7BD7C5195418CB00AC2E4E /* Supporting Files */,
 				7D7BD7C7195418CB00AC2E4E /* JSON.h */,
 				7D7BD7E019541A2800AC2E4E /* JSON.swift */,
+				7D004874199099930009F5F5 /* JSON.functional.swift */,
 				7D7D34291990777D0059C944 /* Error.swift */,
 				7D7D342A1990777D0059C944 /* Failable.swift */,
+				7D28ECA0199205F100F14B63 /* Functional.swift */,
 			);
 			path = JSON;
 			sourceTree = "<group>";
@@ -253,7 +259,9 @@
 			files = (
 				7D7D342C1990777D0059C944 /* Failable.swift in Sources */,
 				7D7D342B1990777D0059C944 /* Error.swift in Sources */,
+				7D28ECA1199205F100F14B63 /* Functional.swift in Sources */,
 				7D7BD7E119541A2800AC2E4E /* JSON.swift in Sources */,
+				7D004875199099930009F5F5 /* JSON.functional.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

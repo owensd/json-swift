@@ -34,7 +34,7 @@ public struct Error {
 }
 
 /// Localized error description key.
-let LocalizedErrorDescriptionKey = "NSLocalizedDescription"
+public let LocalizedDescriptionKey = "NSLocalizedDescription"
 
 extension Error {
     
@@ -49,7 +49,7 @@ extension Error {
             if let info = memory.userInfo {
                 self.userInfo = ErrorInfoDictionary()
                 if let localizedDescription = info[NSLocalizedDescriptionKey] as? NSString {
-                    self.userInfo[LocalizedErrorDescriptionKey] = localizedDescription
+                    self.userInfo[LocalizedDescriptionKey] = localizedDescription
                 }
             }
             else {

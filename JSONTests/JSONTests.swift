@@ -13,7 +13,7 @@ class JSONTests: XCTestCase {
     
     func testStringValue() {
         let value : JSValue = "hello world"
-        if let string = value.string {
+        if let string = value.string.value {
             XCTAssertEqual(string, "hello world")
         }
         else {
@@ -24,14 +24,14 @@ class JSONTests: XCTestCase {
     func testNullStringValue() {
         let string : String? = nil
         let value = JSValue(string)
-        if value.string != nil {
+        if value.string.value != nil {
             XCTFail()
         }
     }
 
     func testIntegerValue() {
         let value : JSValue = 123
-        if let number = value.number {
+        if let number = value.number.value {
             XCTAssertEqual(number, 123)
         }
         else {
@@ -42,14 +42,14 @@ class JSONTests: XCTestCase {
     func testNullIntegerValue() {
         let number : Int? = nil
         let value = JSValue(number)
-        if value.number != nil {
+        if value.number.value != nil {
             XCTFail()
         }
     }
 
     func testNSNumberValue() {
         let value = JSValue(NSNumber(integer: 123))
-        if let number = value.number {
+        if let number = value.number.value {
             XCTAssertEqual(number, 123)
         }
         else {
@@ -60,14 +60,14 @@ class JSONTests: XCTestCase {
     func testNullNSNumberValue() {
         let number : NSNumber? = nil
         let value = JSValue(number)
-        if value.number != nil {
+        if value.number.value != nil {
             XCTFail()
         }
     }
 
     func testDoubleValue() {
         let value : JSValue = 3.234957
-        if let number = value.number {
+        if let number = value.number.value {
             XCTAssertEqual(number, 3.234957)
         }
         else {
@@ -78,14 +78,14 @@ class JSONTests: XCTestCase {
     func testNullDoubleValue() {
         let number : Double? = nil
         let value = JSValue(number)
-        if value.number != nil {
+        if value.number.value != nil {
             XCTFail()
         }
     }
     
     func testBoolTrueValue() {
         let value : JSValue = JSValue(true)
-        if let bool = value.bool {
+        if let bool = value.bool.value {
             XCTAssertEqual(bool, true)
         }
         else {
@@ -96,7 +96,7 @@ class JSONTests: XCTestCase {
     func testNullBoolValue() {
         let bool : Bool? = nil
         let value = JSValue(bool)
-        if value.bool != nil {
+        if value.bool.value != nil {
             XCTFail()
         }
     }
@@ -104,7 +104,7 @@ class JSONTests: XCTestCase {
     
     func testBoolFalseValue() {
         let value : JSValue = false
-        if let bool = value.bool {
+        if let bool = value.bool.value {
             XCTAssertEqual(bool, false)
         }
         else {
@@ -125,11 +125,11 @@ class JSONTests: XCTestCase {
     
     func testBasicArray() {
         let value : JSON = [1, "Dog", 3.412, true]
-        if let array = value.array {
-            XCTAssertEqual(array[0].number!, 1)
-            XCTAssertEqual(array[1].string!, "Dog")
-            XCTAssertEqual(array[2].number!, 3.412)
-            XCTAssertTrue(array[3].bool!)
+        if let array = value.array.value {
+            XCTAssertEqual(array[0].number.value!, 1)
+            XCTAssertEqual(array[1].string.value!, "Dog")
+            XCTAssertEqual(array[2].number.value!, 3.412)
+            XCTAssertTrue(array[3].bool.value!)
         }
         else {
             XCTFail()
@@ -138,13 +138,13 @@ class JSONTests: XCTestCase {
     
     func testNestedArray() {
         let value : JSON = [1, "Dog", [3.412, true]]
-        if let array = value.array {
-            XCTAssertEqual(array[0].number!, 1)
-            XCTAssertTrue(array[1].string! == "Dog")
+        if let array = value.array.value {
+            XCTAssertEqual(array[0].number.value!, 1)
+            XCTAssertTrue(array[1].string.value! == "Dog")
             
-            let nested = array[2].array!
-            XCTAssertEqual(nested[0].number!, 3.412)
-            XCTAssertTrue(nested[1].bool!)
+            let nested = array[2].array.value!
+            XCTAssertEqual(nested[0].number.value!, 3.412)
+            XCTAssertTrue(nested[1].bool.value!)
         }
         else {
             XCTFail()
@@ -172,11 +172,11 @@ class JSONTests: XCTestCase {
             ]
         ]
         
-        XCTAssertTrue(json["stat"].string! == "ok")
+        XCTAssertTrue(json["stat"].string.value! == "ok")
         XCTAssertTrue(json["blogs"]["blog"] != nil)
   
-        XCTAssertTrue(json["blogs"]["blog"][0]["id"].number! == 73)
-        XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
+        XCTAssertTrue(json["blogs"]["blog"][0]["id"].number.value! == 73)
+        XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool.value!)
     }
     
     func testFlickrWithDictAnyObjectResult() {
@@ -202,11 +202,11 @@ class JSONTests: XCTestCase {
         
         var json = JSON(flickr)
         
-        XCTAssertTrue(json["stat"].string! == "ok")
+        XCTAssertTrue(json["stat"].string.value! == "ok")
         XCTAssertTrue(json["blogs"]["blog"] != nil)
         
-        XCTAssertTrue(json["blogs"]["blog"][0]["id"].number! == 73)
-        XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
+        XCTAssertTrue(json["blogs"]["blog"][0]["id"].number.value! == 73)
+        XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool.value!)
     }
     
     func testFlickrResultWithNSTypes() {
@@ -216,11 +216,11 @@ class JSONTests: XCTestCase {
         if let dict = flickr as? NSDictionary {
             var json = JSON(dict)
             
-            XCTAssertTrue(json["stat"].string! == "ok")
+            XCTAssertTrue(json["stat"].string.value! == "ok")
             XCTAssertTrue(json["blogs"]["blog"] != nil)
             
-            XCTAssertTrue(json["blogs"]["blog"][0]["id"].number! == 73)
-            XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
+            XCTAssertTrue(json["blogs"]["blog"][0]["id"].number.value! == 73)
+            XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool.value!)
         }
         else {
             XCTFail("The JSON object should have been a dictionary.")
@@ -232,11 +232,11 @@ class JSONTests: XCTestCase {
 
         var parsedJson = JSON.parse(String)
         if let json = parsedJson.value {
-            XCTAssertTrue(json["stat"].string! == "ok")
+            XCTAssertTrue(json["stat"].string.value! == "ok")
             XCTAssertTrue(json["blogs"]["blog"] != nil)
             
-            XCTAssertTrue(json["blogs"]["blog"][0]["id"].number! == 73)
-            XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
+            XCTAssertTrue(json["blogs"]["blog"][0]["id"].number.value! == 73)
+            XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool.value!)
         }
         else {
             XCTFail()
@@ -269,14 +269,14 @@ class JSONTests: XCTestCase {
 
         let jsonFromString = JSON.parse(string.value!)
         XCTAssertFalse(jsonFromString.failed)
-        XCTAssertEqual(jsonFromString.value!["stat"].string!, "ok")
-        XCTAssertEqual(jsonFromString.value!["blogs"]["blog"][0]["name"].string!, "Bloxus test")
+        XCTAssertEqual(jsonFromString.value!["stat"].string.value!, "ok")
+        XCTAssertEqual(jsonFromString.value!["blogs"]["blog"][0]["name"].string.value!, "Bloxus test")
     }
     
     func testEncodingBase64() {
         let bytes : [Byte] = [1, 2, 3, 4]
         let value = JSValue(bytes)
-        if let string = value.string {
+        if let string = value.string.value {
             XCTAssertEqual(string, "data:text/plain;base64,AQIDBA==")
         }
         else {
@@ -385,16 +385,16 @@ class JSONTests: XCTestCase {
         var array = JSValue(items)
         array[2] = 10
         
-        XCTAssertEqual(countElements(array.array!), 4)
-        XCTAssertEqual(array.array![2], 10)
+        XCTAssertEqual(countElements(array.array.value!), 4)
+        XCTAssertEqual(array.array.value![2], 10)
     }
     
     func testDictionaryAssignment() {
         var dict = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
         dict["key2"] = 10
         
-        XCTAssertEqual(countElements(dict.object!), 3)
-        let value = dict.object!["key2"]
-        XCTAssertEqual(value!.number!, 10)
+        XCTAssertEqual(countElements(dict.object.value!), 3)
+        let value = dict.object.value!["key2"]
+        XCTAssertEqual(value!.number.value!, 10)
     }
 }
