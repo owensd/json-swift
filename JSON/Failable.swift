@@ -37,11 +37,11 @@ public enum Failable {
 /// A `FailableOf<T>` should be returned from functions that need to return success or failure information and some
 /// corresponding data back upon a successful function call.
 public enum FailableOf<T> {
-    case Success(FailableValueWrapper<T>)
+    case Success(@autoclosure() -> T)
     case Failure(Error)
 
     public init(_ value: T) {
-        self = .Success(FailableValueWrapper(value))
+        self = .Success(value)
     }
 
     public init(_ error: Error) {
@@ -70,18 +70,11 @@ public enum FailableOf<T> {
 
     public var value: T? {
         switch self {
-        case .Success(let wrapper):
-            return wrapper.value
+        case .Success(let value):
+            return value()
 
         default:
             return nil
         }
     }
 }
-
-/// This is a workaround-wrapper class for a bug in the Swift compiler. DO NOT USE THIS CLASS!!
-public class FailableValueWrapper<T> {
-    public let value: T
-    public init(_ value: T) { self.value = value }
-}
-

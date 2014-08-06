@@ -397,4 +397,12 @@ class JSONTests: XCTestCase {
         let value = dict.object.value!["key2"]
         XCTAssertEqual(value!.number.value!, 10)
     }
+    
+    func testFailableDictionaryKeyMissing() {
+        var dict = JSValue(["key1" : 1, "key2" : 3, "key3" : 5])
+        let value = dict["key23"]
+        
+        XCTAssertFalse(value.hasValue)
+        XCTAssertTrue(value.error != nil)
+    }
 }
