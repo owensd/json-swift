@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7D7BD7C1195418CB00AC2E4E"
                BuildableName = "JSONLib.framework"
-               BlueprintName = "JSON"
+               BlueprintName = "JSON-OSX"
                ReferencedContainer = "container:JSON.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,16 +33,16 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7D7BD7CC195418CC00AC2E4E"
-               BuildableName = "JSONTests.xctest"
-               BlueprintName = "JSONTests"
+               BuildableName = "JSON-OSXTests.xctest"
+               BlueprintName = "JSON-OSXTests"
                ReferencedContainer = "container:JSON.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Debug"
@@ -54,7 +54,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7D7BD7C1195418CB00AC2E4E"
             BuildableName = "JSONLib.framework"
-            BlueprintName = "JSON"
+            BlueprintName = "JSON-OSX"
             ReferencedContainer = "container:JSON.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
