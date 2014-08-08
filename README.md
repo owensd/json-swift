@@ -1,11 +1,15 @@
 json-swift
 ==========
 
-A basic library for working with JSON in Swift.
+A practical JSON parsing library for Swift. It provides a fully typed and validated API surface for working with JSON, including the ability to base64 items with your JSON.
 
-Some sample usage from one of the tests:
+All of the JSON APIs return back `FailableOf<T>` instances, instead of `Optional<T>`. This allows for richer error information to be transferred back. See [Error Handling in Swift](http://owensd.io/2014/07/09/error-handling.html) for more info.
 
-    var json : JSON = [
+Also, there is a functional API set for the library as well. For an in-depth overview of that, see: [Functional JSON](http://owensd.io/2014/08/06/functional-json.html).
+
+**Initializing a JSON value**
+
+    let json : JSON = [
         "stat": "ok",
         "blogs": [
             "blog": [
@@ -25,8 +29,29 @@ Some sample usage from one of the tests:
         ]
     ]
     
-    XCTAssertEqualObjects(json["stat"].string!, "ok")
-    XCTAssertTrue(json["blogs"]["blog"] != nil)
+**Retrieve data from JSON**
 
-    XCTAssertEqualObjects(json["blogs"]["blog"][0]["id"].number!, 73)
-    XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool!)
+    if let stat = json["stat"].string.value {
+        println("stat = '\(stat)'")
+        // prints: stat = 'ok'
+    }
+    
+**Retrieve error information from a missing key lookup**
+
+    let stat = json["stats"].string
+    if let value = stat.value {
+        println("stat = '\(value)'")
+    }
+    else if let error = stat.error {
+        println("code: \(error.code), domain: '\(error.domain)', info: '\(error.userInfo[LocalizedDescriptionKey]!)'")
+        // prints: code: 6, domain: 'com.kiadsoftware.json.error', info: 'There is no value stored with key: 'stats'.'
+    }
+    
+**Iterate over the contents of an array**
+    
+    if let blogs = json["blogs"]["blog"].array.value {
+        for blog in blogs {
+            println("blog: \(blog)")
+        }
+    }
+  
