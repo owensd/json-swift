@@ -55,3 +55,42 @@ Also, there is a functional API set for the library as well. For an in-depth ove
         }
     }
   
+
+**A More complete example with type checking and remote source**
+
+    let json = JSON.fromURL("http://api.androidhive.info/contacts/")
+    let contacts = json["contacts"]
+
+    for i in 0..<contacts.length {
+        let s = contacts[i]
+        for (key,val) in s {
+            switch (key as String,val.type) {
+            case ("email","String"):
+                println("Email: \(val.asString!)")
+            case ("name","String"):
+                println("Name: \(val.asString!)")
+            case ("address","String"):
+                println("Address: \(val.asString!)")
+            case ("gender","String"):
+                println("Gender: \(val.asString!)")
+            case ("id","String"):
+                println("ID: \(val.asString!)")
+            case ("phone","Dictionary"):
+                for (k1,val1) in val {
+                    if val1.type == "String" {
+                        println ("\(k1): \(val1.asString!)")
+                    }
+                }
+            default:
+                println("Not sure what to do with \(key)")
+            }
+        }
+    }
+
+
+
+
+
+
+
+  
