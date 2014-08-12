@@ -55,7 +55,7 @@ public enum FailableOf<T> {
             
         default:
             return false
-            }
+        }
     }
     
     public var error: Error? {
@@ -65,7 +65,7 @@ public enum FailableOf<T> {
             
         default:
             return nil
-            }
+        }
     }
     
     public var value: T? {
@@ -75,7 +75,7 @@ public enum FailableOf<T> {
             
         default:
             return nil
-            }
+        }
     }
 }
 

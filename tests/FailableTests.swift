@@ -51,7 +51,7 @@ class FailableTests: XCTestCase {
         XCTAssertEqual(error.code, -13)
         XCTAssertEqual(error.domain, "failabletests")
         XCTAssertEqual(error.userInfo.count, 1)
-        XCTAssertTrue(error.userInfo["Message"]! as String == "Pick a positive number")
+        XCTAssertTrue(error.userInfo["Message"]? == "Pick a positive number")
     }
     
     func testDelayedValuesInFailableOf() {

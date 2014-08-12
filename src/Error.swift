@@ -9,7 +9,7 @@ import Foundation
 ///   `func readContentsOfFileAtPath(path: String) -> Failable<String>`
 ///
 public struct Error {
-    public typealias ErrorInfoDictionary = Dictionary<String, Any>
+    public typealias ErrorInfoDictionary = [String:String]
 
     /// The error code used to differentiate between various error states.
     public let code: Int
@@ -33,8 +33,22 @@ public struct Error {
     }
 }
 
-/// Localized error description key.
-public let LocalizedDescriptionKey = "NSLocalizedDescription"
+/// The standard keys used in `Error` and `userInfo`.
+public struct ErrorKeys {
+    private init() {}
+    
+    public static let LocalizedDescription                   = "NSLocalizedDescription"
+    public static let LocalizedFailureReason                 = "NSLoclalizedFailureReason"
+    public static let LocalizedRecoverySuggestion            = "NSLocalizedRecoverySuggestion"
+    public static let LocalizedRecoveryOptions               = "NSLocalizedRecoveryOptions"
+    public static let RecoveryAttempter                      = "NSRecoveryAttempter"
+    public static let HelpAnchor                             = "NSHelpAnchor"
+    
+    public static let StringEncoding                         = "NSStringEncoding"
+    public static let URL                                    = "NSURL"
+    public static let FilePath                               = "NSFilePath"
+}
+
 
 extension Error {
     
@@ -49,7 +63,7 @@ extension Error {
             if let info = memory.userInfo {
                 self.userInfo = ErrorInfoDictionary()
                 if let localizedDescription = info[NSLocalizedDescriptionKey] as? NSString {
-                    self.userInfo[LocalizedDescriptionKey] = localizedDescription
+                    self.userInfo[ErrorKeys.LocalizedDescription] = localizedDescription
                 }
             }
             else {
@@ -61,5 +75,11 @@ extension Error {
             self.domain = ""
             self.userInfo = ErrorInfoDictionary()
         }
+    }
+}
+
+extension Error: Printable {
+    public var description: String {
+        return "an error..."
     }
 }

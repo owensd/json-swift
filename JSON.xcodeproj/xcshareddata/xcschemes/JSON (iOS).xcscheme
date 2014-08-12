@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7D1E362E199478A600856119"
-               BuildableName = "JSON-iOS.framework"
+               BuildableName = "JSONLib.framework"
                BlueprintName = "JSON-iOS"
                ReferencedContainer = "container:JSON.xcodeproj">
             </BuildableReference>
@@ -57,7 +57,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7D1E362E199478A600856119"
-            BuildableName = "JSON-iOS.framework"
+            BuildableName = "JSONLib.framework"
             BlueprintName = "JSON-iOS"
             ReferencedContainer = "container:JSON.xcodeproj">
          </BuildableReference>
@@ -76,7 +76,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7D1E362E199478A600856119"
-            BuildableName = "JSON-iOS.framework"
+            BuildableName = "JSONLib.framework"
             BlueprintName = "JSON-iOS"
             ReferencedContainer = "container:JSON.xcodeproj">
          </BuildableReference>
@@ -94,7 +94,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7D1E362E199478A600856119"
-            BuildableName = "JSON-iOS.framework"
+            BuildableName = "JSONLib.framework"
             BlueprintName = "JSON-iOS"
             ReferencedContainer = "container:JSON.xcodeproj">
          </BuildableReference>
