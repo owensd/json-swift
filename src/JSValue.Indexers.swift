@@ -31,6 +31,12 @@ extension JSValue {
                 userInfo: [ErrorKeys.LocalizedDescription: JSValue.ErrorCode.IndexingIntoUnsupportedType.message])
             return JSValue(JSBackingValue.Invalid(error))
         }
+        set {
+            if var dict = self.object {
+                dict[key] = newValue
+                self.value = JSBackingValue.JSObject(dict)
+            }
+        }
     }
     
     /// Attempts to treat the `JSValue` as an array and return the item at the index.
@@ -53,6 +59,12 @@ extension JSValue {
                 domain: JSValueErrorDomain,
                 userInfo: [ErrorKeys.LocalizedDescription: JSValue.ErrorCode.IndexingIntoUnsupportedType.message])
             return JSValue(JSBackingValue.Invalid(error))
+        }
+        set {
+            if var array = self.array {
+                array[index] = newValue
+                self.value = JSBackingValue.JSArray(array)
+            }
         }
     }
 }

@@ -9,7 +9,7 @@
 import XCTest
 import JSONLib
 
-extension JSValueTests {
+class JSValueLiteralsTests : XCTestCase {
     
     func testStringValue() {
         let value: JSValue = "hello world"

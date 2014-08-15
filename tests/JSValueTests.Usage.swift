@@ -16,7 +16,7 @@ import JSONLib
  * Any breaks in these tests mean that usability of the API has been compromised.
  */
 
-extension JSValueTests {
+class JSValueUsageTests : XCTestCase {
     
     func testValidateSingleValueStringUsagePatternIfLet() {
         var json: JSValue = "Hello"

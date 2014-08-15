@@ -9,7 +9,7 @@
 import XCTest
 import JSONLib
 
-extension JSValueTests {
+class JSValueEquatableTests : XCTestCase {
 
     func testEquatableNullTrue() {
         let lhs: JSON = nil

@@ -18,7 +18,7 @@ public let JSValueErrorDomain      = "com.kiadsoftware.json.error"
 public struct JSValue : Equatable {
     
     /// The underlying value for `JSValue`.
-    let value: JSBackingValue
+    var value: JSBackingValue
     
     /// The maximum integer that is safely representable in JavaScript.
     public static let MaximumSafeInt: Int64 = 9007199254740991
@@ -66,15 +66,6 @@ public struct JSValue : Equatable {
 }
 
 extension JSValue : Printable {
-    /// Parses the given string and attempts to return a `JSValue` from it.
-    ///
-    /// :param: jsonString the string that contains the JSON to parse.
-    ///
-    /// :returns: A `FailableOf<T>` that will contain the parsed `JSValue` if successful,
-    ///           otherwise, the `Error` information for the parsing.
-    public static func parse(jsonString : String) -> FailableOf<JSValue> {
-        fatalError("nyi")
-    }
     
     /// Attempts to convert the `JSValue` into its string representation.
     ///
