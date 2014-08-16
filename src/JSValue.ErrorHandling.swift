@@ -55,19 +55,9 @@ extension JSValue {
             code: 4,
             message: "The specified index is out of range of the bounds for the array.")
 
-//        /// An unsupported type is attempting to be parsed.
-//        case UnsupportedType
-//        
-//        /// Error used when attempting to convert a value to an type it does not represent.
-//        case InvalidType
-//        
-//        /// Error used when attempting to convert a value to an type when the value is null.
-//        case NullValue
-//        
-//        /// Error used when attempting to retrieve a dictionary item with an invalid key.
-//        case InvalidKeyValue
-//        
-//        /// Error used when attempting to retrieve an array item with an invalid index.
-//        case InvalidIndexValue
+        /// Error when a parsing error occurs.
+        public static let ParsingError = ErrorMessage(
+            code: 5,
+            message: "The JSON string being parsed was invalid.")
     }
 }

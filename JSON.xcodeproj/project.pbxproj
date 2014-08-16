@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7D07B2D3199EB2EE0084611B /* sample.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D07B2D2199EB2EE0084611B /* sample.json */; };
 		7D07E8721995F18600C3BABB /* JSValue.Bridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D07E8711995F18600C3BABB /* JSValue.Bridging.swift */; };
 		7D07E8731995F18600C3BABB /* JSValue.Bridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D07E8711995F18600C3BABB /* JSValue.Bridging.swift */; };
+		7D0BED22199EB11A00D88D5E /* JSValueTests.Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */; };
 		7D1E364B19947B5900856119 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1E364519947B5900856119 /* Error.swift */; };
 		7D1E364C19947B5900856119 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1E364519947B5900856119 /* Error.swift */; };
 		7D1E364D19947B5900856119 /* Failable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1E364619947B5900856119 /* Failable.swift */; };
@@ -80,7 +82,9 @@
 
 /* Begin PBXFileReference section */
 		7D02E651199D81A50060CEFE /* JSValueTests.Indexers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValueTests.Indexers.swift; sourceTree = "<group>"; };
+		7D07B2D2199EB2EE0084611B /* sample.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = sample.json; sourceTree = "<group>"; };
 		7D07E8711995F18600C3BABB /* JSValue.Bridging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValue.Bridging.swift; sourceTree = "<group>"; };
+		7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValueTests.Performance.swift; sourceTree = "<group>"; };
 		7D1E362F199478A600856119 /* JSONLib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = JSONLib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D1E3639199478A600856119 /* JSON-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "JSON-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D1E364519947B5900856119 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
@@ -138,6 +142,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7D07B2D1199EB2DF0084611B /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				7D07B2D2199EB2EE0084611B /* sample.json */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 		7D7BD7B8195418CB00AC2E4E = {
 			isa = PBXGroup;
 			children = (
@@ -191,11 +203,13 @@
 			isa = PBXGroup;
 			children = (
 				7D7BD7D2195418CC00AC2E4E /* Supporting Files */,
+				7D07B2D1199EB2DF0084611B /* Data */,
 				7D30EE2D1999EFF300F3AA17 /* JSValueTests.Equatable.swift */,
 				7DCD0BE7199928BB008DC49F /* JSValueTests.Literals.swift */,
 				7D30EE311999F79B00F3AA17 /* JSValueTests.Parsing.swift */,
 				7D560FB31999583200270602 /* JSValueTests.Usage.swift */,
 				7D02E651199D81A50060CEFE /* JSValueTests.Indexers.swift */,
+				7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */,
 				7D1E365719947B9600856119 /* FailableTests.swift */,
 			);
 			name = Tests;
@@ -377,6 +391,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D07B2D3199EB2EE0084611B /* sample.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -436,6 +451,7 @@
 				7D70F3A8199DA516002BA827 /* JSValueTests.Indexers.swift in Sources */,
 				7D859B1B1999652900879B9B /* JSValueTests.Literals.swift in Sources */,
 				7D1E365819947B9600856119 /* FailableTests.swift in Sources */,
+				7D0BED22199EB11A00D88D5E /* JSValueTests.Performance.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

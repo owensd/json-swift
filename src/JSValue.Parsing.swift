@@ -19,7 +19,11 @@ extension JSValue {
         
         for ; index < string.endIndex; index = index.successor() {
             if !whitespace(string[index]) {
-                return FailableOf(Error(code: 0, domain: "", userInfo: nil))
+                
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(string[index]) @ \(index)"]
+                return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
             }
         }
         
@@ -58,9 +62,15 @@ extension JSValue {
             else if c == "n" {
                 return parseNull(string, startAt: &index)
             }
+            else if c == "\"" || c == "'" {
+                return parseString(string, startAt: &index, quoteChar: c)
+            }
         }
         
-        return FailableOf(Error(code: 0, domain: "", userInfo: nil))
+        let info = [
+            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+            ErrorKeys.LocalizedFailureReason: "No valid JSON value was found to parse in string."]
+        return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
     }
 
     static func whitespace(char: Character) -> Bool {
@@ -89,46 +99,107 @@ extension JSValue {
     }
     
     static func parseObject(string: String, inout startAt index: String.Index) -> FailableOf<JSValue> {
+        
+        enum State {
+            case Initial
+            case Key
+            case Value
+        }
+        
         index = index.successor()
         
-        var jsvalue: JSValue = [:]
+        var state = State.Initial
+
+        var key = ""
+        var jsvalue = [String:JSValue]()
         for ; index < string.endIndex; index = index.successor() {
             let c = string[index]
             
             if whitespace(c) { /* do nothing */ }
-            else if c == "\"" {
-                var key = ""
-                for ; index < string.endIndex; index.successor() {
-                    let c = string[index]
-                    if c != "\"" { key += c } else { break }
-                }
-                
-                for ; index < string.endIndex; index.successor() {
-                    if whitespace(string[index]) { continue }
-                }
-                
-                if index < string.endIndex && string[index] != ":" {
-                    return FailableOf(Error(code: 0, domain: "bad key", userInfo: nil))
-                }
-                
-                for ; index < string.endIndex; index.successor() {
-                    if whitespace(string[index]) { continue; }
-                }
-                
-                let value = parse(string, startAt: &index)
-                if let error = jsvalue.error { return value }
-                if let value = value.value {
-                    jsvalue[key] = value
+            else if c == "}" {
+                switch state {
+                case .Initial: fallthrough
+                case .Value:
+                    index = index.successor()
+                    return FailableOf(JSValue(JSBackingValue.JSObject(jsvalue)))
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "The '}' was unexpected at this point."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
-            else if c == "\'" { }
-            else if c == "}" {
-                index = index.successor()
-                return FailableOf(jsvalue)
+            else if c == "'" || c == "\"" {
+                switch state {
+                case .Initial:
+                    state = .Key
+                    
+                    let parsedKey = parseString(string, startAt: &index, quoteChar: c)
+                    if let error = parsedKey.error {
+                        return FailableOf(error)
+                    }
+                    
+                    if let parsedKey = parsedKey.value?.string {
+                        key = parsedKey
+                    }
+                    
+                    index = index.predecessor()
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                }
+            }
+            else if c == ":" {
+                switch state {
+                case .Key:
+                    state = .Value
+                    
+                    let parsedValue = parse(string, startAt: &index)
+                    if parsedValue.failed {
+                        return parsedValue
+                    }
+                    else if let value = parsedValue.value {
+                        jsvalue[key] = value
+                    }
+                    
+                    index = index.predecessor()
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                }
+            }
+            else if c == "," {
+                switch state {
+                case .Value:
+                    state = .Initial
+                    key = ""
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                }
+            }
+            else {
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
             }
         }
         
-        return FailableOf(Error(code: 0, domain: "nyi", userInfo: nil))
+        let info = [
+            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+            ErrorKeys.LocalizedFailureReason: "Error parsing JSON object."]
+        return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
     }
 
     static func parseArray(string: String, inout startAt index: String.Index) -> FailableOf<JSValue> {
@@ -138,24 +209,27 @@ extension JSValue {
         for ; index < string.endIndex; index = index.successor() {
             let c = string[index]
             
-            if c == "]" {
+            if whitespace(c) { /* do nothing */ }
+            else if c == "]" {
                 index = index.successor()
                 return FailableOf(JSValue(JSBackingValue.JSArray(values)))
             }
-            
-            let value = parse(string, startAt: &index)
-            if value.failed { return value }
-            if let value = value.value {
-                values.append(value)
-            }
-            
-            if index < string.endIndex && string[index] == "]" {
-                index = index.successor()
-                return FailableOf(JSValue(JSBackingValue.JSArray(values)))
+            else if c == "," { /* do nothing */ }
+            else {
+                let parsedValue = parse(string, startAt: &index)
+                if parsedValue.failed { return parsedValue }
+                if let value = parsedValue.value {
+                    values.append(value)
+                }
+                
+                index = index.predecessor()
             }
         }
         
-        return FailableOf(Error(code: 0, domain: "nyi", userInfo: nil))
+        let info = [
+            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+            ErrorKeys.LocalizedFailureReason: "Error parsing JSON array."]
+        return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
     }
     
     static func parseNumber(string: String, inout startAt index: String.Index) -> FailableOf<JSValue> {
@@ -188,7 +262,10 @@ extension JSValue {
                     state = .ExponentDigits
                     
                 default:
-                    return FailableOf(Error(code: 0, domain: "nyi", userInfo: nil))
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
             else if c == "+" {
@@ -200,7 +277,10 @@ extension JSValue {
                     state = .ExponentDigits
                     
                 default:
-                    return FailableOf(Error(code: 0, domain: "nyi", userInfo: nil))
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
             else if let digit = digit(c) {
@@ -224,7 +304,10 @@ extension JSValue {
                     exponent = exponent * 10 + digit
                     
                 default:
-                    return FailableOf(Error(code: 0, domain: "nyi", userInfo: nil))
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
             else if c == "." {
@@ -233,7 +316,10 @@ extension JSValue {
                     state = .Decimal
                     
                 default:
-                    return FailableOf(Error(code: 0, domain: "nyi", userInfo: nil))
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
             else if c == "e" || c == "E" {
@@ -245,7 +331,10 @@ extension JSValue {
                     state = .Exponent
                     
                 default:
-                    return FailableOf(Error(code: 0, domain: "nyi", userInfo: nil))
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(c) @ \(index)"]
+                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
                 state = ParsingState.Exponent
             }
@@ -261,17 +350,26 @@ extension JSValue {
         index = index.successor()
         
         if index >= string.endIndex || string[index] != "r" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
         if index >= string.endIndex || string[index] != "u" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
         if index >= string.endIndex || string[index] != "e" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -284,22 +382,34 @@ extension JSValue {
         index = index.successor()
         
         if index >= string.endIndex || string[index] != "a" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
         if index >= string.endIndex || string[index] != "l" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
         if index >= string.endIndex || string[index] != "s" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
         if index != string.endIndex && string[index] != "e" && !whitespace(string[index]) {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -312,17 +422,26 @@ extension JSValue {
         index = index.successor()
         
         if index >= string.endIndex || string[index] != "u" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
         if index >= string.endIndex || string[index] != "l" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
         if index >= string.endIndex || string[index] != "l" {
-            return FailableOf(Error(code: 0, domain: "bad null", userInfo: nil))
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -331,11 +450,31 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func exp(number: Double, _ exp: Int) -> Double {
-        let sign = exp < 0 ? -1 : 1
-        let coefficient = exp * sign
-        let mult = reduce(0 ..< coefficient, 1, { x, _ in x * 10 })
+    static func parseString(string: String, inout startAt index: String.Index, quoteChar: Character) -> FailableOf<JSValue> {
+        var value = ""
         
-        return sign < 0 ? number / Double(mult) : number * Double(mult)
+        index = index.successor()
+        
+        for ; index < string.endIndex; index = index.successor() {
+            let c = string[index]
+            if c == quoteChar && last(value) != "\\" {
+                index = index.successor()
+                return FailableOf(JSValue(JSBackingValue.JSString(value)))
+            }
+            else {
+                value += c
+            }
+        }
+        
+        let info = [
+            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+            ErrorKeys.LocalizedFailureReason: "Error parsing JSON string."]
+        return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+    }
+    
+    static func exp(number: Double, _ exp: Int) -> Double {
+        return exp < 0 ?
+            reduce(0 ..< abs(exp), number, { x, _ in x / 10 }) :
+            reduce(0 ..< exp, number, { x, _ in x * 10 })
     }
 }
