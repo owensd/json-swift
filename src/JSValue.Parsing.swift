@@ -9,7 +9,7 @@
 extension JSValue {
     /// Parses the given string and attempts to return a `JSValue` from it.
     ///
-    /// :param: string the string that contains the JSON to parse.
+    /// :param: string the UTF8 encoding string that contains the JSON to parse.
     ///
     /// :returns: A `FailableOf<T>` that will contain the parsed `JSValue` if successful,
     ///           otherwise, the `Error` information for the parsing.
