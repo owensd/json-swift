@@ -32,10 +32,10 @@ class JSValuePerformanceTests: XCTestCase {
         let string = NSString.stringWithContentsOfFile(path, encoding: NSUTF8StringEncoding, error: nil)
         XCTAssertNotNil(string)
         
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding)
-        XCTAssertNotNil(data)
-        
         self.measureBlock() {
+            let data = string.dataUsingEncoding(NSUTF8StringEncoding)
+            XCTAssertNotNil(data)
+            
             let json: AnyObject! = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil)
             XCTAssertTrue(json != nil)
         }
