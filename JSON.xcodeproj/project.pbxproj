@@ -10,7 +10,6 @@
 		7D07B2D3199EB2EE0084611B /* sample.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D07B2D2199EB2EE0084611B /* sample.json */; };
 		7D07E8721995F18600C3BABB /* JSValue.Bridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D07E8711995F18600C3BABB /* JSValue.Bridging.swift */; };
 		7D07E8731995F18600C3BABB /* JSValue.Bridging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D07E8711995F18600C3BABB /* JSValue.Bridging.swift */; };
-		7D0BED22199EB11A00D88D5E /* JSValueTests.Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */; };
 		7D1E364B19947B5900856119 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1E364519947B5900856119 /* Error.swift */; };
 		7D1E364C19947B5900856119 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1E364519947B5900856119 /* Error.swift */; };
 		7D1E364D19947B5900856119 /* Failable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1E364619947B5900856119 /* Failable.swift */; };
@@ -40,6 +39,7 @@
 		7DCD0BEC19993630008DC49F /* JSValue.Accessors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BEA19993630008DC49F /* JSValue.Accessors.swift */; };
 		7DCD0BEE199937AA008DC49F /* JSValue.Indexers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BED199937AA008DC49F /* JSValue.Indexers.swift */; };
 		7DCD0BEF199937AA008DC49F /* JSValue.Indexers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BED199937AA008DC49F /* JSValue.Indexers.swift */; };
+		7DE508D219A1E5CA006A7511 /* JSValueTests.Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -451,7 +451,7 @@
 				7D70F3A8199DA516002BA827 /* JSValueTests.Indexers.swift in Sources */,
 				7D859B1B1999652900879B9B /* JSValueTests.Literals.swift in Sources */,
 				7D1E365819947B9600856119 /* FailableTests.swift in Sources */,
-				7D0BED22199EB11A00D88D5E /* JSValueTests.Performance.swift in Sources */,
+				7DE508D219A1E5CA006A7511 /* JSValueTests.Performance.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

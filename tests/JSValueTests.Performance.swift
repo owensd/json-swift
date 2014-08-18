@@ -9,6 +9,7 @@
 import Cocoa
 import XCTest
 import JSONLib
+import Swift
 
 class JSValuePerformanceTests: XCTestCase {
 
@@ -16,7 +17,7 @@ class JSValuePerformanceTests: XCTestCase {
         let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource("sample", ofType: "json")
         XCTAssertNotNil(path)
         
-        let string = NSString.stringWithContentsOfFile(path, encoding: NSUTF8StringEncoding, error: nil)
+        let string: String = NSString.stringWithContentsOfFile(path, encoding: NSUTF8StringEncoding, error: nil)
         XCTAssertNotNil(string)
         
         self.measureBlock() {

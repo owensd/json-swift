@@ -9,29 +9,25 @@
 extension JSValue {
     /// Parses the given string and attempts to return a `JSValue` from it.
     ///
-    /// :param: string the UTF8 encoding string that contains the JSON to parse.
+    /// :param: string the string that contains the JSON to parse.
     ///
     /// :returns: A `FailableOf<T>` that will contain the parsed `JSValue` if successful,
     ///           otherwise, the `Error` information for the parsing.
     public static func parse(string : String) -> FailableOf<JSValue> {
-        var index = string.utf8.startIndex
-        let value = parse(string.utf8, startAt: &index)
+        let scalars = string.unicodeScalars
         
-        for ; index != string.utf8.endIndex; index = index.successor() {
-            let cu = string.utf8[index]
+        var index = scalars.startIndex
+        let value = parse(scalars, startAt: &index)
+
+        for ; index != scalars.endIndex; index = index.successor() {
+            let scalar = scalars[index]
             
-            if !whitespace(cu) {
-                var bytes = [UInt8]()
-                var idx = index
-                for var count = 0; idx != string.utf8.endIndex && count < 10; count++ {
-                    bytes.append(string.utf8[idx])
-                    idx = idx.successor()
-                }
-                bytes.append(0)
+            if !scalar.isWhitespace() {
+                var remainingText = substring(scalars, from: index)
                 
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                    ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(toString(bytes))"]
+                    ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(remainingText)"]
                 return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
             }
         }
@@ -41,37 +37,37 @@ extension JSValue {
     
     /// Parses the given string and attempts to return a `JSValue` from it.
     ///
-    /// :param: string the string that contains the JSON to parse.
+    /// :param: scalars the `String.UnicodeScalarView` that contains the JSON to parse.
     /// :param: startAt the index to start parsing the string from.
     ///
     /// :returns: A `FailableOf<T>` that will contain the parsed `JSValue` if successful,
     ///           otherwise, the `Error` information for the parsing.
-    static func parse(string: String.UTF8View, inout startAt index: String.UTF8View.Index) -> FailableOf<JSValue> {
-        for ; index != string.endIndex; index = index.successor() {
-            let cu = string[index]
+    static func parse(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
+        for ; index != scalars.endIndex; index = index.successor() {
+            let scalar = scalars[index]
             
-            if whitespace(cu) { continue; }
+            if scalar.isWhitespace() { continue; }
             
-            if cu == Token.LeftCurly.toRaw() {
-                return parseObject(string, startAt: &index)
+            if scalar == Token.LeftCurly {
+                return parseObject(scalars, startAt: &index)
             }
-            else if cu == Token.LeftBracket.toRaw() {
-                return parseArray(string, startAt: &index)
+            else if scalar == Token.LeftBracket {
+                return parseArray(scalars, startAt: &index)
             }
-            else if digit(cu) != nil || cu == Token.Minus.toRaw() {
-                return parseNumber(string, startAt: &index)
+            else if scalar.isDigit() || scalar == Token.Minus {
+                return parseNumber(scalars, startAt: &index)
             }
-            else if cu == Alphabet.t.toRaw() {
-                return parseTrue(string, startAt: &index)
+            else if scalar == Token.t {
+                return parseTrue(scalars, startAt: &index)
             }
-            else if cu == Alphabet.f.toRaw() {
-                return parseFalse(string, startAt: &index)
+            else if scalar == Token.f {
+                return parseFalse(scalars, startAt: &index)
             }
-            else if cu == Alphabet.n.toRaw() {
-                return parseNull(string, startAt: &index)
+            else if scalar == Token.n {
+                return parseNull(scalars, startAt: &index)
             }
-            else if cu == Token.DoubleQuote.toRaw() || cu == Token.SingleQuote.toRaw() {
-                return parseString(string, startAt: &index, quote: cu)
+            else if scalar == Token.DoubleQuote || scalar == Token.SingleQuote {
+                return parseString(scalars, startAt: &index, quote: scalar)
             }
         }
         
@@ -81,7 +77,7 @@ extension JSValue {
         return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    static func parseObject(string: String.UTF8View, inout startAt index: String.UTF8View.Index) -> FailableOf<JSValue> {
+    static func parseObject(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
         enum State {
             case Initial
             case Key
@@ -94,13 +90,13 @@ extension JSValue {
 
         var key = ""
         var jsvalue = [String:JSValue]()
-        while index != string.endIndex {
-            let cu = string[index]
+        while index != scalars.endIndex {
+            let scalar = scalars[index]
             
-            if whitespace(cu) {
+            if scalar.isWhitespace() {
                 index = index.successor()
             }
-            else if cu == Token.RightCurly.toRaw() {
+            else if scalar == Token.RightCurly {
                 switch state {
                 case .Initial: fallthrough
                 case .Value:
@@ -114,12 +110,12 @@ extension JSValue {
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
-            else if cu == Token.SingleQuote.toRaw() || cu == Token.DoubleQuote.toRaw() {
+            else if scalar == Token.SingleQuote || scalar == Token.DoubleQuote {
                 switch state {
                 case .Initial:
                     state = .Key
                     
-                    let parsedKey = parseString(string, startAt: &index, quote: cu)
+                    let parsedKey = parseString(scalars, startAt: &index, quote: scalar)
                     if let error = parsedKey.error {
                         return FailableOf(error)
                     }
@@ -131,16 +127,16 @@ extension JSValue {
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
-            else if cu == Token.Colon.toRaw() {
+            else if scalar == Token.Colon {
                 switch state {
                 case .Key:
                     state = .Value
                     
-                    let parsedValue = parse(string, startAt: &index)
+                    let parsedValue = parse(scalars, startAt: &index)
                     if parsedValue.failed {
                         return parsedValue
                     }
@@ -151,11 +147,11 @@ extension JSValue {
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
-            else if cu == Token.Comma.toRaw() {
+            else if scalar == Token.Comma {
                 switch state {
                 case .Value:
                     state = .Initial
@@ -164,7 +160,7 @@ extension JSValue {
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
 
@@ -173,7 +169,7 @@ extension JSValue {
             else {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                    ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                    ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                 return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
             }
         }
@@ -184,22 +180,22 @@ extension JSValue {
         return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    static func parseArray(string: String.UTF8View, inout startAt index: String.UTF8View.Index) -> FailableOf<JSValue> {
+    static func parseArray(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
         index = index.successor()
         
         var values = [JSValue]()
-        while index != string.endIndex {
-            let c = string[index]
+        while index != scalars.endIndex {
+            let scalar = scalars[index]
             
-            if whitespace(c) || c == Token.Comma.toRaw() {
+            if scalar.isWhitespace() || scalar == Token.Comma {
                 index = index.successor()
             }
-            else if c == Token.RightBracket.toRaw() {
+            else if scalar == Token.RightBracket {
                 index = index.successor()
                 return FailableOf(JSValue(JSBackingValue.JSArray(values)))
             }
             else {
-                let parsedValue = parse(string, startAt: &index)
+                let parsedValue = parse(scalars, startAt: &index)
                 if parsedValue.failed { return parsedValue }
                 if let value = parsedValue.value {
                     values.append(value)
@@ -213,7 +209,7 @@ extension JSValue {
         return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
     }
     
-    static func parseNumber(string: String.UTF8View, inout startAt index: String.UTF8View.Index) -> FailableOf<JSValue> {
+    static func parseNumber(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
         enum ParsingState {
             case Initial
             case Whole
@@ -230,10 +226,10 @@ extension JSValue {
         var exponent = 0
         var exponentSign = 1
         
-        while index != string.endIndex {
-            let cu = string[index]
+        while index != scalars.endIndex {
+            let scalar = scalars[index]
             
-            if cu == Token.Minus.toRaw() {
+            if scalar == Token.Minus {
                 switch state {
                 case .Initial:
                     numberSign = -1
@@ -246,13 +242,13 @@ extension JSValue {
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
                 
                 index = index.successor()
             }
-            else if cu == Token.Plus.toRaw() {
+            else if scalar == Token.Plus {
                 switch state {
                 case .Initial:
                     state = .Whole
@@ -263,23 +259,23 @@ extension JSValue {
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
 
                 index = index.successor()
             }
-            else if let digit = digit(cu) {
+            else if scalar.isDigit() {
                 switch state {
                 case .Initial:
                     state = .Whole
                     fallthrough
                     
                 case .Whole:
-                    number = number * 10 + Double(digit)
+                    number = number * 10 + Double(scalar.value - Token.Zero.value)
                     
                 case .Decimal:
-                    number = number + depth * Double(digit)
+                    number = number + depth * Double(scalar.value - Token.Zero.value)
                     depth /= 10
                     
                 case .Exponent:
@@ -287,18 +283,18 @@ extension JSValue {
                     fallthrough
                     
                 case .ExponentDigits:
-                    exponent = exponent * 10 + digit
+                    exponent = exponent * 10 + scalar.value - Token.Zero.value
                     
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
 
                 index = index.successor()
             }
-            else if cu == Token.Period.toRaw() {
+            else if scalar == Token.Period {
                 switch state {
                 case .Whole:
                     state = .Decimal
@@ -306,13 +302,13 @@ extension JSValue {
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
 
                 index = index.successor()
             }
-            else if cu == Alphabet.e.toRaw() || cu == Alphabet.E.toRaw() {
+            else if scalar == Token.e || scalar == Token.E {
                 switch state {
                 case .Whole:
                     state = .Exponent
@@ -323,7 +319,7 @@ extension JSValue {
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(cu) @ \(index)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
                 }
                 state = ParsingState.Exponent
@@ -338,29 +334,29 @@ extension JSValue {
         return FailableOf(exp(number, exponent * exponentSign) * numberSign)
     }
     
-    static func parseTrue(string: String.UTF8View, inout startAt index: String.UTF8View.Index) -> FailableOf<JSValue> {
+    static func parseTrue(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
         index = index.successor()
         
-        if index != string.endIndex && string[index] != Alphabet.r.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.r {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
-        if index != string.endIndex && string[index] != Alphabet.u.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.u {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
-        if index != string.endIndex && string[index] != Alphabet.e.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.e {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
@@ -370,37 +366,38 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func parseFalse(string: String.UTF8View, inout startAt index: String.UTF8View.Index) -> FailableOf<JSValue> {
+    static func parseFalse(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
         index = index.successor()
         
-        if index != string.endIndex && string[index] != Alphabet.a.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.a {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
-        if index != string.endIndex && string[index] != Alphabet.l.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.l {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
-        if index != string.endIndex && string[index] != Alphabet.s.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.s {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
-        if index != string.endIndex && string[index] != Alphabet.e.toRaw() && !whitespace(string[index]) {
+        let scalar = scalars[index]
+        if index != scalars.endIndex && scalar != Token.e && !scalar.isWhitespace() {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
@@ -410,29 +407,29 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func parseNull(string: String.UTF8View, inout startAt index: String.UTF8View.Index) -> FailableOf<JSValue> {
+    static func parseNull(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
         index = index.successor()
         
-        if index != string.endIndex && string[index] != Alphabet.u.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.u {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
-        if index != string.endIndex && string[index] != Alphabet.l.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.l {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
-        if index != string.endIndex && string[index] != Alphabet.l.toRaw() {
+        if index != scalars.endIndex && scalars[index] != Token.l {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(string[index])"]
+                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
             return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
         }
 
@@ -442,33 +439,26 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func parseString(string: String.UTF8View, inout startAt index: String.UTF8View.Index, quote: UInt8) -> FailableOf<JSValue> {
-        var bytes = [UInt8]()
+    static func parseString(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index, quote: UnicodeScalar) -> FailableOf<JSValue> {
+        var stream = ""
+        var escapeCount = 0
         
         index = index.successor()
-        for ; index != string.endIndex; index = index.successor() {
-            let cu = string[index]
-            if cu == quote {
-                // Determine if the quote is being escaped or not...
-                var count = 0
-                for byte in reverse(bytes) {
-                    if byte == Token.Backslash.toRaw() { count++ }
-                    else { break }
-                }
-
-                if count % 2 == 0 {     // an even number means matched slashes, not an escape
+        for ; index != scalars.endIndex; index = index.successor() {
+            let scalar = scalars[index]
+            if scalar == quote {
+                if escapeCount % 2 == 0 {
                     index = index.successor()
-                    
-                    bytes.append(0)
-                    let ptr = UnsafePointer<CChar>(bytes)
-                    return FailableOf(JSValue(JSBackingValue.JSString(String.fromCString(ptr)!)))
+                    return FailableOf(JSValue(JSBackingValue.JSString(stream)))
                 }
                 else {
-                    bytes.append(cu)
+                    escapeCount = 0
+                    scalar.writeTo(&stream)
                 }
             }
             else {
-                bytes.append(cu)
+                escapeCount = scalar == Token.Backslash ? escapeCount + 1 : 0
+                scalar.writeTo(&stream)
             }
         }
         
@@ -480,26 +470,17 @@ extension JSValue {
     
     // MARK: Helper functions
     
-    static func whitespace(codeUnit: UInt8) -> Bool {
-        return Whitespace.fromRaw(codeUnit).hasValue
-    }
-    
-    static func digit(codeUnit: UInt8) -> Int? {
-        if codeUnit >= Digit.Zero.toRaw() && codeUnit <= Digit.Nine.toRaw() {
-            return codeUnit - Digit.Zero.toRaw()
+    static func substring(scalars: String.UnicodeScalarView, from: String.UnicodeScalarView.Index) -> String {
+        var idx = from
+        var string = ""
+        while idx != scalars.endIndex {
+            let scalar = scalars[idx]
+            scalar.writeTo(&string)
+            
+            idx = idx.successor()
         }
         
-        return nil
-    }
-
-    static func toString(bytes: [UInt8]) -> String {
-        let ptr = UnsafePointer<CChar>(bytes)
-        return String.fromCString(ptr) ?? "<invalid string>"
-    }
-    
-    static func toString(codeUnit: UInt8...) -> String {
-        let bytes = codeUnit + [0]
-        return toString(bytes)
+        return string
     }
     
     static func exp(number: Double, _ exp: Int) -> Double {
@@ -509,54 +490,76 @@ extension JSValue {
     }
 }
 
-/// The code unit value for each of the digits.
-enum Digit: UInt8 {
-    case Zero   = 48
-    case One
-    case Two
-    case Three
-    case Four
-    case Five
-    case Six
-    case Seven
-    case Eight
-    case Nine
-}
+extension UnicodeScalar {
+    
+    /// Determines if the `UnicodeScalar` represents one of the standard Unicode whitespace characters.
+    ///
+    /// :return: `true` if the scalar is a Unicode whitespace character; `false` otherwise.
+    func isWhitespace() -> Bool {
+        if value >= 0x09 && value <= 0x0D       { return true }     // White_Space # Cc   [5] <control-0009>..<control-000D>
+        if value == 0x20                        { return true }     // White_Space # Zs       SPACE
+        if value == 0x85                        { return true }     // White_Space # Cc       <control-0085>
+        if value == 0xA0                        { return true }     // White_Space # Zs       NO-BREAK SPACE
+        if value == 0x1680                      { return true }     // White_Space # Zs       OGHAM SPACE MARK
+        if value >= 0x2000 && value <= 0x200A   { return true }     // White_Space # Zs  [11] EN QUAD..HAIR SPACE
+        if value == 0x2028                      { return true }     // White_Space # Zl       LINE SEPARATOR
+        if value == 0x2029                      { return true }     // White_Space # Zp       PARAGRAPH SEPARATOR
+        if value == 0x202F                      { return true }     // White_Space # Zs       NARROW NO-BREAK SPACE
+        if value == 0x205F                      { return true }     // White_Space # Zs       MEDIUM MATHEMATICAL SPACE
+        if value == 0x3000                      { return true }     // White_Space # Zs       IDEOGRAPHIC SPACE
 
-/// The code unit value for each of the whitespace characters.
-enum Whitespace: UInt8 {
-    case Space               = 32
-    case Tab                 = 9
-    case CarriageReturn      = 13
-    case Newline             = 10
+        return false
+    }
+    
+    /// Determines if the `UnicodeScalar` respresents a numeric digit.
+    ///
+    /// :return: `true` if the scalar is a Unicode numeric character; `false` otherwise.
+    func isDigit() -> Bool {
+        return value >= Token.Zero.value && value <= Token.Nine.value
+    }
+    
+
 }
 
 /// The code unit value for all of the token characters used.
-enum Token: UInt8 {
-    case LeftBracket    = 91
-    case RightBracket   = 93
-    case LeftCurly      = 123
-    case RightCurly     = 125
-    case Comma          = 44
-    case SingleQuote    = 39
-    case DoubleQuote    = 34
-    case Minus          = 45
-    case Plus           = 43
-    case Backslash      = 92
-    case Colon          = 58
-    case Period         = 46
-}
-
-/// The code unit value for the alphabet used as tokens.
-enum Alphabet: UInt8 {
-    case E      = 69
-    case a      = 97
-    case e      = 101
-    case f      = 102
-    case l      = 108
-    case n      = 110
-    case r      = 114
-    case s      = 115
-    case t      = 116
-    case u      = 117
+struct Token {
+    private init() {}
+    
+    // Tokens for JSON
+    static let LeftBracket      = UnicodeScalar(91)
+    static let RightBracket     = UnicodeScalar(93)
+    static let LeftCurly        = UnicodeScalar(123)
+    static let RightCurly       = UnicodeScalar(125)
+    static let Comma            = UnicodeScalar(44)
+    static let SingleQuote      = UnicodeScalar(39)
+    static let DoubleQuote      = UnicodeScalar(34)
+    static let Minus            = UnicodeScalar(45)
+    static let Plus             = UnicodeScalar(43)
+    static let Backslash        = UnicodeScalar(92)
+    static let Colon            = UnicodeScalar(58)
+    static let Period           = UnicodeScalar(46)
+    
+    // Numbers
+    static let Zero             = UnicodeScalar(48)
+    static let One              = UnicodeScalar(49)
+    static let Two              = UnicodeScalar(50)
+    static let Three            = UnicodeScalar(51)
+    static let Four             = UnicodeScalar(52)
+    static let Five             = UnicodeScalar(53)
+    static let Six              = UnicodeScalar(54)
+    static let Seven            = UnicodeScalar(55)
+    static let Eight            = UnicodeScalar(56)
+    static let Nine             = UnicodeScalar(57)
+    
+    // Character tokens for JSON
+    static let E                = UnicodeScalar(69)
+    static let a                = UnicodeScalar(97)
+    static let e                = UnicodeScalar(101)
+    static let f                = UnicodeScalar(102)
+    static let l                = UnicodeScalar(108)
+    static let n                = UnicodeScalar(110)
+    static let r                = UnicodeScalar(114)
+    static let s                = UnicodeScalar(115)
+    static let t                = UnicodeScalar(116)
+    static let u                = UnicodeScalar(117)
 }

@@ -119,6 +119,14 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertEqual(jsvalue.value!.string!, "Bob \\\"the man\\\" Roberts")
     }
     
+    func testParseStringWithMultipleEscapes() {
+        let string = "\"e&\\\\첊xz坍崦ݻ鍴\\\"嵥B3\u{000b}㢊\u{0015}L臯.샥\""
+        let jsvalue = JSValue.parse(string)
+        
+        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertEqual(jsvalue.value!.string!, "e&\\\\첊xz坍崦ݻ鍴\\\"嵥B3\u{000b}㢊\u{0015}L臯.샥")
+    }
+    
     func testParseStringWithMultipleUnicodeTypes() {
         let string = "\"(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\\\\""
         let jsvalue = JSValue.parse(string)
@@ -126,6 +134,14 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\\\")
     }
+    
+    func testParseStringWithTrailingEscapedQuotes() {
+        let string = "\"\\\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\\\"\""
+        let jsvalue = JSValue.parse(string)
+        
+        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertEqual(jsvalue.value!.string!, "\\\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\\\"")
+}
 
     func testParseInteger() {
         let string = "101"
