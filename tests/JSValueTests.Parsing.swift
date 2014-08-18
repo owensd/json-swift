@@ -347,7 +347,7 @@ class JSValueParsingTests : XCTestCase {
         let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource("sample", ofType: "json")
         XCTAssertNotNil(path)
         
-        let string = NSString.stringWithContentsOfFile(path, encoding: NSUTF8StringEncoding, error: nil)
+        let string = NSString.stringWithContentsOfFile(path!, encoding: NSUTF8StringEncoding, error: nil)
         XCTAssertNotNil(string)
         
         let json = JSON.parse(string)

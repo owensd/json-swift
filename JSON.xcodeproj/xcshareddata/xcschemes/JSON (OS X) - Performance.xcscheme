@@ -26,7 +26,7 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Debug">
+      buildConfiguration = "Release">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -39,18 +39,42 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "JSValuePerformanceTests">
+                  Identifier = "FailableTests">
+               </Test>
+               <Test
+                  Identifier = "JSValueEquatableTests">
+               </Test>
+               <Test
+                  Identifier = "JSValueIndexersTests">
+               </Test>
+               <Test
+                  Identifier = "JSValueLiteralsTests">
+               </Test>
+               <Test
+                  Identifier = "JSValueParsingTests">
+               </Test>
+               <Test
+                  Identifier = "JSValueUsageTests">
                </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "7D7BD7C1195418CB00AC2E4E"
+            BuildableName = "JSONLib.framework"
+            BlueprintName = "JSON-OSX"
+            ReferencedContainer = "container:JSON.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </TestAction>
    <LaunchAction
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
@@ -72,9 +96,18 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "7D7BD7C1195418CB00AC2E4E"
+            BuildableName = "JSONLib.framework"
+            BlueprintName = "JSON-OSX"
+            ReferencedContainer = "container:JSON.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
-      buildConfiguration = "Debug">
+      buildConfiguration = "Release">
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"

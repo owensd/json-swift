@@ -28,7 +28,7 @@ extension JSValue {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(remainingText)"]
-                return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
             }
         }
         
@@ -74,7 +74,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "No valid JSON value was found to parse in string."]
-        return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
     static func parseObject(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
@@ -107,7 +107,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "The '}' was unexpected at this point."]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
             else if scalar == Token.SingleQuote || scalar == Token.DoubleQuote {
@@ -128,7 +128,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
             else if scalar == Token.Colon {
@@ -148,7 +148,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
             else if scalar == Token.Comma {
@@ -161,7 +161,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
 
                 index = index.successor()
@@ -170,14 +170,14 @@ extension JSValue {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
             }
         }
         
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Error parsing JSON object."]
-        return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
     static func parseArray(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
@@ -206,7 +206,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Error parsing JSON array."]
-        return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
     static func parseNumber(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
@@ -243,7 +243,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
                 
                 index = index.successor()
@@ -260,7 +260,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
 
                 index = index.successor()
@@ -289,7 +289,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
 
                 index = index.successor()
@@ -303,7 +303,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
 
                 index = index.successor()
@@ -320,7 +320,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar) @ \(index)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
                 state = ParsingState.Exponent
 
@@ -331,7 +331,8 @@ extension JSValue {
             }
         }
 
-        return FailableOf(exp(number, exponent * exponentSign) * numberSign)
+        let jsvalue = JSValue(JSBackingValue.JSNumber(exp(number, exponent * exponentSign) * numberSign))
+        return FailableOf(jsvalue)
     }
     
     static func parseTrue(scalars: String.UnicodeScalarView, inout startAt index: String.UnicodeScalarView.Index) -> FailableOf<JSValue> {
@@ -341,7 +342,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
@@ -349,7 +350,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
@@ -357,7 +358,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -373,7 +374,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
@@ -381,7 +382,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
         
         index = index.successor()
@@ -389,7 +390,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -398,7 +399,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -414,7 +415,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -422,7 +423,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -430,7 +431,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalars[index])"]
-            return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
         }
 
         index = index.successor()
@@ -465,7 +466,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Error parsing JSON string."]
-        return FailableOf(Error(code: ErrorCode.ParsingError, domain: JSValueErrorDomain, userInfo: info))
+        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
     // MARK: Helper functions

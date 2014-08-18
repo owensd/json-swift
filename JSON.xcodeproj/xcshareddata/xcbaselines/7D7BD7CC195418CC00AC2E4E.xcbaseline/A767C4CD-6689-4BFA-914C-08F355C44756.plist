@@ -6,14 +6,34 @@
 	<dict>
 		<key>JSValuePerformanceTests</key>
 		<dict>
+			<key>testSampleJSONJSONLib()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.26</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Local Baseline</string>
+				</dict>
+			</dict>
+			<key>testSampleJSONNSJSONSerialization()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.18</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Local Baseline</string>
+				</dict>
+			</dict>
 			<key>testSampleJSON_JSONLib()</key>
 			<dict>
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.12</real>
+					<real>0.2704</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>Aug 17, 2014, 12:13:43 AM</string>
+					<string>Aug 18, 2014, 1:23:34 PM</string>
 				</dict>
 			</dict>
 			<key>testSampleJSON_NSJSONSerialization()</key>
@@ -21,9 +41,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.04</real>
+					<real>0.17685</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>Aug 17, 2014, 12:13:48 AM</string>
+					<string>Aug 18, 2014, 1:23:34 PM</string>
 				</dict>
 			</dict>
 		</dict>

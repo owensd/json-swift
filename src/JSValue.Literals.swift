@@ -71,27 +71,3 @@ extension JSValue: BooleanLiteralConvertible {
         return JSValue(JSBackingValue.JSBool(value))
     }
 }
-
-// These are technically not supported, but are extremely useful. Hopefully Swift v1.0 will have an 'official'
-// way of representing this.
-
-extension Int {
-    /// Converts an `Int` to a `JSValue`.
-    public func __conversion() -> JSValue {
-        return JSValue.convert(self)
-    }
-}
-
-extension Double {
-    /// Converts a `Double` to a `JSValue`.
-    public func __conversion() -> JSValue {
-        return JSValue(JSValue.JSBackingValue.JSNumber(self))
-    }
-}
-
-extension String {
-    /// Converts a `String` to a `JSValue`.
-    public func __conversion() -> JSValue {
-        return JSValue(JSValue.JSBackingValue.JSString(self))
-    }
-}

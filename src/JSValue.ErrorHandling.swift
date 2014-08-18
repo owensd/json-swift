@@ -16,16 +16,6 @@ extension JSValue {
         
         /// The default message describing the error.
         public let message: String
-        
-        /// Simple conversion for easy-use when needing to access the error code.
-        public func __conversion() -> Int {
-            return self.code
-        }
-        
-        /// Simple conversion for easy-use when needing to access the error message.
-        public func __conversion() -> String {
-            return self.message
-        }
     }
     
     /// All of the error codes and standard error messages when parsing JSON.

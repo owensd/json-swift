@@ -122,7 +122,7 @@ class JSValueUsageTests : XCTestCase {
             json["needspassword"].bool ⇒
             (json["url"].string ⇒ toURL)
         
-        XCTAssertTrue(blog.hasValue)
+        XCTAssertTrue(blog != nil)
         
         if let blog = blog {
             XCTAssertEqual(blog.id, 73)
