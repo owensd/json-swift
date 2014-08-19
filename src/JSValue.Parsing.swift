@@ -9,15 +9,15 @@
 /// Helper class to provide better information while parsing through the JSON blob.
 struct UnicodeScalarParsingBuffer {
     var generator: String.UnicodeScalarView.Generator
-    var currentUnicodeScalar: UnicodeScalar? = nil
+    var current: UnicodeScalar? = nil
 
     init(_ generator: String.UnicodeScalarView.Generator) {
         self.generator = generator
     }
 
     mutating func next() -> UnicodeScalar? {
-        self.currentUnicodeScalar = generator.next()
-        return self.currentUnicodeScalar
+        self.current = generator.next()
+        return self.current
     }
 }
 
@@ -32,8 +32,8 @@ extension JSValue {
         var buffer = UnicodeScalarParsingBuffer(string.unicodeScalars.generate())
         let value = parse(&buffer)
         
-        while buffer.currentUnicodeScalar != nil {
-            if let scalar = buffer.currentUnicodeScalar {
+        while buffer.current != nil {
+            if let scalar = buffer.current {
                 if scalar.isWhitespace() { buffer.next() }
                 else {
                     var remainingText = substring(&buffer)
@@ -103,8 +103,8 @@ extension JSValue {
         var jsvalue = [String:JSValue]()
 
         buffer.next()
-        while buffer.currentUnicodeScalar != nil {
-            if let scalar = buffer.currentUnicodeScalar {
+        while buffer.current != nil {
+            if let scalar = buffer.current {
                 if scalar.isWhitespace() { buffer.next() }
                 else if scalar == Token.RightCurly {
                     switch state {
@@ -147,7 +147,7 @@ extension JSValue {
                         state = .Value
                         buffer.next()
                         
-                        let parsedValue = parse(&buffer, first: buffer.currentUnicodeScalar)
+                        let parsedValue = parse(&buffer, first: buffer.current)
                         if parsedValue.failed {
                             return parsedValue
                         }
@@ -179,7 +179,7 @@ extension JSValue {
                 else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(buffer.currentUnicodeScalar)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(buffer.current)"]
                     return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
@@ -195,15 +195,15 @@ extension JSValue {
         var values = [JSValue]()
         
         buffer.next()
-        while buffer.currentUnicodeScalar != nil {
-            if let unicode = buffer.currentUnicodeScalar {
+        while buffer.current != nil {
+            if let unicode = buffer.current {
                 if unicode.isWhitespace() || unicode == Token.Comma { buffer.next() }
                 else if unicode == Token.RightBracket {
                     buffer.next()
                     return FailableOf(JSValue(JSBackingValue.JSArray(values)))
                 }
                 else {
-                    let parsedValue = parse(&buffer, first: buffer.currentUnicodeScalar)
+                    let parsedValue = parse(&buffer, first: buffer.current)
                     if parsedValue.failed { return parsedValue }
                     if let value = parsedValue.value {
                         values.append(value)
@@ -235,7 +235,7 @@ extension JSValue {
         var exponent = 0
         var exponentSign = 1
         
-        for var scalar = buffer.currentUnicodeScalar; scalar != nil; scalar = buffer.next() {
+        for var scalar = buffer.current; scalar != nil; scalar = buffer.next() {
             if let scalar = scalar {
                 if scalar == Token.Minus {
                     switch state {
