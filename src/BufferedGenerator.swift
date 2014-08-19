@@ -7,25 +7,25 @@
 //
 
 /// Creates a buffered `GeneratorType` that allows access into the current value.
-public struct BufferedGenerator<T: GeneratorType> : GeneratorType {
-    typealias Generator = T
+public struct BufferedGenerator<S: SequenceType> : GeneratorType {
+    typealias Sequence = S
     
-    var generator: Generator
+    var generator: Sequence.Generator
     
     /// The current value the generator is currently on.
-    public var current: Generator.Element? = nil
+    public var current: Sequence.Generator.Element? = nil
     
-    /// Initializes a new `BufferedGenerator<T>` with an underlying `GeneratorType`.
+    /// Initializes a new `BufferedGenerator<T>` with an underlying `SequenceType`.
     ///
-    /// :param: generator The generator that will be used to traverse the content.
-    public init(inout _ generator: Generator) {
-        self.generator = generator
+    /// :param: sequence the sequence that will be used to traverse the content.
+    public init(_ sequence: Sequence) {
+        self.generator = sequence.generate()
     }
     
     /// Moves the `current` element to the next element if one exists.
     ///
     /// :return: The `current` element or `nil` if the element does not exist.
-    public mutating func next() -> Generator.Element? {
+    public mutating func next() -> Sequence.Generator.Element? {
         self.current = generator.next()
         return self.current
     }
