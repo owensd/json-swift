@@ -10,7 +10,7 @@
 public struct BufferedGenerator<S: SequenceType> : GeneratorType {
     typealias Sequence = S
     
-    var generator: Sequence.Generator
+    var store: BackingGeneratorStore<Sequence>
     
     /// The current value the generator is currently on.
     public var current: Sequence.Generator.Element? = nil
@@ -19,14 +19,24 @@ public struct BufferedGenerator<S: SequenceType> : GeneratorType {
     ///
     /// :param: sequence the sequence that will be used to traverse the content.
     public init(_ sequence: Sequence) {
-        self.generator = sequence.generate()
+        self.store = BackingGeneratorStore(sequence)
     }
     
     /// Moves the `current` element to the next element if one exists.
     ///
     /// :return: The `current` element or `nil` if the element does not exist.
     public mutating func next() -> Sequence.Generator.Element? {
-        self.current = generator.next()
+        self.current = store.generator.next()
         return self.current
     }
+}
+
+
+/// Stores the generator instance to ensure that copies of `BufferedGenerator<S>` do
+/// not also copy the backing `generator` instance. This is because of the following
+/// comment for `GeneratorType`:
+///  > "While it is safe to copy a `GeneratorType`, only one copy should be advanced with `next()`."
+class BackingGeneratorStore<S: SequenceType> {
+    var generator: S.Generator
+    init(_ sequence: S) { self.generator = sequence.generate() }
 }
