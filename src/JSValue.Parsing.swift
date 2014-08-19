@@ -6,21 +6,6 @@
 //  Copyright (c) 2014 Kiad Software. All rights reserved.
 //
 
-/// Helper class to provide better information while parsing through the JSON blob.
-struct UnicodeScalarParsingBuffer {
-    var generator: String.UnicodeScalarView.Generator
-    var current: UnicodeScalar? = nil
-
-    init(_ generator: String.UnicodeScalarView.Generator) {
-        self.generator = generator
-    }
-
-    mutating func next() -> UnicodeScalar? {
-        self.current = generator.next()
-        return self.current
-    }
-}
-
 extension JSValue {
     /// Parses the given string and attempts to return a `JSValue` from it.
     ///
@@ -29,7 +14,8 @@ extension JSValue {
     /// :returns: A `FailableOf<T>` that will contain the parsed `JSValue` if successful,
     ///           otherwise, the `Error` information for the parsing.
     public static func parse(string : String) -> FailableOf<JSValue> {
-        var buffer = UnicodeScalarParsingBuffer(string.unicodeScalars.generate())
+        var generator = string.unicodeScalars.generate()
+        var buffer = BufferedGenerator(&generator)
         let value = parse(&buffer)
         
         while buffer.current != nil {
@@ -51,11 +37,11 @@ extension JSValue {
     
     /// Parses the given string and attempts to return a `JSValue` from it.
     ///
-    /// :param: buffer the `UnicodeScalarParsingBuffer` that contains the JSON to parse.
+    /// :param: buffer the `BufferedGenerator<String.UnicodeScalarView.Generator>` that contains the JSON to parse.
     ///
     /// :returns: A `FailableOf<T>` that will contain the parsed `JSValue` if successful,
     ///           otherwise, the `Error` information for the parsing.
-    static func parse(inout buffer: UnicodeScalarParsingBuffer, first: UnicodeScalar? = nil) -> FailableOf<JSValue> {
+    static func parse(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>, first: UnicodeScalar? = nil) -> FailableOf<JSValue> {
         for var scalar = first ?? buffer.next(); scalar != nil; scalar = buffer.next() {
             if let scalar = scalar {
                 if scalar.isWhitespace() { continue; }
@@ -90,7 +76,7 @@ extension JSValue {
         return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    static func parseObject(inout buffer: UnicodeScalarParsingBuffer) -> FailableOf<JSValue> {
+    static func parseObject(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>) -> FailableOf<JSValue> {
         enum State {
             case Initial
             case Key
@@ -191,7 +177,7 @@ extension JSValue {
         return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    static func parseArray(inout buffer: UnicodeScalarParsingBuffer) -> FailableOf<JSValue> {
+    static func parseArray(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>) -> FailableOf<JSValue> {
         var values = [JSValue]()
         
         buffer.next()
@@ -218,7 +204,7 @@ extension JSValue {
         return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
-    static func parseNumber(inout buffer: UnicodeScalarParsingBuffer) -> FailableOf<JSValue> {
+    static func parseNumber(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>) -> FailableOf<JSValue> {
         enum ParsingState {
             case Initial
             case Whole
@@ -334,7 +320,7 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func parseTrue(inout buffer: UnicodeScalarParsingBuffer) -> FailableOf<JSValue> {
+    static func parseTrue(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>) -> FailableOf<JSValue> {
         var scalar = buffer.next()
         if scalar != Token.r {
             let info = [
@@ -365,7 +351,7 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func parseFalse(inout buffer: UnicodeScalarParsingBuffer) -> FailableOf<JSValue> {
+    static func parseFalse(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>) -> FailableOf<JSValue> {
         var scalar = buffer.next()
         if scalar != Token.a {
             let info = [
@@ -404,7 +390,7 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func parseNull(inout buffer: UnicodeScalarParsingBuffer) -> FailableOf<JSValue> {
+    static func parseNull(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>) -> FailableOf<JSValue> {
         var scalar = buffer.next()
         if scalar != Token.u {
             let info = [
@@ -435,7 +421,7 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func parseString(inout buffer: UnicodeScalarParsingBuffer, quote: UnicodeScalar) -> FailableOf<JSValue> {
+    static func parseString(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>, quote: UnicodeScalar) -> FailableOf<JSValue> {
         var stream = ""
         var escapeCount = 0
         
@@ -466,7 +452,7 @@ extension JSValue {
     
     // MARK: Helper functions
     
-    static func substring(inout buffer: UnicodeScalarParsingBuffer) -> String {
+    static func substring(inout buffer: BufferedGenerator<String.UnicodeScalarView.Generator>) -> String {
         var string = ""
         for var scalar = buffer.next(); scalar != nil; scalar = buffer.next() {
             scalar?.writeTo(&string)
