@@ -36,7 +36,7 @@ public struct BufferedGenerator<S: SequenceType> : GeneratorType {
 /// not also copy the backing `generator` instance. This is because of the following
 /// comment for `GeneratorType`:
 ///  > "While it is safe to copy a `GeneratorType`, only one copy should be advanced with `next()`."
-class BackingGeneratorStore<S: SequenceType> {
+final class BackingGeneratorStore<S: SequenceType> {
     var generator: S.Generator
     init(_ sequence: S) { self.generator = sequence.generate() }
 }
