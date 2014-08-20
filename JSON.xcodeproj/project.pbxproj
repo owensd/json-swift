@@ -34,8 +34,8 @@
 		7D560FB2199957E700270602 /* JSValue.Literals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D560FB0199957E700270602 /* JSValue.Literals.swift */; };
 		7D560FB41999583200270602 /* JSValueTests.Usage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D560FB31999583200270602 /* JSValueTests.Usage.swift */; };
 		7D70F3A8199DA516002BA827 /* JSValueTests.Indexers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D02E651199D81A50060CEFE /* JSValueTests.Indexers.swift */; };
-		7D773D5119A3AB6700D3948D /* BufferedGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D773D5019A3AB6700D3948D /* BufferedGenerator.swift */; };
-		7D773D5219A3AB6700D3948D /* BufferedGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D773D5019A3AB6700D3948D /* BufferedGenerator.swift */; };
+		7D773D5119A3AB6700D3948D /* ReplayableGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D773D5019A3AB6700D3948D /* ReplayableGenerator.swift */; };
+		7D773D5219A3AB6700D3948D /* ReplayableGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D773D5019A3AB6700D3948D /* ReplayableGenerator.swift */; };
 		7D7BD7CE195418CC00AC2E4E /* JSONLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D7BD7C2195418CB00AC2E4E /* JSONLib.framework */; };
 		7D859B1A199963FD00879B9B /* JSValue.ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D859B18199963FD00879B9B /* JSValue.ErrorHandling.swift */; };
 		7D859B1B1999652900879B9B /* JSValueTests.Literals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BE7199928BB008DC49F /* JSValueTests.Literals.swift */; };
@@ -101,7 +101,7 @@
 		7D560FAD1999577400270602 /* JSValue.Encodings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValue.Encodings.swift; sourceTree = "<group>"; };
 		7D560FB0199957E700270602 /* JSValue.Literals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValue.Literals.swift; sourceTree = "<group>"; };
 		7D560FB31999583200270602 /* JSValueTests.Usage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValueTests.Usage.swift; sourceTree = "<group>"; };
-		7D773D5019A3AB6700D3948D /* BufferedGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BufferedGenerator.swift; sourceTree = "<group>"; };
+		7D773D5019A3AB6700D3948D /* ReplayableGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReplayableGenerator.swift; sourceTree = "<group>"; };
 		7D7BD7C2195418CB00AC2E4E /* JSONLib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = JSONLib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D7BD7C6195418CB00AC2E4E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D7BD7CD195418CC00AC2E4E /* JSON-OSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "JSON-OSXTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -153,6 +153,21 @@
 			path = Data;
 			sourceTree = "<group>";
 		};
+		7D3B6F6919A46E11005EAA40 /* JSValue */ = {
+			isa = PBXGroup;
+			children = (
+				7D1E364A19947B5900856119 /* JSValue.swift */,
+				7DCD0BEA19993630008DC49F /* JSValue.Accessors.swift */,
+				7D07E8711995F18600C3BABB /* JSValue.Bridging.swift */,
+				7D560FAD1999577400270602 /* JSValue.Encodings.swift */,
+				7D859B18199963FD00879B9B /* JSValue.ErrorHandling.swift */,
+				7DCD0BED199937AA008DC49F /* JSValue.Indexers.swift */,
+				7D560FB0199957E700270602 /* JSValue.Literals.swift */,
+				7D30EE2F1999F4E200F3AA17 /* JSValue.Parsing.swift */,
+			);
+			name = JSValue;
+			sourceTree = "<group>";
+		};
 		7D7BD7B8195418CB00AC2E4E = {
 			isa = PBXGroup;
 			children = (
@@ -177,19 +192,11 @@
 			isa = PBXGroup;
 			children = (
 				7D7BD7C5195418CB00AC2E4E /* Supporting Files */,
+				7D3B6F6919A46E11005EAA40 /* JSValue */,
 				7D1E364519947B5900856119 /* Error.swift */,
 				7D1E364619947B5900856119 /* Failable.swift */,
 				7D1E364719947B5900856119 /* Functional.swift */,
-				7D1E364919947B5900856119 /* JSON.h */,
-				7D1E364A19947B5900856119 /* JSValue.swift */,
-				7DCD0BEA19993630008DC49F /* JSValue.Accessors.swift */,
-				7D07E8711995F18600C3BABB /* JSValue.Bridging.swift */,
-				7D560FAD1999577400270602 /* JSValue.Encodings.swift */,
-				7D859B18199963FD00879B9B /* JSValue.ErrorHandling.swift */,
-				7DCD0BED199937AA008DC49F /* JSValue.Indexers.swift */,
-				7D560FB0199957E700270602 /* JSValue.Literals.swift */,
-				7D30EE2F1999F4E200F3AA17 /* JSValue.Parsing.swift */,
-				7D773D5019A3AB6700D3948D /* BufferedGenerator.swift */,
+				7D773D5019A3AB6700D3948D /* ReplayableGenerator.swift */,
 			);
 			name = Source;
 			path = src;
@@ -198,6 +205,7 @@
 		7D7BD7C5195418CB00AC2E4E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				7D1E364919947B5900856119 /* JSON.h */,
 				7D7BD7C6195418CB00AC2E4E /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -415,7 +423,7 @@
 				7D560FAF1999577400270602 /* JSValue.Encodings.swift in Sources */,
 				7D560FB2199957E700270602 /* JSValue.Literals.swift in Sources */,
 				7DCD0BEC19993630008DC49F /* JSValue.Accessors.swift in Sources */,
-				7D773D5219A3AB6700D3948D /* BufferedGenerator.swift in Sources */,
+				7D773D5219A3AB6700D3948D /* ReplayableGenerator.swift in Sources */,
 				7D1E364E19947B5900856119 /* Failable.swift in Sources */,
 				7D30EE341999F82D00F3AA17 /* JSValue.Parsing.swift in Sources */,
 			);
@@ -441,7 +449,7 @@
 				7D37F78219A297430090D4B8 /* JSValue.ErrorHandling.swift in Sources */,
 				7D37F77E19A297430090D4B8 /* JSValue.swift in Sources */,
 				7D1E364F19947B5900856119 /* Functional.swift in Sources */,
-				7D773D5119A3AB6700D3948D /* BufferedGenerator.swift in Sources */,
+				7D773D5119A3AB6700D3948D /* ReplayableGenerator.swift in Sources */,
 				7D37F78319A297430090D4B8 /* JSValue.Indexers.swift in Sources */,
 				7D37F78519A297430090D4B8 /* JSValue.Parsing.swift in Sources */,
 			);

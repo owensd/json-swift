@@ -14,20 +14,18 @@ extension JSValue {
     /// :returns: A `FailableOf<T>` that will contain the parsed `JSValue` if successful,
     ///           otherwise, the `Error` information for the parsing.
     public static func parse(string : String) -> FailableOf<JSValue> {
-        var buffer = BufferedGenerator(string.unicodeScalars)
-        let value = parse(&buffer)
+        var generator = ReplayableGenerator(string.unicodeScalars)
+        let value = parse(generator)
         
-        while buffer.current != nil {
-            if let scalar = buffer.current {
-                if scalar.isWhitespace() { buffer.next() }
-                else {
-                    var remainingText = substring(&buffer)
-                    
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(remainingText)"]
-                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                }
+        for scalar in generator {
+            if scalar.isWhitespace() { continue }
+            else {
+                var remainingText = substring(generator)
+                
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(remainingText)"]
+                return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
             }
         }
         
@@ -36,36 +34,34 @@ extension JSValue {
     
     /// Parses the given string and attempts to return a `JSValue` from it.
     ///
-    /// :param: buffer the `BufferedGenerator<String.UnicodeScalarView>` that contains the JSON to parse.
+    /// :param: generator the `ReplayableGenerator<String.UnicodeScalarView>` that contains the JSON to parse.
     ///
     /// :returns: A `FailableOf<T>` that will contain the parsed `JSValue` if successful,
     ///           otherwise, the `Error` information for the parsing.
-    static func parse(inout buffer: BufferedGenerator<String.UnicodeScalarView>, first: UnicodeScalar? = nil) -> FailableOf<JSValue> {
-        for var scalar = first ?? buffer.next(); scalar != nil; scalar = buffer.next() {
-            if let scalar = scalar {
-                if scalar.isWhitespace() { continue; }
-                
-                if scalar == Token.LeftCurly {
-                    return parseObject(&buffer)
-                }
-                else if scalar == Token.LeftBracket {
-                    return parseArray(&buffer)
-                }
-                else if scalar.isDigit() || scalar == Token.Minus {
-                    return parseNumber(&buffer)
-                }
-                else if scalar == Token.t {
-                    return parseTrue(&buffer)
-                }
-                else if scalar == Token.f {
-                    return parseFalse(&buffer)
-                }
-                else if scalar == Token.n {
-                    return parseNull(&buffer)
-                }
-                else if scalar == Token.DoubleQuote || scalar == Token.SingleQuote {
-                    return parseString(&buffer, quote: scalar)
-                }
+    static func parse(generator: ReplayableGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
+        for scalar in generator {
+            if scalar.isWhitespace() { continue }
+            
+            if scalar == Token.LeftCurly {
+                return parseObject(generator)
+            }
+            else if scalar == Token.LeftBracket {
+                return parseArray(generator)
+            }
+            else if scalar.isDigit() || scalar == Token.Minus {
+                return parseNumber(generator)
+            }
+            else if scalar == Token.t {
+                return parseTrue(generator)
+            }
+            else if scalar == Token.f {
+                return parseFalse(generator)
+            }
+            else if scalar == Token.n {
+                return parseNull(generator)
+            }
+            else if scalar == Token.DoubleQuote || scalar == Token.SingleQuote {
+                return parseString(generator, quote: scalar)
             }
         }
         
@@ -75,7 +71,7 @@ extension JSValue {
         return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    static func parseObject(inout buffer: BufferedGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
+    static func parseObject(generator: ReplayableGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
         enum State {
             case Initial
             case Key
@@ -87,84 +83,85 @@ extension JSValue {
         var key = ""
         var jsvalue = [String:JSValue]()
 
-        buffer.next()
-        while buffer.current != nil {
-            if let scalar = buffer.current {
-                if scalar.isWhitespace() { buffer.next() }
-                else if scalar == Token.RightCurly {
-                    switch state {
-                    case .Initial: fallthrough
-                    case .Value:
-                        buffer.next()
-                        return FailableOf(JSValue(JSBackingValue.JSObject(jsvalue)))
-                        
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "The '}' was unexpected at this point."]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                    }
+        for (idx, scalar) in enumerate(generator) {
+            switch (idx, scalar) {
+            case (0, Token.LeftCurly): continue
+            case (_, Token.RightCurly):
+                switch state {
+                case .Initial: fallthrough
+                case .Value:
+                    generator.next()        // eat the '}'
+                    return FailableOf(JSValue(JSBackingValue.JSObject(jsvalue)))
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected token '}' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
-                else if scalar == Token.SingleQuote || scalar == Token.DoubleQuote {
-                    switch state {
-                    case .Initial:
-                        state = .Key
-                        
-                        let parsedKey = parseString(&buffer, quote: scalar)
-                        if let error = parsedKey.error {
-                            return FailableOf(error)
-                        }
-                        
-                        if let parsedKey = parsedKey.value?.string {
-                            key = parsedKey
-                        }
-                        
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                    }
-                }
-                else if scalar == Token.Colon {
-                    switch state {
-                    case .Key:
-                        state = .Value
-                        buffer.next()
-                        
-                        let parsedValue = parse(&buffer, first: buffer.current)
-                        if parsedValue.failed {
-                            return parsedValue
-                        }
-                        else if let value = parsedValue.value {
-                            jsvalue[key] = value
-                        }
 
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+            case (_, Token.SingleQuote): fallthrough
+            case (_, Token.DoubleQuote):
+                switch state {
+                case .Initial:
+                    state = .Key
+                    
+                    let parsedKey = parseString(generator, quote: scalar)
+                    if let parsedKey = parsedKey.value?.string {
+                        key = parsedKey
+                        generator.replay()
                     }
-                }
-                else if scalar == Token.Comma {
-                    switch state {
-                    case .Value:
-                        state = .Initial
-                        key = ""
-                        buffer.next()
-                        
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    else {
+                        return FailableOf(parsedKey.error!)
                     }
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected token ''' (single quote) or '\"' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
+
+            case (_, Token.Colon):
+                switch state {
+                case .Key:
+                    state = .Value
+                    
+                    let parsedValue = parse(generator)
+                    if let value = parsedValue.value {
+                        jsvalue[key] = value
+                        generator.replay()
+                    }
+                    else {
+                        return FailableOf(parsedValue.error!)
+                    }
+
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected token ':' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                }
+
+            case (_, Token.Comma):
+                switch state {
+                case .Value:
+                    state = .Initial
+                    key = ""
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected token ',' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                }
+
+            default:
+                if scalar.isWhitespace() { continue }
                 else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unexpected token: \(buffer.current)"]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
                     return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
             }
@@ -172,26 +169,30 @@ extension JSValue {
         
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-            ErrorKeys.LocalizedFailureReason: "Error parsing JSON object."]
+            ErrorKeys.LocalizedFailureReason: "Unable to parse object. Context: '\(contextualString(generator))'."]
         return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    static func parseArray(inout buffer: BufferedGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
+    static func parseArray(generator: ReplayableGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
         var values = [JSValue]()
-        
-        buffer.next()
-        while buffer.current != nil {
-            if let unicode = buffer.current {
-                if unicode.isWhitespace() || unicode == Token.Comma { buffer.next() }
-                else if unicode == Token.RightBracket {
-                    buffer.next()
-                    return FailableOf(JSValue(JSBackingValue.JSArray(values)))
-                }
+
+        for (idx, scalar) in enumerate(generator) {
+            switch (idx, scalar) {
+            case (0, Token.LeftBracket): continue
+            case (_, Token.RightBracket):
+                generator.next()        // eat the ']'
+                return FailableOf(JSValue(JSBackingValue.JSArray(values)))
+
+            case (_, _):
+                if scalar.isWhitespace() || scalar == Token.Comma { continue }
                 else {
-                    let parsedValue = parse(&buffer, first: buffer.current)
-                    if parsedValue.failed { return parsedValue }
+                    let parsedValue = parse(generator)
                     if let value = parsedValue.value {
                         values.append(value)
+                        generator.replay()
+                    }
+                    else {
+                        return FailableOf(parsedValue.error!)
                     }
                 }
             }
@@ -199,11 +200,11 @@ extension JSValue {
         
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-            ErrorKeys.LocalizedFailureReason: "Error parsing JSON array."]
+            ErrorKeys.LocalizedFailureReason: "Unable to parse array. Context: '\(contextualString(generator))'."]
         return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
-    static func parseNumber(inout buffer: BufferedGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
+    static func parseNumber(generator: ReplayableGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
         enum ParsingState {
             case Initial
             case Whole
@@ -220,98 +221,96 @@ extension JSValue {
         var exponent = 0
         var exponentSign = 1
         
-        for var scalar = buffer.current; scalar != nil; scalar = buffer.next() {
-            if let scalar = scalar {
-                if scalar == Token.Minus {
-                    switch state {
-                    case .Initial:
-                        numberSign = -1
-                        state = .Whole
-                        
-                    case .Exponent:
-                        exponentSign = -1
-                        state = .ExponentDigits
-                        
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                    }
+        for (idx, scalar) in enumerate(generator) {
+            if scalar == Token.Minus {
+                switch state {
+                case .Initial:
+                    numberSign = -1
+                    state = .Whole
+                    
+                case .Exponent:
+                    exponentSign = -1
+                    state = .ExponentDigits
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected token '-' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
-                else if scalar == Token.Plus {
-                    switch state {
-                    case .Initial:
-                        state = .Whole
-                        
-                    case .Exponent:
-                        state = .ExponentDigits
-                        
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                    }
+            }
+            else if scalar == Token.Plus {
+                switch state {
+                case .Initial:
+                    state = .Whole
+                    
+                case .Exponent:
+                    state = .ExponentDigits
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected token '+' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
-                else if scalar.isDigit() {
-                    switch state {
-                    case .Initial:
-                        state = .Whole
-                        fallthrough
-                        
-                    case .Whole:
-                        number = number * 10 + Double(scalar.value - Token.Zero.value)
-                        
-                    case .Decimal:
-                        number = number + depth * Double(scalar.value - Token.Zero.value)
-                        depth /= 10
-                        
-                    case .Exponent:
-                        state = .ExponentDigits
-                        fallthrough
-                        
-                    case .ExponentDigits:
-                        exponent = exponent * 10 + scalar.value - Token.Zero.value
-                        
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                    }
+            }
+            else if scalar.isDigit() {
+                switch state {
+                case .Initial:
+                    state = .Whole
+                    fallthrough
+                    
+                case .Whole:
+                    number = number * 10 + Double(scalar.value - Token.Zero.value)
+                    
+                case .Decimal:
+                    number = number + depth * Double(scalar.value - Token.Zero.value)
+                    depth /= 10
+                    
+                case .Exponent:
+                    state = .ExponentDigits
+                    fallthrough
+                    
+                case .ExponentDigits:
+                    exponent = exponent * 10 + scalar.value - Token.Zero.value
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected valid digit at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
-                else if scalar == Token.Period {
-                    switch state {
-                    case .Whole:
-                        state = .Decimal
-                        
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                    }
+            }
+            else if scalar == Token.Period {
+                switch state {
+                case .Whole:
+                    state = .Decimal
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected token '.' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
-                else if scalar == Token.e || scalar == Token.E {
-                    switch state {
-                    case .Whole:
-                        state = .Exponent
-                        
-                    case .Decimal:
-                        state = .Exponent
-                        
-                    default:
-                        let info = [
-                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                    }
-                    state = ParsingState.Exponent
+            }
+            else if scalar == Token.e || scalar == Token.E {
+                switch state {
+                case .Whole:
+                    state = .Exponent
+                    
+                case .Decimal:
+                    state = .Exponent
+                    
+                default:
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Expected token 'e' or 'E' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
-                else {
-                    break
-                }
+                state = ParsingState.Exponent
+            }
+            else {
+                break
             }
         }
 
@@ -319,141 +318,140 @@ extension JSValue {
         return FailableOf(jsvalue)
     }
     
-    static func parseTrue(inout buffer: BufferedGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
-        var scalar = buffer.next()
-        if scalar != Token.r {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-        
-        scalar = buffer.next()
-        if scalar != Token.u {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
+    static func parseTrue(generator: ReplayableGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
+        for (idx, scalar) in enumerate(generator) {
+            switch (idx, scalar) {
+            case (0, Token.t): continue
+            case (1, Token.r): continue
+            case (2, Token.u): continue
+            case (3, Token.e): continue
+            case (4, _):
+                if scalar.isValidTerminator() { return FailableOf(true) }
+                fallthrough
 
-        scalar = buffer.next()
-        if scalar != Token.e {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-
-        buffer.next()
-        
-        let jsvalue: JSValue = true
-        return FailableOf(jsvalue)
-    }
-    
-    static func parseFalse(inout buffer: BufferedGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
-        var scalar = buffer.next()
-        if scalar != Token.a {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-
-        scalar = buffer.next()
-        if scalar != Token.l {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-
-        scalar = buffer.next()
-        if scalar != Token.s {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-
-        scalar = buffer.next()
-        if scalar != Token.e {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-
-        buffer.next()
-
-        let jsvalue: JSValue = false
-        return FailableOf(jsvalue)
-    }
-    
-    static func parseNull(inout buffer: BufferedGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
-        var scalar = buffer.next()
-        if scalar != Token.u {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-
-        scalar = buffer.next()
-        if scalar != Token.l {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-
-        scalar = buffer.next()
-        if scalar != Token.l {
-            let info = [
-                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                ErrorKeys.LocalizedFailureReason: "Unexpected token: \(scalar)"]
-            return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-        }
-        
-        buffer.next()
-
-        let jsvalue: JSValue = nil
-        return FailableOf(jsvalue)
-    }
-    
-    static func parseString(inout buffer: BufferedGenerator<String.UnicodeScalarView>, quote: UnicodeScalar) -> FailableOf<JSValue> {
-        var stream = ""
-        var escapeCount = 0
-        
-        for var scalar = buffer.next(); scalar != nil; scalar = buffer.next() {
-            if let scalar = scalar {
-                if scalar == quote {
-                    if escapeCount % 2 == 0 {
-                        buffer.next()
-                        return FailableOf(JSValue(JSBackingValue.JSString(stream)))
-                    }
-                    else {
-                        escapeCount = 0
-                        scalar.writeTo(&stream)
-                    }
-                }
-                else {
-                    escapeCount = scalar == Token.Backslash ? escapeCount + 1 : 0
-                    scalar.writeTo(&stream)
-                }
+            default:
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
             }
         }
-        
+
+        if generator.atEnd() { return FailableOf(true) }
+
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-            ErrorKeys.LocalizedFailureReason: "Error parsing JSON string."]
+            ErrorKeys.LocalizedFailureReason: "Unable to parse 'true' literal. Context: '\(contextualString(generator))'."]
         return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
-    // MARK: Helper functions
+    static func parseFalse(generator: ReplayableGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
+        for (idx, scalar) in enumerate(generator) {
+            switch (idx, scalar) {
+            case (0, Token.f): continue
+            case (1, Token.a): continue
+            case (2, Token.l): continue
+            case (3, Token.s): continue
+            case (4, Token.e): continue
+            case (5, _):
+                if scalar.isValidTerminator() { return FailableOf(false) }
+                fallthrough
+
+            default:
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+            }
+        }
+
+        if generator.atEnd() { return FailableOf(false) }
+
+        let info = [
+            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+            ErrorKeys.LocalizedFailureReason: "Unable to parse 'false' literal. Context: '\(contextualString(generator))'."]
+        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+    }
     
-    static func substring(inout buffer: BufferedGenerator<String.UnicodeScalarView>) -> String {
+    static func parseNull(generator: ReplayableGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
+        for (idx, scalar) in enumerate(generator) {
+            switch (idx, scalar) {
+            case (0, Token.n): continue
+            case (1, Token.u): continue
+            case (2, Token.l): continue
+            case (3, Token.l): continue
+            case (4, _):
+                if scalar.isValidTerminator() { return FailableOf(nil) }
+                fallthrough
+
+            default:
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+            }
+        }
+
+        if generator.atEnd() { return FailableOf(nil) }
+
+        let info = [
+            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+            ErrorKeys.LocalizedFailureReason: "Unable to parse 'null' literal. Context: '\(contextualString(generator))'."]
+        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+    }
+    
+    static func parseString(generator: ReplayableGenerator<String.UnicodeScalarView>, quote: UnicodeScalar) -> FailableOf<JSValue> {
         var string = ""
-        for var scalar = buffer.next(); scalar != nil; scalar = buffer.next() {
+        var escapeCount = 0
+
+        for (idx, scalar) in enumerate(generator) {
+            switch (idx, scalar) {
+            case (0, quote): continue
+            case (_, quote):
+                if escapeCount % 2 == 0 {
+                    generator.next()        // eat the quote
+                    return FailableOf(JSValue(JSBackingValue.JSString(string)))
+                }
+                else {
+                    escapeCount = 0
+                    scalar.writeTo(&string)
+                }
+
+            default:
+                escapeCount = scalar == Token.Backslash ? escapeCount + 1 : 0
+                scalar.writeTo(&string)
+            }
+        }
+
+        let info = [
+            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+            ErrorKeys.LocalizedFailureReason: "Unable to parse string. Context: '\(contextualString(generator))'."]
+        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+    }
+    
+
+    // MARK: Helper functions
+
+    static func substring(generator: ReplayableGenerator<String.UnicodeScalarView>) -> String {
+        var string = ""
+
+        for scalar in generator {
+            scalar.writeTo(&string)
+        }
+        
+        return string
+    }
+
+
+    static func contextualString(generator: ReplayableGenerator<String.UnicodeScalarView>, left: Int = 5, right: Int = 10) -> String {
+        var string = ""
+
+        for var i = left; i > 0; i-- {
+            generator.replay()
+        }
+
+        for var i = 0; i < (left + right); i++ {
+            let scalar = generator.next()
             scalar?.writeTo(&string)
         }
         
@@ -494,7 +492,17 @@ extension UnicodeScalar {
     func isDigit() -> Bool {
         return value >= Token.Zero.value && value <= Token.Nine.value
     }
-    
+
+    /// Determines if the `UnicodeScalar` respresents a valid terminating character.
+    /// :return: `true` if the scalar is a valid terminator, `false` otherwise.
+    func isValidTerminator() -> Bool {
+        if self == Token.Comma            { return true }
+        if self == Token.RightBracket     { return true }
+        if self == Token.RightCurly       { return true }
+        if self.isWhitespace()            { return true }
+
+        return false
+    }
 
 }
 

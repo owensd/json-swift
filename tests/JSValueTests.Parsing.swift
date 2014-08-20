@@ -141,7 +141,7 @@ class JSValueParsingTests : XCTestCase {
         
         XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "\\\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\\\"")
-}
+    }
 
     func testParseInteger() {
         let string = "101"
