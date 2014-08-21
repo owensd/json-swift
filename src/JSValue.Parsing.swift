@@ -183,7 +183,7 @@ extension JSValue {
                 generator.next()        // eat the ']'
                 return FailableOf(JSValue(JSBackingValue.JSArray(values)))
 
-            case (_, _):
+            default:
                 if scalar.isWhitespace() || scalar == Token.Comma { continue }
                 else {
                     let parsedValue = parse(generator)
@@ -222,100 +222,66 @@ extension JSValue {
         var exponentSign = 1
         
         for (idx, scalar) in enumerate(generator) {
-            if scalar == Token.Minus {
-                switch state {
-                case .Initial:
-                    numberSign = -1
-                    state = .Whole
+            switch (idx, scalar, state) {
+            case (0, Token.Minus, ParsingState.Initial):
+                numberSign = -1
+                state = .Whole
+
+            case (_, Token.Minus, ParsingState.Exponent):
+                exponentSign = -1
+                state = .ExponentDigits
+
+            case (_, Token.Plus, ParsingState.Initial):
+                state = .Whole
+
+            case (_, Token.Plus, ParsingState.Exponent):
+                state = .ExponentDigits
+
+            case (_, Token.Zero...Token.Nine, ParsingState.Initial):
+                state = .Whole
+                fallthrough
+
+            case (_, Token.Zero...Token.Nine, ParsingState.Whole):
+                number = number * 10 + Double(scalar.value - Token.Zero.value)
                     
-                case .Exponent:
-                    exponentSign = -1
-                    state = .ExponentDigits
+            case (_, Token.Zero...Token.Nine, ParsingState.Decimal):
+                number = number + depth * Double(scalar.value - Token.Zero.value)
+                depth /= 10
                     
-                default:
+            case (_, Token.Zero...Token.Nine, ParsingState.Exponent):
+                state = .ExponentDigits
+                fallthrough
+                    
+            case (_, Token.Zero...Token.Nine, ParsingState.ExponentDigits):
+                exponent = exponent * 10 + scalar.value - Token.Zero.value
+
+            case (_, Token.Period, ParsingState.Whole):
+                state = .Decimal
+
+            case (_, Token.e, ParsingState.Whole):      state = .Exponent
+            case (_, Token.E, ParsingState.Whole):      state = .Exponent
+            case (_, Token.e, ParsingState.Decimal):    state = .Exponent
+            case (_, Token.E, ParsingState.Decimal):    state = .Exponent
+                    
+            default:
+                if scalar.isValidTerminator() {
+                    return FailableOf(JSValue(JSBackingValue.JSNumber(exp(number, exponent * exponentSign) * numberSign)))
+                }
+                else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Expected token '-' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(scalar). State: \(state). Context: '\(contextualString(generator))'."]
                     return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
-            }
-            else if scalar == Token.Plus {
-                switch state {
-                case .Initial:
-                    state = .Whole
-                    
-                case .Exponent:
-                    state = .ExponentDigits
-                    
-                default:
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Expected token '+' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
-                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                }
-            }
-            else if scalar.isDigit() {
-                switch state {
-                case .Initial:
-                    state = .Whole
-                    fallthrough
-                    
-                case .Whole:
-                    number = number * 10 + Double(scalar.value - Token.Zero.value)
-                    
-                case .Decimal:
-                    number = number + depth * Double(scalar.value - Token.Zero.value)
-                    depth /= 10
-                    
-                case .Exponent:
-                    state = .ExponentDigits
-                    fallthrough
-                    
-                case .ExponentDigits:
-                    exponent = exponent * 10 + scalar.value - Token.Zero.value
-                    
-                default:
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Expected valid digit at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
-                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                }
-            }
-            else if scalar == Token.Period {
-                switch state {
-                case .Whole:
-                    state = .Decimal
-                    
-                default:
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Expected token '.' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
-                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                }
-            }
-            else if scalar == Token.e || scalar == Token.E {
-                switch state {
-                case .Whole:
-                    state = .Exponent
-                    
-                case .Decimal:
-                    state = .Exponent
-                    
-                default:
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Expected token 'e' or 'E' at index: \(idx). Token: \(scalar). Context: '\(contextualString(generator))'."]
-                    return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                }
-                state = ParsingState.Exponent
-            }
-            else {
-                break
             }
         }
 
-        let jsvalue = JSValue(JSBackingValue.JSNumber(exp(number, exponent * exponentSign) * numberSign))
-        return FailableOf(jsvalue)
+        if generator.atEnd() { return FailableOf(JSValue(JSBackingValue.JSNumber(exp(number, exponent * exponentSign) * numberSign))) }
+
+        let info = [
+            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+            ErrorKeys.LocalizedFailureReason: "Unable to parse array. Context: '\(contextualString(generator))'."]
+        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
     static func parseTrue(generator: ReplayableGenerator<String.UnicodeScalarView>) -> FailableOf<JSValue> {
@@ -401,25 +367,36 @@ extension JSValue {
     }
     
     static func parseString(generator: ReplayableGenerator<String.UnicodeScalarView>, quote: UnicodeScalar) -> FailableOf<JSValue> {
-        var string = ""
-        var escapeCount = 0
+        var bytes = [UInt8]()
+        var escaped = false
 
         for (idx, scalar) in enumerate(generator) {
             switch (idx, scalar) {
             case (0, quote): continue
             case (_, quote):
-                if escapeCount % 2 == 0 {
+                if !escaped {
                     generator.next()        // eat the quote
-                    return FailableOf(JSValue(JSBackingValue.JSString(string)))
+
+                    bytes.append(0)
+                    let ptr = UnsafePointer<CChar>(bytes)
+                    if let string = String.fromCString(ptr) {
+                        return FailableOf(JSValue(JSBackingValue.JSString(string)))
+                    }
+                    else {
+                        let info = [
+                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                            ErrorKeys.LocalizedFailureReason: "Unable to convert the parsed bytes into a string. Bytes: \(bytes)'."]
+                        return FailableOf(Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    }
                 }
                 else {
-                    escapeCount = 0
-                    scalar.writeTo(&string)
+                    escaped = false
+                    scalar.utf8(&bytes)
                 }
 
             default:
-                escapeCount = scalar == Token.Backslash ? escapeCount + 1 : 0
-                scalar.writeTo(&string)
+                escaped = scalar == Token.Backslash ? !escaped : false
+                scalar.utf8(&bytes)
             }
         }
 
@@ -504,6 +481,36 @@ extension UnicodeScalar {
         return false
     }
 
+    /// Stores the `UInt8` bytes that make up the UTF8 code points for the scalar.
+    ///
+    /// :param: buffer the buffer to write the UTF8 code points into.
+    func utf8(inout buffer: [UInt8]) {
+        /*
+         *  This implementation should probably be replaced by the function below. However,
+         *  I am not quite sure how to properly use `SinkType` yet...
+         *
+         *  UTF8.encode(input: UnicodeScalar, output: &S)
+         */
+
+        if value <= 0x007F {
+            buffer.append(UInt8(value))
+        }
+        else if 0x0080 <= value && value <= 0x07FF {
+            buffer.append(UInt8(value / 64 + 192))
+            buffer.append(UInt8(value % 64 + 128))
+        }
+        else if (0x0800 <= value && value <= 0xD7FF) || (0xE000 <= value && value <= 0xFFFF) {
+            buffer.append(UInt8(value / 4096 + 224))
+            buffer.append(UInt8((value % 4096) / 64 + 128))
+            buffer.append(UInt8(value % 64 + 128))
+        }
+        else {
+            buffer.append(UInt8(value / 262144 + 240))
+            buffer.append(UInt8((value % 262144) / 4_096 + 128))
+            buffer.append(UInt8((value % 4096) / 64 + 128))
+            buffer.append(UInt8(value % 64 + 128))
+        }
+    }
 }
 
 /// The code unit value for all of the token characters used.
