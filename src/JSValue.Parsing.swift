@@ -496,19 +496,19 @@ extension UnicodeScalar {
             buffer.append(UInt8(value))
         }
         else if 0x0080 <= value && value <= 0x07FF {
-            buffer.append(UInt8(value / 64 + 192))
-            buffer.append(UInt8(value % 64 + 128))
+            buffer.append(UInt8(value &/ 64) &+ 192)
+            buffer.append(UInt8(value &% 64) &+ 128)
         }
         else if (0x0800 <= value && value <= 0xD7FF) || (0xE000 <= value && value <= 0xFFFF) {
-            buffer.append(UInt8(value / 4096 + 224))
-            buffer.append(UInt8((value % 4096) / 64 + 128))
-            buffer.append(UInt8(value % 64 + 128))
+            buffer.append(UInt8(value &/ 4096) &+ 224)
+            buffer.append(UInt8((value &% 4096) &/ 64) &+ 128)
+            buffer.append(UInt8(value &% 64 &+ 128))
         }
         else {
-            buffer.append(UInt8(value / 262144 + 240))
-            buffer.append(UInt8((value % 262144) / 4_096 + 128))
-            buffer.append(UInt8((value % 4096) / 64 + 128))
-            buffer.append(UInt8(value % 64 + 128))
+            buffer.append(UInt8(value &/ 262144) &+ 240)
+            buffer.append(UInt8((value &% 262144) &/ 4096) &+ 128)
+            buffer.append(UInt8((value &% 4096) &/ 64) &+ 128)
+            buffer.append(UInt8(value &% 64) &+ 128)
         }
     }
 }
