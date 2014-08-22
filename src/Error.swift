@@ -1,5 +1,3 @@
-import Foundation
-
 /// Creates a new type that is used to represent error information in Swift.
 ///
 /// This is a new Swift-specific error type used to return error information. The primary usage of this object is to
@@ -8,7 +6,7 @@ import Foundation
 /// Example:
 ///   `func readContentsOfFileAtPath(path: String) -> Failable<String>`
 ///
-public struct Error {
+public final class Error {
     public typealias ErrorInfoDictionary = [String:String]
 
     /// The error code used to differentiate between various error states.
@@ -31,6 +29,9 @@ public struct Error {
             self.userInfo = ErrorInfoDictionary()
         }
     }
+
+    /// A single, representative instance of an 'Empty' `Error` object.
+    //public static let Empty = Error(code: 0, domain: "", userInfo: nil)
 }
 
 /// The standard keys used in `Error` and `userInfo`.
@@ -52,30 +53,30 @@ public struct ErrorKeys {
 
 extension Error {
     
-    /// An initializer that is to be used within your own applications and libraries to hide any of the
-    /// ObjC interfaces from your purely Swift APIs.
-    public init(_ error: NSErrorPointer) {
-        if let memory = error.memory {
-            self.code = memory.code
-            self.domain = memory.domain
-            
-            // TODO: Only supports pulling out one key at the moment, more will come later...
-            if let info = memory.userInfo {
-                self.userInfo = ErrorInfoDictionary()
-                if let localizedDescription = info[NSLocalizedDescriptionKey] as? NSString {
-                    self.userInfo[ErrorKeys.LocalizedDescription] = localizedDescription
-                }
-            }
-            else {
-                self.userInfo = ErrorInfoDictionary()
-            }
-        }
-        else {
-            self.code = 0
-            self.domain = ""
-            self.userInfo = ErrorInfoDictionary()
-        }
-    }
+//    /// An initializer that is to be used within your own applications and libraries to hide any of the
+//    /// ObjC interfaces from your purely Swift APIs.
+//    public convenience init(_ error: NSErrorPointer) {
+//        if let memory = error.memory {
+//            self.code = memory.code
+//            self.domain = memory.domain
+//            
+//            // TODO: Only supports pulling out one key at the moment, more will come later...
+//            if let info = memory.userInfo {
+//                self.userInfo = ErrorInfoDictionary()
+//                if let localizedDescription = info[NSLocalizedDescriptionKey] as? NSString {
+//                    self.userInfo[ErrorKeys.LocalizedDescription] = localizedDescription
+//                }
+//            }
+//            else {
+//                self.userInfo = ErrorInfoDictionary()
+//            }
+//        }
+//        else {
+//            self.code = 0
+//            self.domain = ""
+//            self.userInfo = ErrorInfoDictionary()
+//        }
+//    }
 }
 
 extension Error: Printable {

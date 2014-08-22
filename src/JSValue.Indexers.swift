@@ -22,19 +22,19 @@ extension JSValue {
                     code: JSValue.ErrorCode.KeyNotFound.code,
                     domain: JSValueErrorDomain,
                     userInfo: [ErrorKeys.LocalizedDescription: JSValue.ErrorCode.KeyNotFound.message])
-                return JSValue(JSBackingValue.Invalid(error))
+                return JSValue(error)
             }
 
             let error = Error(
                 code: JSValue.ErrorCode.IndexingIntoUnsupportedType.code,
                 domain: JSValueErrorDomain,
                 userInfo: [ErrorKeys.LocalizedDescription: JSValue.ErrorCode.IndexingIntoUnsupportedType.message])
-            return JSValue(JSBackingValue.Invalid(error))
+            return JSValue(error)
         }
         set {
             if var dict = self.object {
                 dict[key] = newValue
-                self.value = JSBackingValue.JSObject(dict)
+                self = JSValue(dict)
             }
         }
     }
@@ -51,19 +51,19 @@ extension JSValue {
                     code: JSValue.ErrorCode.IndexOutOfRange.code,
                     domain: JSValueErrorDomain,
                     userInfo: [ErrorKeys.LocalizedDescription: JSValue.ErrorCode.IndexOutOfRange.message])
-                return JSValue(JSBackingValue.Invalid(error))
+                return JSValue(error)
             }
             
             let error = Error(
                 code: JSValue.ErrorCode.IndexingIntoUnsupportedType.code,
                 domain: JSValueErrorDomain,
                 userInfo: [ErrorKeys.LocalizedDescription: JSValue.ErrorCode.IndexingIntoUnsupportedType.message])
-            return JSValue(JSBackingValue.Invalid(error))
+            return JSValue(error)
         }
         set {
             if var array = self.array {
                 array[index] = newValue
-                self.value = JSBackingValue.JSArray(array)
+                self = JSValue(array)
             }
         }
     }

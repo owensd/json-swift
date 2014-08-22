@@ -16,15 +16,32 @@ public let JSValueErrorDomain      = "com.kiadsoftware.json.error"
 ///
 /// See http://json.org for a full description.
 public struct JSValue : Equatable {
-    
-    /// The underlying value for `JSValue`.
-    var value: JSBackingValue
-    
+
     /// The maximum integer that is safely representable in JavaScript.
     public static let MaximumSafeInt: Int64 = 9007199254740991
     
     /// The minimum integer that is safely representable in JavaScript.
     public static let MinimumSafeInt: Int64 = -9007199254740991
+
+
+    /// The type of the underlying `JSArray`.
+    public typealias JSArrayType       = [JSValue]
+
+    /// The type of the underlying `JSObject`.
+    public typealias JSObjectType      = [String:JSValue]
+    
+    /// The type of the underlying `JSString`.
+    public typealias JSStringType      = String
+
+    /// The type of the underlying `JSNumber`.
+    public typealias JSNumberType      = Double
+
+    /// The type of the underlying `JSBool`.
+    public typealias JSBoolType        = Bool
+
+    /// The underlying value for `JSValue`.
+    var value: JSBackingValue
+    
     
     /// All of the possible values that a `JSValue` can hold.
     enum JSBackingValue {
@@ -58,8 +75,39 @@ public struct JSValue : Equatable {
         /// Holds the error information when the `JSValue` could not be made into a valid item.
         case Invalid(Error)
     }
+
     
-    /// An internal initializer used to specify what the value of the `JSValue` should really be.
+    /// Initializes a new `JSValue` with a `JSArrayType` value.
+    public init(_ value: JSArrayType) {
+        self.value = JSBackingValue.JSArray(value)
+    }
+
+    /// Initializes a new `JSValue` with a `JSObjectType` value.
+    public init(_ value: JSObjectType) {
+        self.value = JSBackingValue.JSObject(value)
+    }
+
+    /// Initializes a new `JSValue` with a `JSStringType` value.
+    public init(_ value: JSStringType) {
+        self.value = JSBackingValue.JSString(value)
+    }
+
+    /// Initializes a new `JSValue` with a `JSNumberType` value.
+    public init(_ value: JSNumberType) {
+        self.value = JSBackingValue.JSNumber(value)
+    }
+
+    /// Initializes a new `JSValue` with a `JSBoolType` value.
+    public init(_ value: JSBoolType) {
+        self.value = JSBackingValue.JSBool(value)
+    }
+
+    /// Initializes a new `JSValue` with an `Error` value.
+    init(_ error: Error) {
+        self.value = JSBackingValue.Invalid(error)
+    }
+
+    /// Initializes a new `JSValue` with a `JSBackingValue` value.
     init(_ value: JSBackingValue) {
         self.value = value
     }

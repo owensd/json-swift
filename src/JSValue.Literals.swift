@@ -17,9 +17,9 @@ extension JSValue : IntegerLiteralConvertible {
                 domain: JSValueErrorDomain,
                 userInfo: [ErrorKeys.LocalizedDescription: "\(ErrorCode.InvalidIntegerValue.message) Value: \(value)"])
             
-            return JSValue(JSBackingValue.Invalid(error))
+            return JSValue(error)
         }
-        return JSValue(JSBackingValue.JSNumber(Double(value)))
+        return JSValue(Double(value))
     }
 
     public static func convertFromIntegerLiteral(value: Int) -> JSValue {
@@ -29,34 +29,34 @@ extension JSValue : IntegerLiteralConvertible {
 
 extension JSValue : FloatLiteralConvertible {
     public static func convertFromFloatLiteral(value: Double) -> JSValue {
-        return JSValue(JSBackingValue.JSNumber(value))
+        return JSValue(value)
     }
 }
 
 
 extension JSValue : StringLiteralConvertible {
     public static func convertFromStringLiteral(value: String) -> JSValue {
-        return JSValue(JSBackingValue.JSString(value))
+        return JSValue(value)
     }
     public static func convertFromExtendedGraphemeClusterLiteral(value: String) -> JSValue {
-        return JSValue(JSBackingValue.JSString(value))
+        return JSValue(value)
     }
 }
 
 extension JSValue : ArrayLiteralConvertible {
     public static func convertFromArrayLiteral(elements: JSValue...) -> JSValue {
-        return JSValue(JSBackingValue.JSArray(elements))
+        return JSValue(elements)
     }
 }
 
 extension JSValue : DictionaryLiteralConvertible {
     public static func convertFromDictionaryLiteral(elements: (String, JSValue)...) -> JSValue {
-        var dict = [String : JSValue]()
+        var dict = JSObjectType()
         for (k, v) in elements {
             dict[k] = v
         }
         
-        return JSValue(JSBackingValue.JSObject(dict))
+        return JSValue(dict)
     }
 }
 
@@ -68,6 +68,6 @@ extension JSValue : NilLiteralConvertible {
 
 extension JSValue: BooleanLiteralConvertible {
     public static func convertFromBooleanLiteral(value: BooleanLiteralType) -> JSValue {
-        return JSValue(JSBackingValue.JSBool(value))
+        return JSValue(value)
     }
 }
