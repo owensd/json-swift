@@ -18,8 +18,8 @@ class JSValueParsingTests : XCTestCase {
     func testParseNull() {
         let string = "null"
         let jsvalue = JSValue.parse(string)
-        
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertTrue(jsvalue.value?.null == true)
     }
 
@@ -27,7 +27,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "  \r\n\n\r\t\t\t\tnull\t\t\t\t\t\t\t       \n\r\r\n\n\n"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertTrue(jsvalue.value?.null == true)
     }
     
@@ -35,7 +35,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "null,"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertTrue(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error != nil, jsvalue.error?.userInfo?.description ?? "No error info")
         // TODO: Validate the error information
     }
 
@@ -43,7 +43,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "true"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertTrue(jsvalue.value?.bool == true)
     }
     
@@ -51,7 +51,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "  \r\n\n\r\t\t\t\ttrue\t\t\t\t\t\t\t       \n\r\r\n\n\n"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertTrue(jsvalue.value?.bool == true)
     }
     
@@ -59,7 +59,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "true#"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertTrue(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error != nil, jsvalue.error?.userInfo?.description ?? "No error info")
         // TODO: Validate the error information
     }
     
@@ -67,7 +67,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "false"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertTrue(jsvalue.value?.bool == false)
     }
     
@@ -75,7 +75,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "  \r\n\n\r\t\t\t\tfalse\t\t\t\t\t\t\t       \n\r\r\n\n\n"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertTrue(jsvalue.value?.bool == false)
     }
     
@@ -83,7 +83,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "false-"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertTrue(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error != nil, jsvalue.error?.userInfo?.description ?? "No error info")
         // TODO: Validate the error information
     }
     
@@ -91,7 +91,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "\"Bob\""
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "Bob")
     }
 
@@ -99,7 +99,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "'Bob'"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "Bob")
     }
     
@@ -107,7 +107,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "'Bob \"the man \" Roberts'"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "Bob \"the man \" Roberts")
     }
 
@@ -115,7 +115,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "\"Bob \\\"the man\\\" Roberts\""
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "Bob \\\"the man\\\" Roberts")
     }
     
@@ -123,7 +123,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "\"e&\\\\첊xz坍崦ݻ鍴\\\"嵥B3\u{000b}㢊\u{0015}L臯.샥\""
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "e&\\\\첊xz坍崦ݻ鍴\\\"嵥B3\u{000b}㢊\u{0015}L臯.샥")
     }
     
@@ -131,7 +131,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "\"(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\\\\""
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\\\")
     }
     
@@ -139,7 +139,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "\"\\\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\\\"\""
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "\\\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\\\"")
     }
 
@@ -147,7 +147,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "101"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertTrue(jsvalue.value?.number == 101)
     }
 
@@ -155,7 +155,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "-109234"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertTrue(jsvalue.value?.number == -109234)
     }
     
@@ -163,7 +163,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "12.345678"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345678, 0.01)
     }
     
@@ -171,7 +171,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "-123.949"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqualWithAccuracy(jsvalue.value!.number!, -123.949, 0.01)
     }
 
@@ -179,7 +179,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "12.345e2"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345e2, 0.01)
     }
 
@@ -187,7 +187,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "12.345e+2"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345e+2, 0.01)
     }
     
@@ -195,7 +195,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "-123.9492e-5"
         let jsvalue = JSValue.parse(string)
         
-        XCTAssertFalse(jsvalue.failed, jsvalue.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqualWithAccuracy(jsvalue.value!.number!, -123.9492e-5, 0.01)
     }
 
@@ -203,7 +203,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "[]"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.array != nil)
         }
@@ -213,7 +213,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "[101]"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.array != nil)
             XCTAssertTrue(json.array?.count == 1)
@@ -225,7 +225,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "[101, 202, 303]"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.array != nil)
             XCTAssertTrue(json.array?.count == 3)
@@ -239,7 +239,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "{}"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.object != nil)
         }
@@ -249,7 +249,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "         {\r\n\n\n\n     \t \t}   \t \t"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.object != nil)
         }
@@ -259,7 +259,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "{ \"key\": 101 }"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.object != nil)
             XCTAssertEqual(json["key"].number!, 101)
@@ -270,7 +270,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "{ \"key1\": 101, \"key2\"    :           202,\"key3\":303}"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.object != nil)
             XCTAssertEqual(json["key1"].number!, 101)
@@ -283,7 +283,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "[1, -12, \"Bob\", true, false, null, -2.11234123]"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.array != nil)
             XCTAssertEqual(json.array!.count, 7)
@@ -301,7 +301,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "{\"key1\": 1, \"key2\": -12, \"key3\": \"Bob\", \"key4\": true, \"key5\": false, \"key6\": null, \"key7\": -2.11234123}"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.object != nil)
             XCTAssertEqual(json.object!.count, 7)
@@ -318,7 +318,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "{\"key1\": 1, \"key2\": [        -12 , 12        ], \"key3\": \"Bob\", \"\\n鱿aK㝡␒㼙2촹f\": { 'foo': 'bar' }, \"key5\": false, \"key6\": null, \"key\\\"7\": -2.11234123}"
         let json = JSON.parse(string)
         
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
         if let json = json.value {
             XCTAssertTrue(json.object != nil)
             XCTAssertEqual(json.object!.count, 7)
@@ -340,7 +340,7 @@ class JSValueParsingTests : XCTestCase {
         let string = "[[[[{},{},{\"ꫯ\":\"ꫯ\"}]]],[],[],[{}]]"
         let json = JSON.parse(string)
 
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error info")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
     }
     
     func testParsingSampleJSON() {
@@ -351,6 +351,6 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertNotNil(string)
         
         let json = JSON.parse(string)
-        XCTAssertFalse(json.failed, json.error?.userInfo.description ?? "No error message found")
+        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error message found")
     }
 }

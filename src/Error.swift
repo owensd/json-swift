@@ -16,22 +16,15 @@ public final class Error {
     public let domain: String
 
     /// A place to store any custom information that needs to be passed along with the error instance.
-    public let userInfo: ErrorInfoDictionary
+    public let userInfo: ErrorInfoDictionary?
+
 
     /// Initializes a new `Error` instance.
     public init(code: Int, domain: String, userInfo: ErrorInfoDictionary?) {
         self.code = code
         self.domain = domain
-        if let info = userInfo {
-            self.userInfo = info
-        }
-        else {
-            self.userInfo = ErrorInfoDictionary()
-        }
+        self.userInfo = userInfo
     }
-
-    /// A single, representative instance of an 'Empty' `Error` object.
-    //public static let Empty = Error(code: 0, domain: "", userInfo: nil)
 }
 
 /// The standard keys used in `Error` and `userInfo`.
@@ -48,35 +41,6 @@ public struct ErrorKeys {
     public static let StringEncoding                         = "NSStringEncoding"
     public static let URL                                    = "NSURL"
     public static let FilePath                               = "NSFilePath"
-}
-
-
-extension Error {
-    
-//    /// An initializer that is to be used within your own applications and libraries to hide any of the
-//    /// ObjC interfaces from your purely Swift APIs.
-//    public convenience init(_ error: NSErrorPointer) {
-//        if let memory = error.memory {
-//            self.code = memory.code
-//            self.domain = memory.domain
-//            
-//            // TODO: Only supports pulling out one key at the moment, more will come later...
-//            if let info = memory.userInfo {
-//                self.userInfo = ErrorInfoDictionary()
-//                if let localizedDescription = info[NSLocalizedDescriptionKey] as? NSString {
-//                    self.userInfo[ErrorKeys.LocalizedDescription] = localizedDescription
-//                }
-//            }
-//            else {
-//                self.userInfo = ErrorInfoDictionary()
-//            }
-//        }
-//        else {
-//            self.code = 0
-//            self.domain = ""
-//            self.userInfo = ErrorInfoDictionary()
-//        }
-//    }
 }
 
 extension Error: Printable {

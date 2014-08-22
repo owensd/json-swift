@@ -17,7 +17,7 @@ import JSONLib
  */
 
 class JSValueUsageTests : XCTestCase {
-    
+
     func testValidateSingleValueStringUsagePatternIfLet() {
         var json: JSValue = "Hello"
         if let value = json.string {
@@ -140,15 +140,15 @@ class JSValueUsageTests : XCTestCase {
             "url" : "http://remote.bloxus.com/"
         ]
         
-        let id: FailableOf<Int> = json["id"] ⇒ toIntFailable
-        let name: FailableOf<String> = json["name"] ⇒ toStringFailable
-        let password: FailableOf<Bool> = json["needspassword"] ⇒ toBoolFailable
-        let url: FailableOf<NSURL> = json["url"] ⇒ toURLFailable
+        let id = json["id"] ⇒ toInt
+        let name = json["name"] ⇒ toString
+        let password = json["needspassword"] ⇒ toBool
+        let url = json["url"] ⇒ toURL
         
         let blog = makeFailable ⇒ id ⇒ name ⇒ password ⇒ url
         
-        XCTAssertTrue(blog.failed)
-        if let error = blog.error {
+        XCTAssertTrue(blog.1 != nil)
+        if let error = blog.1 {
             XCTAssertEqual(error.code, JSValue.ErrorCode.KeyNotFound.code)
         }
     }
@@ -192,47 +192,47 @@ func make(id: Int?)
     return Blog(id: id!, name: name!, needsPassword: needsPassword!, url: url!)
 }
 
-func makeFailable(id: FailableOf<Int>)
-    (name: FailableOf<String>)
-    (needsPassword: FailableOf<Bool>)
-    (url: FailableOf<NSURL>) -> FailableOf<Blog>
+func makeFailable(id: (Int?, Error?))
+    (name: (String?, Error?))
+    (needsPassword: (Bool?, Error?))
+    (url: (NSURL?, Error?)) -> (Blog?, Error?)
 {
-    if let error = id.error { return FailableOf(error) }
-    if let error = name.error { return FailableOf(error) }
-    if let error = needsPassword.error { return FailableOf(error) }
-    if let error = url.error { return FailableOf(error) }
+    if let error = id.1 { return (nil, error) }
+    if let error = name.1 { return (nil, error) }
+    if let error = needsPassword.1 { return (nil, error) }
+    if let error = url.1 { return (nil, error) }
     
-    return FailableOf(Blog(id: id.value!, name: name.value!, needsPassword: needsPassword.value!, url: url.value!))
+    return (Blog(id: id.0!, name: name.0!, needsPassword: needsPassword.0!, url: url.0!), nil)
 }
 
-func toIntFailable(value: JSValue) -> FailableOf<Int> {
+func toInt(value: JSValue) -> (Int?, Error?) {
     if let value = value.number {
-        return FailableOf(Int(value))
+        return (Int(value), nil)
     }
     
-    return FailableOf(value.error!)
+    return (nil, value.error)
 }
 
-func toURLFailable(value: JSValue) -> FailableOf<NSURL> {
+func toURL(value: JSValue) -> (NSURL?, Error?) {
     if let url = value.string {
-        return FailableOf(NSURL(string: url))
+        return (NSURL(string: url), nil)
     }
     
-    return FailableOf(value.error!)
+    return (nil, value.error)
 }
 
-func toBoolFailable(value: JSValue) -> FailableOf<Bool> {
+func toBool(value: JSValue) -> (Bool?, Error?) {
     if let bool = value.bool {
-        return FailableOf(bool)
+        return (bool, nil)
     }
     
-    return FailableOf(value.error!)
+    return (nil, value.error)
 }
 
-func toStringFailable(value: JSValue) -> FailableOf<String> {
+func toString(value: JSValue) -> (String?, Error?) {
     if let string = value.string {
-        return FailableOf(string)
+        return (string, nil)
     }
     
-    return FailableOf(value.error!)
+    return (nil, value.error)
 }

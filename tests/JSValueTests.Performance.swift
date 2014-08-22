@@ -22,7 +22,7 @@ class JSValuePerformanceTests: XCTestCase {
         
         self.measureBlock() {
             let json = JSON.parse(string)
-            XCTAssertFalse(json.failed)
+            XCTAssertTrue(json.1 == nil)
         }
     }
 
