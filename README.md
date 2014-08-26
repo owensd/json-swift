@@ -3,7 +3,7 @@ json-swift
 
 A practical JSON parsing library for Swift. It provides a fully typed and validated API surface for working with JSON, including the ability to base64 items with your JSON.
 
-All of the JSON APIs return back `FailableOf<T>` instances, instead of `Optional<T>`. This allows for richer error information to be transferred back. See [Error Handling in Swift](http://owensd.io/2014/07/09/error-handling.html) for more info.
+All of the JSON APIs return back of `Optional<T>`. This allows for easier use for deep indexing.
 
 Also, there is a functional API set for the library as well. For an in-depth overview of that, see: [Functional JSON](http://owensd.io/2014/08/06/functional-json.html).
 
@@ -39,7 +39,7 @@ Also, there is a functional API set for the library as well. For an in-depth ove
 **Retrieve error information from a missing key lookup**
 
     let stat = json["stats"]
-    if let value = stat.value {
+    if let value = stat.string {
         println("stat = '\(value)'")
     }
     else if let error = stat.error {
@@ -55,3 +55,4 @@ Also, there is a functional API set for the library as well. For an in-depth ove
         }
     }
   
+  See `JSValueTests.Usage.swift` for more usage samples.

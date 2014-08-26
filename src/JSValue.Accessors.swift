@@ -79,7 +79,7 @@ extension JSValue {
         switch self.value {
         case .Invalid(_): return false
         default: return true
-            }
+        }
     }
     
     /// The error information that is held when `hasValue` is `false`.
