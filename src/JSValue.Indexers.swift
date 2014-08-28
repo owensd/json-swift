@@ -23,6 +23,17 @@ extension JSValue {
                     domain: JSValueErrorDomain,
                     userInfo: [ErrorKeys.LocalizedDescription: JSValue.ErrorCode.KeyNotFound.message])
                 return JSValue(error)
+            } else if let array = self.array {
+                let idx: Int? = key.toInt()
+                if idx != nil && idx >= 0 && array.count > idx! {
+                    return array[idx!]
+                }
+    
+                 let error = Error(
+                    code: JSValue.ErrorCode.KeyNotFound.code,
+                    domain: JSValueErrorDomain,
+                    userInfo: [ErrorKeys.LocalizedDescription: JSValue.ErrorCode.KeyNotFound.message])
+                return JSValue(error)
             }
 
             let error = Error(
@@ -35,6 +46,12 @@ extension JSValue {
             if var dict = self.object {
                 dict[key] = newValue
                 self = JSValue(dict)
+            } else if var array = self.array {
+                let idx: Int? = key.toInt()
+                if idx != nil && idx >= 0 && array.count > idx! {
+                    array[idx!] = newValue
+                    self = JSValue(array)
+                }
             }
         }
     }
