@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5125362C19AEBB82006177B0 /* JSValueTests.Indexers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D02E651199D81A50060CEFE /* JSValueTests.Indexers.swift */; };
+		5125362D19AEBBE2006177B0 /* JSValueTests.Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D30EE2D1999EFF300F3AA17 /* JSValueTests.Equatable.swift */; };
+		5125362E19AEBBE2006177B0 /* JSValueTests.Literals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BE7199928BB008DC49F /* JSValueTests.Literals.swift */; };
+		5125363019AEBBE2006177B0 /* JSValueTests.Usage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D560FB31999583200270602 /* JSValueTests.Usage.swift */; };
+		5125363319AEBC24006177B0 /* JSValue.Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5125363219AEBC24006177B0 /* JSValue.Path.swift */; };
+		5125363419AEBC24006177B0 /* JSValue.Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5125363219AEBC24006177B0 /* JSValue.Path.swift */; };
+		5125363619AEBF9D006177B0 /* JSValueTests.Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5125363519AEBF9D006177B0 /* JSValueTests.Path.swift */; };
+		5125363719AEBF9D006177B0 /* JSValueTests.Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5125363519AEBF9D006177B0 /* JSValueTests.Path.swift */; };
 		7D07B2D3199EB2EE0084611B /* sample.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D07B2D2199EB2EE0084611B /* sample.json */; };
 		7D1E364C19947B5900856119 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1E364519947B5900856119 /* Error.swift */; };
 		7D1E364F19947B5900856119 /* Functional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1E364719947B5900856119 /* Functional.swift */; };
@@ -78,6 +86,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5125363219AEBC24006177B0 /* JSValue.Path.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValue.Path.swift; sourceTree = "<group>"; };
+		5125363519AEBF9D006177B0 /* JSValueTests.Path.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValueTests.Path.swift; sourceTree = "<group>"; };
 		7D02E651199D81A50060CEFE /* JSValueTests.Indexers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValueTests.Indexers.swift; sourceTree = "<group>"; };
 		7D07B2D2199EB2EE0084611B /* sample.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = sample.json; sourceTree = "<group>"; };
 		7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSValueTests.Performance.swift; sourceTree = "<group>"; };
@@ -155,6 +165,7 @@
 				7DCD0BED199937AA008DC49F /* JSValue.Indexers.swift */,
 				7D560FB0199957E700270602 /* JSValue.Literals.swift */,
 				7D30EE2F1999F4E200F3AA17 /* JSValue.Parsing.swift */,
+				5125363219AEBC24006177B0 /* JSValue.Path.swift */,
 			);
 			name = JSValue;
 			sourceTree = "<group>";
@@ -212,6 +223,7 @@
 				7D560FB31999583200270602 /* JSValueTests.Usage.swift */,
 				7D02E651199D81A50060CEFE /* JSValueTests.Indexers.swift */,
 				7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */,
+				5125363519AEBF9D006177B0 /* JSValueTests.Path.swift */,
 			);
 			name = Tests;
 			path = tests;
@@ -411,6 +423,7 @@
 				7D560FAF1999577400270602 /* JSValue.Encodings.swift in Sources */,
 				7D560FB2199957E700270602 /* JSValue.Literals.swift in Sources */,
 				7DCD0BEC19993630008DC49F /* JSValue.Accessors.swift in Sources */,
+				5125363419AEBC24006177B0 /* JSValue.Path.swift in Sources */,
 				7D773D5219A3AB6700D3948D /* ReplayableGenerator.swift in Sources */,
 				7D30EE341999F82D00F3AA17 /* JSValue.Parsing.swift in Sources */,
 			);
@@ -420,6 +433,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5125363719AEBF9D006177B0 /* JSValueTests.Path.swift in Sources */,
+				5125362D19AEBBE2006177B0 /* JSValueTests.Equatable.swift in Sources */,
+				5125362E19AEBBE2006177B0 /* JSValueTests.Literals.swift in Sources */,
+				5125362C19AEBB82006177B0 /* JSValueTests.Indexers.swift in Sources */,
+				5125363019AEBBE2006177B0 /* JSValueTests.Usage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -435,6 +453,7 @@
 				7D37F77E19A297430090D4B8 /* JSValue.swift in Sources */,
 				7D1E364F19947B5900856119 /* Functional.swift in Sources */,
 				7D773D5119A3AB6700D3948D /* ReplayableGenerator.swift in Sources */,
+				5125363319AEBC24006177B0 /* JSValue.Path.swift in Sources */,
 				7D37F78319A297430090D4B8 /* JSValue.Indexers.swift in Sources */,
 				7D37F78519A297430090D4B8 /* JSValue.Parsing.swift in Sources */,
 			);
@@ -445,6 +464,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D30EE2E1999EFF300F3AA17 /* JSValueTests.Equatable.swift in Sources */,
+				5125363619AEBF9D006177B0 /* JSValueTests.Path.swift in Sources */,
 				7D560FB41999583200270602 /* JSValueTests.Usage.swift in Sources */,
 				7D30EE321999F79B00F3AA17 /* JSValueTests.Parsing.swift in Sources */,
 				7D70F3A8199DA516002BA827 /* JSValueTests.Indexers.swift in Sources */,
