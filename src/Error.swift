@@ -32,7 +32,7 @@ public struct ErrorKeys {
     private init() {}
     
     public static let LocalizedDescription                   = "NSLocalizedDescription"
-    public static let LocalizedFailureReason                 = "NSLoclalizedFailureReason"
+    public static let LocalizedFailureReason                 = "NSLocalizedFailureReason"
     public static let LocalizedRecoverySuggestion            = "NSLocalizedRecoverySuggestion"
     public static let LocalizedRecoveryOptions               = "NSLocalizedRecoveryOptions"
     public static let RecoveryAttempter                      = "NSRecoveryAttempter"
