@@ -125,6 +125,17 @@ extension JSValue : Printable {
         return prettyPrint(indent, 0)
     }
     
+    /// Attempts to convert the `JSValue` into its string representation.
+    ///
+    /// :param: indent the number of spaces to include.
+    ///
+    /// :returns: A `FailableOf<T>` that will contain the `String` value if successful,
+    ///           otherwise, the `Error` information for the conversion.
+    public func stringify(indent: Int) -> String {
+        let padding = reduce(0..<indent, "") { s, i in return s + " " }
+        return prettyPrint(padding, 0)
+    }
+    
     /// Prints out the description of the JSValue value as pretty-printed JSValue.
     public var description: String {
         return stringify()
@@ -161,8 +172,11 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 
 extension JSValue {
     func prettyPrint(indent: String, _ level: Int) -> String {
-        let currentIndent = join(indent, map(0...level, { (item: Int) in "" }))
-        let nextIndent = currentIndent + "  "
+        let currentIndent = indent == "" ? "" : join(indent, map(0...level, { (item: Int) in "" }))
+        let nextIndent = currentIndent + indent
+        
+        let newline = indent == "" ? "" : "\n"
+        let space = indent == "" ? "" : " "
         
         switch self.value {
         case .JSBool(let bool):
@@ -175,10 +189,10 @@ extension JSValue {
             return "\"\(string)\""
             
         case .JSArray(let array):
-            return "[\n" + join(",\n", array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) + "\n\(currentIndent)]"
+            return "[\(newline)" + join(",\(newline)", array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) + "\(newline)\(currentIndent)]"
             
         case .JSObject(let dict):
-            return "{\n" + join(",\n", map(dict, { "\(nextIndent)\"\($0)\" : \($1.prettyPrint(indent, level + 1))"})) + "\n\(currentIndent)}"
+            return "{\(newline)" + join(",\(newline)", map(dict, { "\(nextIndent)\"\($0)\":\(space)\($1.prettyPrint(indent, level + 1))"})) + "\(newline)\(currentIndent)}"
             
         case .JSNull:
             return "null"

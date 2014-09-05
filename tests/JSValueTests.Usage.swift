@@ -92,6 +92,19 @@ class JSValueUsageTests : XCTestCase {
         }
     }
     
+    func testValidateMultipleLevelAccessInDictionaryUsageNonLiterals() {
+        let item1 = "Item #1"
+        
+        var json: JSValue = ["item": ["info": ["name": JSValue(item1) ]]]
+        
+        if let name = json["item"]["info"]["name"].string {
+            XCTAssertEqual(name, "Item #1")
+        }
+        else {
+            XCTFail()
+        }
+    }
+    
     func testValidateSingleLevelAccessInDictionaryUsageWithMissingKey() {
         var json: JSValue = ["status": "ok"]
         
@@ -100,10 +113,16 @@ class JSValueUsageTests : XCTestCase {
         }
     }
     
-    func testValidateMultipleLevelAccessInDictionaryUsageWithMissingKey() {
-        var json: JSValue = ["item": ["info": ["description": "Item #1"]]]
+    func testValidateArrayUsageNonLiterals() {
+        var array = [JSValue]()
+        array.append("Item #1")
         
-        if let name = json["item"]["info"]["name"].string {
+        var json = JSValue(array)
+        
+        if let name = json[0].string {
+            XCTAssertEqual(name, "Item #1")
+        }
+        else {
             XCTFail()
         }
     }
@@ -151,6 +170,32 @@ class JSValueUsageTests : XCTestCase {
         if let error = blog.1 {
             XCTAssertEqual(error.code, JSValue.ErrorCode.KeyNotFound.code)
         }
+    }
+    
+    func testStringifyWithDefaultIndent() {
+        var json: JSON = [
+            "id" : 73,
+            "name" : "Bloxus test",
+            "password" : true,
+            "url" : "http://remote.bloxus.com/"
+        ]
+        
+        let str = json.stringify()
+        let expected = "{\n  \"id\": 73.0,\n  \"password\": true,\n  \"name\": \"Bloxus test\",\n  \"url\": \"http://remote.bloxus.com/\"\n}"
+        XCTAssertEqual(str, expected)
+    }
+    
+    func testStringifyWithNoIndent() {
+        var json: JSON = [
+            "id" : 73,
+            "name" : "Bloxus test",
+            "password" : true,
+            "url" : "http://remote.bloxus.com/"
+        ]
+        
+        let str = json.stringify(0)
+        let expected = "{\"id\":73.0,\"password\":true,\"name\":\"Bloxus test\",\"url\":\"http://remote.bloxus.com/\"}"
+        XCTAssertEqual(str, expected)
     }
 }
 

@@ -12,34 +12,63 @@ import JSONLib
 import Swift
 
 class JSValuePerformanceTests: XCTestCase {
-
-    func testSamplesJSONJSONLib() {
-        let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource("sample", ofType: "json")
+    
+    func baseline(name: String) {
+        let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource(name, ofType: "json")
         XCTAssertNotNil(path)
         
-        let string: String = NSString.stringWithContentsOfFile(path!, encoding: NSUTF8StringEncoding, error: nil)
-        XCTAssertNotNil(string)
+        let data = NSData(contentsOfFile: path!)
+        XCTAssertNotNil(data)
         
         self.measureBlock() {
-            let json = JSON.parse(string)
-            XCTAssertTrue(json.1 == nil)
-        }
-    }
-
-    func testSampleJSONNSJSONSerialization() {
-        let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource("sample", ofType: "json")
-        XCTAssertNotNil(path)
-        
-        let string = NSString.stringWithContentsOfFile(path!, encoding: NSUTF8StringEncoding, error: nil)
-        XCTAssertNotNil(string)
-        
-        self.measureBlock() {
-            let data = string.dataUsingEncoding(NSUTF8StringEncoding)
-            XCTAssertNotNil(data)
-            
-            let json: AnyObject! = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil)
+            let json: AnyObject! = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil)
             XCTAssertTrue(json != nil)
         }
     }
+    
+    func library(name: String) {
+        let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource(name, ofType: "json")
+        XCTAssertNotNil(path)
+        
+        let data = NSData(contentsOfFile: path!)
+        XCTAssertNotNil(data)
+        
+        self.measureBlock() {
+            let json = JSON.parse(data)
+            XCTAssertTrue(json.1 == nil)
+        }
+    }
+    
+//    func testSampleBaseline() {
+//        baseline("sample")
+//    }
+//    
+//    func testSampleLib() {
+//        library("sample")
+//    }
+//
+//    func testSmallBaseline() {
+//        baseline("small-dict")
+//    }
+//
+//    func testSmallLib() {
+//        library("small-dict")
+//    }
+    
+//    func testMediumBaseline() {
+//        baseline("medium-dict")
+//    }
+//    
+//    func testMediumLib() {
+//        library("medium-dict")
+//    }
+//
+//    func testLargeBaseline() {
+//        baseline("large-dict")
+//    }
+//    
+//    func testLargeLib() {
+//        library("large-dict")
+//    }
 
 }
