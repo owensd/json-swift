@@ -41,6 +41,9 @@ extension JSValue : StringLiteralConvertible {
     public static func convertFromExtendedGraphemeClusterLiteral(value: String) -> JSValue {
         return JSValue(value)
     }
+	public static func convertFromUnicodeScalarLiteral(value: String) -> JSValue {
+		return JSValue(value)
+	}
 }
 
 extension JSValue : ArrayLiteralConvertible {
