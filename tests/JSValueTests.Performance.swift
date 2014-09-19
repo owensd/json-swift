@@ -3,7 +3,7 @@
 //  JSON
 //
 //  Created by David Owens II on 8/15/14.
-//  Copyright (c) 2014 Kiad Software. All rights reserved.
+//  Copyright (c) 2014 David Owens II. All rights reserved.
 //
 
 import Cocoa
@@ -17,7 +17,7 @@ class JSValuePerformanceTests: XCTestCase {
         let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource(name, ofType: "json")
         XCTAssertNotNil(path)
         
-        let data = NSData(contentsOfFile: path!)
+        let data = NSData(contentsOfFile: path!)!
         XCTAssertNotNil(data)
         
         self.measureBlock() {
@@ -30,7 +30,7 @@ class JSValuePerformanceTests: XCTestCase {
         let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource(name, ofType: "json")
         XCTAssertNotNil(path)
         
-        let data = NSData(contentsOfFile: path!)
+        let data = NSData(contentsOfFile: path!)!
         XCTAssertNotNil(data)
         
         self.measureBlock() {

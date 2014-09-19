@@ -3,7 +3,7 @@
 //  JSON
 //
 //  Created by David Owens II on 8/14/14.
-//  Copyright (c) 2014 Kiad Software. All rights reserved.
+//  Copyright (c) 2014 David Owens II. All rights reserved.
 //
 
 import XCTest

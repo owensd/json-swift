@@ -3,7 +3,7 @@
 //  JSON
 //
 //  Created by David Owens II on 8/11/14.
-//  Copyright (c) 2014 Kiad Software. All rights reserved.
+//  Copyright (c) 2014 David Owens II. All rights reserved.
 //
 
 import XCTest
@@ -147,7 +147,7 @@ class JSValueUsageTests : XCTestCase {
             XCTAssertEqual(blog.id, 73)
             XCTAssertEqual(blog.name, "Bloxus test")
             XCTAssertEqual(blog.needsPassword, true)
-            XCTAssertEqual(blog.url, NSURL(string: "http://remote.bloxus.com/"))
+            XCTAssertEqual(blog.url, NSURL(string: "http://remote.bloxus.com/")!)
         }
     }
     
@@ -171,32 +171,34 @@ class JSValueUsageTests : XCTestCase {
             XCTAssertEqual(error.code, JSValue.ErrorCode.KeyNotFound.code)
         }
     }
-    
-    func testStringifyWithDefaultIndent() {
-        var json: JSON = [
-            "id" : 73,
-            "name" : "Bloxus test",
-            "password" : true,
-            "url" : "http://remote.bloxus.com/"
-        ]
-        
-        let str = json.stringify()
-        let expected = "{\n  \"id\": 73.0,\n  \"password\": true,\n  \"name\": \"Bloxus test\",\n  \"url\": \"http://remote.bloxus.com/\"\n}"
-        XCTAssertEqual(str, expected)
-    }
-    
-    func testStringifyWithNoIndent() {
-        var json: JSON = [
-            "id" : 73,
-            "name" : "Bloxus test",
-            "password" : true,
-            "url" : "http://remote.bloxus.com/"
-        ]
-        
-        let str = json.stringify(0)
-        let expected = "{\"id\":73.0,\"password\":true,\"name\":\"Bloxus test\",\"url\":\"http://remote.bloxus.com/\"}"
-        XCTAssertEqual(str, expected)
-    }
+
+// Disabling these tests for now as they are not order deterministic.
+//
+//    func testStringifyWithDefaultIndent() {
+//        var json: JSON = [
+//            "id" : 73,
+//            "name" : "Bloxus test",
+//            "password" : true,
+//            "url" : "http://remote.bloxus.com/"
+//        ]
+//        
+//        let str = json.stringify()
+//        let expected = "{\n  \"id\": 73.0,\n  \"password\": true,\n  \"name\": \"Bloxus test\",\n  \"url\": \"http://remote.bloxus.com/\"\n}"
+//        XCTAssertEqual(str, expected)
+//    }
+//    
+//    func testStringifyWithNoIndent() {
+//        var json: JSON = [
+//            "id" : 73,
+//            "name" : "Bloxus test",
+//            "password" : true,
+//            "url" : "http://remote.bloxus.com/"
+//        ]
+//        
+//        let str = json.stringify(0)
+//        let expected = "{\"id\":73.0,\"password\":true,\"name\":\"Bloxus test\",\"url\":\"http://remote.bloxus.com/\"}"
+//        XCTAssertEqual(str, expected)
+//    }
 }
 
 // MARK: Test Helpers

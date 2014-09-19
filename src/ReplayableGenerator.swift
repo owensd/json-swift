@@ -3,7 +3,7 @@
 //  JSON
 //
 //  Created by David Owens II on 8/19/14.
-//  Copyright (c) 2014 Kiad Software. All rights reserved.
+//  Copyright (c) 2014 David Owens II. All rights reserved.
 //
 
 /// Creates a `GeneratorType` that is able to "replay" its previous value on the next `next()` call.
