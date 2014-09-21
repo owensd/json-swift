@@ -39,6 +39,14 @@
 		7D9E253419AFA2E40098C765 /* JSValueTests.Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */; };
 		7DCD0BEC19993630008DC49F /* JSValue.Accessors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BEA19993630008DC49F /* JSValue.Accessors.swift */; };
 		7DCD0BEF199937AA008DC49F /* JSValue.Indexers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BED199937AA008DC49F /* JSValue.Indexers.swift */; };
+		D91481DC19CEDDC300B0A3FA /* JSValueTests.Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D30EE2D1999EFF300F3AA17 /* JSValueTests.Equatable.swift */; };
+		D91481DE19CEDDE500B0A3FA /* JSValueTests.Usage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D560FB31999583200270602 /* JSValueTests.Usage.swift */; };
+		D91481DF19CEDDE500B0A3FA /* JSValueTests.Indexers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D02E651199D81A50060CEFE /* JSValueTests.Indexers.swift */; };
+		D91481E019CEDDEA00B0A3FA /* JSValueTests.Literals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BE7199928BB008DC49F /* JSValueTests.Literals.swift */; };
+		D91481E119CEDE2500B0A3FA /* small-dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D584C6419A7ED69005385A1 /* small-dict.json */; };
+		D91481E219CEDE2500B0A3FA /* medium-dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D584C6319A7ED69005385A1 /* medium-dict.json */; };
+		D91481E319CEDE2500B0A3FA /* large-dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D584C6219A7ED69005385A1 /* large-dict.json */; };
+		D91481E419CEDE2500B0A3FA /* sample.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D07B2D2199EB2EE0084611B /* sample.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -386,6 +394,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D91481E219CEDE2500B0A3FA /* medium-dict.json in Resources */,
+				D91481E419CEDE2500B0A3FA /* sample.json in Resources */,
+				D91481E319CEDE2500B0A3FA /* large-dict.json in Resources */,
+				D91481E119CEDE2500B0A3FA /* small-dict.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,6 +443,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D91481DC19CEDDC300B0A3FA /* JSValueTests.Equatable.swift in Sources */,
+				D91481DE19CEDDE500B0A3FA /* JSValueTests.Usage.swift in Sources */,
+				D91481E019CEDDEA00B0A3FA /* JSValueTests.Literals.swift in Sources */,
+				D91481DF19CEDDE500B0A3FA /* JSValueTests.Indexers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -509,7 +525,6 @@
 				);
 				INFOPLIST_FILE = src/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_MODULE_NAME = JSONLib;
@@ -532,7 +547,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = src/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_MODULE_NAME = JSONLib;
@@ -615,7 +629,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				METAL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -655,7 +669,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				METAL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
