@@ -9,8 +9,8 @@
 import Foundation
 
 extension JSValue : IntegerLiteralConvertible {
-    private static func convert(value: Int) -> JSValue {
-        if Int64(value) < JSValue.MinimumSafeInt || Int64(value) > JSValue.MaximumSafeInt {
+    private static func convert(value: Int64) -> JSValue {
+        if value < JSValue.MinimumSafeInt || value > JSValue.MaximumSafeInt {
             
             let error = Error(
                 code: JSValue.ErrorCode.InvalidIntegerValue.code,
@@ -22,55 +22,56 @@ extension JSValue : IntegerLiteralConvertible {
         return JSValue(Double(value))
     }
 
-    public static func convertFromIntegerLiteral(value: Int) -> JSValue {
-        return JSValue.convert(value)
+    public init(integerLiteral value: Int64) {
+        self = JSValue.convert(value)
     }
 }
 
 extension JSValue : FloatLiteralConvertible {
-    public static func convertFromFloatLiteral(value: Double) -> JSValue {
-        return JSValue(value)
+    public init(floatLiteral value: Double) {
+        self = JSValue(value)
     }
 }
 
-
 extension JSValue : StringLiteralConvertible {
-    public static func convertFromStringLiteral(value: String) -> JSValue {
-        return JSValue(value)
+    public init(stringLiteral value: String) {
+        self = JSValue(value)
     }
-    public static func convertFromExtendedGraphemeClusterLiteral(value: String) -> JSValue {
-        return JSValue(value)
+    
+    public init(extendedGraphemeClusterLiteral value: String) {
+        self = JSValue(value)
     }
-	public static func convertFromUnicodeScalarLiteral(value: String) -> JSValue {
-		return JSValue(value)
+	
+    public init(unicodeScalarLiteral value: String) {
+		self = JSValue(value)
 	}
 }
 
 extension JSValue : ArrayLiteralConvertible {
-    public static func convertFromArrayLiteral(elements: JSValue...) -> JSValue {
-        return JSValue(elements)
+    public init(arrayLiteral elements: JSValue...) {
+        self = JSValue(elements)
     }
 }
 
 extension JSValue : DictionaryLiteralConvertible {
-    public static func convertFromDictionaryLiteral(elements: (String, JSValue)...) -> JSValue {
+    public init(dictionaryLiteral elements: (String, JSValue)...) {
         var dict = JSObjectType()
         for (k, v) in elements {
             dict[k] = v
         }
         
-        return JSValue(dict)
+        self = JSValue(dict)
     }
 }
 
 extension JSValue : NilLiteralConvertible {
-    public static func convertFromNilLiteral() -> JSValue {
-        return JSValue(JSBackingValue.JSNull)
+    public init(nilLiteral: ()) {
+        self = JSValue(JSBackingValue.JSNull)
     }
 }
 
 extension JSValue: BooleanLiteralConvertible {
-    public static func convertFromBooleanLiteral(value: BooleanLiteralType) -> JSValue {
-        return JSValue(value)
+    public init(booleanLiteral value: Bool) {
+        self = JSValue(value)
     }
 }

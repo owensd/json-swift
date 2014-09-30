@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 David Owens II. All rights reserved.
 //
 
-import Cocoa
+import Foundation
 import XCTest
 import JSONLib
 import Swift

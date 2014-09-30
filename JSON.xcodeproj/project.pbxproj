@@ -36,6 +36,17 @@
 		7D7BD7CE195418CC00AC2E4E /* JSONLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D7BD7C2195418CB00AC2E4E /* JSONLib.framework */; };
 		7D859B1A199963FD00879B9B /* JSValue.ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D859B18199963FD00879B9B /* JSValue.ErrorHandling.swift */; };
 		7D859B1B1999652900879B9B /* JSValueTests.Literals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BE7199928BB008DC49F /* JSValueTests.Literals.swift */; };
+		7D9D608019DB07F500FED324 /* JSValueTests.Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D30EE2D1999EFF300F3AA17 /* JSValueTests.Equatable.swift */; };
+		7D9D608119DB07F500FED324 /* JSValueTests.Literals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BE7199928BB008DC49F /* JSValueTests.Literals.swift */; };
+		7D9D608219DB07F500FED324 /* JSValueTests.Parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D30EE311999F79B00F3AA17 /* JSValueTests.Parsing.swift */; };
+		7D9D608319DB07F500FED324 /* JSValueTests.Usage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D560FB31999583200270602 /* JSValueTests.Usage.swift */; };
+		7D9D608419DB07F500FED324 /* JSValueTests.Indexers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D02E651199D81A50060CEFE /* JSValueTests.Indexers.swift */; };
+		7D9D608519DB07F500FED324 /* JSValueTests.Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */; };
+		7D9D608619DB080000FED324 /* JSValueTests.Parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D30EE311999F79B00F3AA17 /* JSValueTests.Parsing.swift */; };
+		7D9D608719DB0EDC00FED324 /* small-dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D584C6419A7ED69005385A1 /* small-dict.json */; };
+		7D9D608819DB0EDC00FED324 /* medium-dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D584C6319A7ED69005385A1 /* medium-dict.json */; };
+		7D9D608919DB0EDC00FED324 /* large-dict.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D584C6219A7ED69005385A1 /* large-dict.json */; };
+		7D9D608A19DB0EDC00FED324 /* sample.json in Resources */ = {isa = PBXBuildFile; fileRef = 7D07B2D2199EB2EE0084611B /* sample.json */; };
 		7D9E253419AFA2E40098C765 /* JSValueTests.Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0BED21199EB11A00D88D5E /* JSValueTests.Performance.swift */; };
 		7DCD0BEC19993630008DC49F /* JSValue.Accessors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BEA19993630008DC49F /* JSValue.Accessors.swift */; };
 		7DCD0BEF199937AA008DC49F /* JSValue.Indexers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCD0BED199937AA008DC49F /* JSValue.Indexers.swift */; };
@@ -386,6 +397,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D9D608719DB0EDC00FED324 /* small-dict.json in Resources */,
+				7D9D608819DB0EDC00FED324 /* medium-dict.json in Resources */,
+				7D9D608919DB0EDC00FED324 /* large-dict.json in Resources */,
+				7D9D608A19DB0EDC00FED324 /* sample.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,6 +446,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D9D608419DB07F500FED324 /* JSValueTests.Indexers.swift in Sources */,
+				7D9D608019DB07F500FED324 /* JSValueTests.Equatable.swift in Sources */,
+				7D9D608219DB07F500FED324 /* JSValueTests.Parsing.swift in Sources */,
+				7D9D608119DB07F500FED324 /* JSValueTests.Literals.swift in Sources */,
+				7D9D608519DB07F500FED324 /* JSValueTests.Performance.swift in Sources */,
+				7D9D608319DB07F500FED324 /* JSValueTests.Usage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -459,6 +480,7 @@
 				7D560FB41999583200270602 /* JSValueTests.Usage.swift in Sources */,
 				7D70F3A8199DA516002BA827 /* JSValueTests.Indexers.swift in Sources */,
 				7D9E253419AFA2E40098C765 /* JSValueTests.Performance.swift in Sources */,
+				7D9D608619DB080000FED324 /* JSValueTests.Parsing.swift in Sources */,
 				7D859B1B1999652900879B9B /* JSValueTests.Literals.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
