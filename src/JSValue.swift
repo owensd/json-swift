@@ -76,7 +76,6 @@ public struct JSValue : Equatable {
         case Invalid(Error)
     }
 
-    
     /// Initializes a new `JSValue` with a `JSArrayType` value.
     public init(_ value: JSArrayType) {
         self.value = JSBackingValue.JSArray(value)
@@ -96,7 +95,7 @@ public struct JSValue : Equatable {
     public init(_ value: JSNumberType) {
         self.value = JSBackingValue.JSNumber(value)
     }
-
+    
     /// Initializes a new `JSValue` with a `JSBoolType` value.
     public init(_ value: JSBoolType) {
         self.value = JSBackingValue.JSBool(value)
@@ -110,6 +109,66 @@ public struct JSValue : Equatable {
     /// Initializes a new `JSValue` with a `JSBackingValue` value.
     init(_ value: JSBackingValue) {
         self.value = value
+    }
+}
+
+// All of the stupid number-type initializers because of the lack of type conversion.
+// Grr... convenience initializers not allowed in this context...
+// Also... without the labels, Swift cannot seem to actually get the type inference correct (6.1b3)
+extension JSValue {
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(int8 value: Int8) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(in16 value: Int16) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(int32 value: Int32) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(int64 value: Int64) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(uint8 value: UInt8) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+    
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(uint16 value: UInt16) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+    
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(uint32 value: UInt32) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+    
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(uint64 value: UInt64) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(int value: Int) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+    
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(uint value: UInt) {
+        self.value = JSBackingValue.JSNumber(Double(value))
+    }
+    
+    /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
+    public init(float value: Float) {
+        self.value = JSBackingValue.JSNumber(Double(value))
     }
 }
 
