@@ -386,34 +386,91 @@ extension JSValue {
     
     static func parseString<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>, quote: UInt8) -> JSParsingResult {
         var bytes = [UInt8]()
-        var escaped = false
 
         for (idx, codeunit) in enumerate(generator) {
             switch (idx, codeunit) {
             case (0, quote): continue
             case (_, quote):
-                if !escaped {
-                    generator.next()        // eat the quote
+                generator.next()        // eat the quote
 
-                    bytes.append(0)
-                    let ptr = UnsafePointer<CChar>(bytes)
-                    if let string = String.fromCString(ptr) {
-                        return (JSValue(string), nil)
-                    }
-                    else {
+                bytes.append(0)
+                let ptr = UnsafePointer<CChar>(bytes)
+                if let string = String.fromCString(ptr) {
+                    return (JSValue(string), nil)
+                }
+                else {
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unable to convert the parsed bytes into a string. Bytes: \(bytes)'."]
+                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                }
+
+            case (_, Token.Backslash):
+                let next = generator.next()
+
+                if let next = next {
+                    switch next {
+
+                    case Token.Backslash:
+                        bytes.append(Token.Backslash)
+                        
+                    case Token.Forwardslash:
+                        bytes.append(Token.Forwardslash)
+                        
+                    case quote:
+                        bytes.append(Token.DoubleQuote)
+
+                    case Token.n:
+                        bytes.append(Token.Linefeed)
+
+                    case Token.b:
+                        bytes.append(Token.Backspace)
+
+                    case Token.f:
+                        bytes.append(Token.Formfeed)
+
+                    case Token.r:
+                        bytes.append(Token.CarriageReturn)
+
+                    case Token.t:
+                        bytes.append(Token.HorizontalTab)
+
+                    case Token.u:
+                        let c1 = generator.next()
+                        let c2 = generator.next()
+                        let c3 = generator.next()
+                        let c4 = generator.next()
+                        
+                        switch (c1, c2, c3, c4) {
+                            case let (.Some(c1), .Some(c2), .Some(c3), .Some(c4)):
+                                bytes.append(c4)
+                                bytes.append(c3)
+                                bytes.append(c2)
+                                bytes.append(c1)
+                            
+                            default:
+                                let info = [
+                                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                    ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
+                                return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+
+                        }
+
+                    default:
                         let info = [
                             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                            ErrorKeys.LocalizedFailureReason: "Unable to convert the parsed bytes into a string. Bytes: \(bytes)'."]
+                            ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx + 1). Token: \(next). Context: '\(contextualString(generator))'."]
                         return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                     }
                 }
                 else {
-                    escaped = false
-                    bytes.append(codeunit)
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
+                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                 }
 
             default:
-                escaped = codeunit == Token.Backslash ? !escaped : false
                 bytes.append(codeunit)
             }
         }
@@ -537,6 +594,13 @@ extension UInt8 {
 struct Token {
     private init() {}
     
+    // Control Codes
+    static let Linefeed         = UInt8(10)
+    static let Backspace        = UInt8(8)
+    static let Formfeed         = UInt8(12)
+    static let CarriageReturn   = UInt8(13)
+    static let HorizontalTab    = UInt8(9)
+    
     // Tokens for JSON
     static let LeftBracket      = UInt8(91)
     static let RightBracket     = UInt8(93)
@@ -548,6 +612,7 @@ struct Token {
     static let Minus            = UInt8(45)
     static let Plus             = UInt8(43)
     static let Backslash        = UInt8(92)
+    static let Forwardslash     = UInt8(47)
     static let Colon            = UInt8(58)
     static let Period           = UInt8(46)
     
@@ -566,6 +631,7 @@ struct Token {
     // Character tokens for JSON
     static let E                = UInt8(69)
     static let a                = UInt8(97)
+    static let b                = UInt8(98)
     static let e                = UInt8(101)
     static let f                = UInt8(102)
     static let l                = UInt8(108)

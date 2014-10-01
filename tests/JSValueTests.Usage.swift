@@ -176,13 +176,14 @@ class JSValueUsageTests : XCTestCase {
         var object: JSON = [:]
         object["one"] = 1
         
-        var array: JSON = []
+        var array: [JSON] = []
         for index in 1...10 {
-            var stupidSwiftBug = array.array
-            stupidSwiftBug?.append(JSON(int: index))
+            // nope... my stupid bug...
+            array.append(JSON(int: index))
         }
         
-        object["array"] = array
+        object["array"] = JSON(array)
+        XCTAssertEqual(array.count, 10)
         
         var root: JSON = []
         root["object"] = object

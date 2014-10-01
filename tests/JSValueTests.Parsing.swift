@@ -116,7 +116,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqual(jsvalue.value!.string!, "Bob \\\"the man\\\" Roberts")
+        XCTAssertEqual(jsvalue.value!.string!, "Bob \"the man\" Roberts")
     }
     
     func testParseStringWithMultipleEscapes() {
@@ -124,7 +124,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqual(jsvalue.value!.string!, "e&\\\\첊xz坍崦ݻ鍴\\\"嵥B3\u{000b}㢊\u{0015}L臯.샥")
+        XCTAssertEqual(jsvalue.value!.string!, "e&\\첊xz坍崦ݻ鍴\"嵥B3\u{000b}㢊\u{0015}L臯.샥")
     }
     
     func testParseStringWithMultipleUnicodeTypes() {
@@ -132,7 +132,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqual(jsvalue.value!.string!, "(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\\\")
+        XCTAssertEqual(jsvalue.value!.string!, "(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\")
     }
     
     func testParseStringWithTrailingEscapedQuotes() {
@@ -140,7 +140,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqual(jsvalue.value!.string!, "\\\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\\\"")
+        XCTAssertEqual(jsvalue.value!.string!, "\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\"")
     }
 
     func testParseInteger() {
@@ -328,11 +328,11 @@ class JSValueParsingTests : XCTestCase {
             XCTAssertEqual(json["key2"][0].number!, -12)
             XCTAssertEqual(json["key2"][1].number!, 12)
             XCTAssertEqual(json["key3"].string!, "Bob")
-            XCTAssertTrue(json["\\n鱿aK㝡␒㼙2촹f"].object != nil)
-            XCTAssertEqual(json["\\n鱿aK㝡␒㼙2촹f"]["foo"].string!, "bar")
+            XCTAssertTrue(json["\n鱿aK㝡␒㼙2촹f"].object != nil)
+            XCTAssertEqual(json["\n鱿aK㝡␒㼙2촹f"]["foo"].string!, "bar")
             XCTAssertEqual(json["key5"].bool!, false)
             XCTAssertEqual(json["key6"].null, true)
-            XCTAssertEqualWithAccuracy(json["key\\\"7"].number!, -2.11234123, 0.01)
+            XCTAssertEqualWithAccuracy(json["key\"7"].number!, -2.11234123, 0.01)
         }
     }
     
@@ -341,6 +341,32 @@ class JSValueParsingTests : XCTestCase {
         let json = JSON.parse(string)
 
         XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error info")
+    }
+    
+    func testParseStringWithSingleEscapedControlCharacters() {
+        let string = "\"\\n\""
+        let jsvalue = JSValue.parse(string)
+        
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
+        XCTAssertEqual(jsvalue.value!.string!, "\n")
+        
+        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+        let json: AnyObject! = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil);
+        let jsonString = json as? NSString
+        XCTAssertEqual("\n", jsonString!)
+    }
+    
+    func testParseStringWithEscapedControlCharacters() {
+        let string = "\"\\\\\\/\\n\\r\\t\"" // "\\\/\n\r\t" => "\/\n\r\t"
+        let jsvalue = JSValue.parse(string)
+        
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
+        XCTAssertEqual(jsvalue.value!.string!, "\\/\n\r\t")
+        
+        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+        let json: AnyObject! = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil);
+        let jsonString = json as? NSString
+        XCTAssertEqual(jsvalue.value!.string!, String(jsonString!))
     }
     
     func testParsingSampleJSON() {
