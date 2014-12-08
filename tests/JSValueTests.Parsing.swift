@@ -369,6 +369,20 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertEqual(jsvalue.value!.string!, String(jsonString!))
     }
     
+    func testParseStringWithUnicodeEscapes() {
+        let string = "\"value=\\u0026\""
+        let jsvalue = JSValue.parse(string)
+        XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
+        XCTAssertEqual(jsvalue.value!.string!, "value=&")
+    }
+
+    func testParseStringWithInvalidUnicodeEscapes() {
+        let string = "\"value=\\uxyz2\""
+        let jsvalue = JSValue.parse(string)
+        XCTAssertTrue(jsvalue.error != nil, jsvalue.error?.userInfo?.description ?? "No error info")
+        // TODO: Validate the error information
+    }
+
     func testParsingSampleJSON() {
         let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource("sample", ofType: "json")
         XCTAssertNotNil(path)
