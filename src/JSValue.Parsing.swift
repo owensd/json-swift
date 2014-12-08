@@ -17,7 +17,7 @@ extension JSValue {
 
     public static func parse(string: String) -> JSParsingResult {
         let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
-		return parse(data)
+        return parse(data)
     }
 
     public static func parse(data: NSData) -> JSParsingResult {
@@ -380,18 +380,18 @@ extension JSValue {
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'null' literal. Context: '\(contextualString(generator))'."]
         return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
-	
-	private static func parseHexDigit(digit: UInt8) -> (Bool, Int) {
-		if Token.Zero <= digit && digit <= Token.Nine {
-			return (true, digit - Token.Zero)
-		} else if Token.a <= digit && digit <= Token.f {
-			return (true, 10 + digit - Token.a)
-		} else if Token.A <= digit && digit <= Token.F {
-			return (true, 10 + digit - Token.A)
-		} else {
-			return (false, 0)
-		}
-	}
+
+    private static func parseHexDigit(digit: UInt8) -> (Bool, Int) {
+        if Token.Zero <= digit && digit <= Token.Nine {
+            return (true, digit - Token.Zero)
+        } else if Token.a <= digit && digit <= Token.f {
+            return (true, 10 + digit - Token.a)
+        } else if Token.A <= digit && digit <= Token.F {
+            return (true, 10 + digit - Token.A)
+        } else {
+            return (false, 0)
+        }
+    }
     
     static func parseString<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>, quote: UInt8) -> JSParsingResult {
         var bytes = [UInt8]()
@@ -452,24 +452,24 @@ extension JSValue {
                         
                         switch (c1, c2, c3, c4) {
                             case let (.Some(c1), .Some(c2), .Some(c3), .Some(c4)):
-								let (success1, value1) = parseHexDigit(c1)
-								let (success2, value2) = parseHexDigit(c2)
-								let (success3, value3) = parseHexDigit(c3)
-								let (success4, value4) = parseHexDigit(c4)
-								
-								if !success1 || !success2 || !success3 || !success4 {
-									let info = [
-										ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-										ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
-									return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-								}
+                                let (success1, value1) = parseHexDigit(c1)
+                                let (success2, value2) = parseHexDigit(c2)
+                                let (success3, value3) = parseHexDigit(c3)
+                                let (success4, value4) = parseHexDigit(c4)
+                                
+                                if !success1 || !success2 || !success3 || !success4 {
+                                    let info = [
+                                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                        ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
+                                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                                }
 
-								let codepoint = (value1 << 12) | (value2 << 8) | (value3 << 4) | value4;
-								let character = String(UnicodeScalar(codepoint))
-								let data = character.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
-								let ptr = UnsafePointer<UInt8>(data.bytes)
-								let escapeBytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.length)
-								bytes.extend(escapeBytes)
+                                let codepoint = (value1 << 12) | (value2 << 8) | (value3 << 4) | value4;
+                                let character = String(UnicodeScalar(codepoint))
+                                let data = character.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
+                                let ptr = UnsafePointer<UInt8>(data.bytes)
+                                let escapeBytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.length)
+                                bytes.extend(escapeBytes)
 
                             default:
                                 let info = [
@@ -652,9 +652,9 @@ struct Token {
     static let Nine             = UInt8(57)
     
     // Character tokens for JSON
-	static let A                = UInt8(65)
+    static let A                = UInt8(65)
     static let E                = UInt8(69)
-	static let F                = UInt8(70)
+    static let F                = UInt8(70)
     static let a                = UInt8(97)
     static let b                = UInt8(98)
     static let e                = UInt8(101)
