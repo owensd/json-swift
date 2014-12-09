@@ -370,10 +370,10 @@ class JSValueParsingTests : XCTestCase {
     }
     
     func testParseStringWithUnicodeEscapes() {
-        let string = "\"value=\\u0026\""
+        let string = "\"value=\\u0026\\u03c6\\u00DF\""
         let jsvalue = JSValue.parse(string)
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqual(jsvalue.value!.string!, "value=&")
+        XCTAssertEqual(jsvalue.value!.string!, "value=&\u{03C6}ß")
     }
 
     func testParseStringWithInvalidUnicodeEscapes() {

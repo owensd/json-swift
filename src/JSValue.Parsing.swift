@@ -381,15 +381,15 @@ extension JSValue {
         return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    private static func parseHexDigit(digit: UInt8) -> (Bool, Int) {
+    private static func parseHexDigit(digit: UInt8) -> Int? {
         if Token.Zero <= digit && digit <= Token.Nine {
-            return (true, digit - Token.Zero)
+            return digit - Token.Zero
         } else if Token.a <= digit && digit <= Token.f {
-            return (true, 10 + digit - Token.a)
+            return 10 + digit - Token.a
         } else if Token.A <= digit && digit <= Token.F {
-            return (true, 10 + digit - Token.A)
+            return 10 + digit - Token.A
         } else {
-            return (false, 0)
+            return nil
         }
     }
     
@@ -452,19 +452,19 @@ extension JSValue {
                         
                         switch (c1, c2, c3, c4) {
                             case let (.Some(c1), .Some(c2), .Some(c3), .Some(c4)):
-                                let (success1, value1) = parseHexDigit(c1)
-                                let (success2, value2) = parseHexDigit(c2)
-                                let (success3, value3) = parseHexDigit(c3)
-                                let (success4, value4) = parseHexDigit(c4)
+                                let value1 = parseHexDigit(c1)
+                                let value2 = parseHexDigit(c2)
+                                let value3 = parseHexDigit(c3)
+                                let value4 = parseHexDigit(c4)
                                 
-                                if !success1 || !success2 || !success3 || !success4 {
+                                if value1 == nil || value2 == nil || value3 == nil || value4 == nil {
                                     let info = [
                                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                         ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
                                     return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
                                 }
 
-                                let codepoint = (value1 << 12) | (value2 << 8) | (value3 << 4) | value4;
+                                let codepoint = (value1! << 12) | (value2! << 8) | (value3! << 4) | value4!;
                                 let character = String(UnicodeScalar(codepoint))
                                 let data = character.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
                                 let ptr = UnsafePointer<UInt8>(data.bytes)
