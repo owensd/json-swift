@@ -230,7 +230,7 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 }
 
 extension JSValue {
-    func prettyPrint(indent: String, _ level: Int) -> String {
+    public func prettyPrint(indent: String, _ level: Int) -> String {
         let currentIndent = indent == "" ? "" : join(indent, map(0...level, { (item: Int) in "" }))
         let nextIndent = currentIndent + indent
         
