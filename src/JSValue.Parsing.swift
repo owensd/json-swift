@@ -268,7 +268,7 @@ extension JSValue {
                 fallthrough
                     
             case (_, Token.Zero...Token.Nine, NumberParsingState.ExponentDigits):
-                exponent = exponent * 10 + codeunit - Token.Zero
+                exponent = exponent * 10 + Int(codeunit - Token.Zero)
 
             case (_, Token.Period, NumberParsingState.Whole):
                 state = .Decimal
@@ -383,11 +383,11 @@ extension JSValue {
 
     private static func parseHexDigit(digit: UInt8) -> Int? {
         if Token.Zero <= digit && digit <= Token.Nine {
-            return digit - Token.Zero
+            return Int(digit - Token.Zero)
         } else if Token.a <= digit && digit <= Token.f {
-            return 10 + digit - Token.a
+            return 10 + Int(digit - Token.a)
         } else if Token.A <= digit && digit <= Token.F {
-            return 10 + digit - Token.A
+            return 10 + Int(digit - Token.A)
         } else {
             return nil
         }

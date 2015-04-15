@@ -26,7 +26,7 @@ class JSValueLiteralsTests : XCTestCase {
     func testIntegerValue() {
         let value: JSValue = 123
         XCTAssertTrue(value.hasValue)
-        XCTAssertTrue(value.number? == 123)
+        XCTAssertTrue(value.number == 123)
     }
     
     func testUnderUnsafeMinimumIntegerValue() {
@@ -54,19 +54,19 @@ class JSValueLiteralsTests : XCTestCase {
     func testDoubleValue() {
         let value: JSValue = 3.1245123123
         XCTAssertTrue(value.hasValue)
-        XCTAssertTrue(value.number? == 3.1245123123)
+        XCTAssertTrue(value.number == 3.1245123123)
     }
 
     func testBoolTrueValue() {
         let value: JSValue = true
         XCTAssertTrue(value.hasValue)
-        XCTAssertTrue(value.bool? == true)
+        XCTAssertTrue(value.bool == true)
     }
     
     func testBoolFalseValue() {
         let value: JSValue = false
         XCTAssertTrue(value.hasValue)
-        XCTAssertTrue(value.bool? == false)
+        XCTAssertTrue(value.bool == false)
     }
 
     func testNilValue() {
@@ -78,30 +78,30 @@ class JSValueLiteralsTests : XCTestCase {
     func testBasicArray() {
         let value: JSON = [1, "Dog", 3.412, true]
         XCTAssertTrue(value.hasValue)
-        XCTAssertTrue(value[0].number? == 1)
-        XCTAssertTrue(value[1].string? == "Dog")
-        XCTAssertTrue(value[2].number? == 3.412)
-        XCTAssertTrue(value[3].bool? == true)
+        XCTAssertTrue(value[0].number == 1)
+        XCTAssertTrue(value[1].string == "Dog")
+        XCTAssertTrue(value[2].number == 3.412)
+        XCTAssertTrue(value[3].bool == true)
     }
     
     func testNestedArray() {
         let value: JSON = [1, "Dog", [3.412, true]]
         XCTAssertTrue(value.hasValue)
-        XCTAssertTrue(value[0].number? == 1)
-        XCTAssertTrue(value[1].string? == "Dog")
+        XCTAssertTrue(value[0].number == 1)
+        XCTAssertTrue(value[1].string == "Dog")
         
         // Usage #1
         if let array = value[2].array {
-            XCTAssertTrue(array[0].number? == 3.412)
-            XCTAssertTrue(array[1].bool? == true)
+            XCTAssertTrue(array[0].number == 3.412)
+            XCTAssertTrue(array[1].bool == true)
         }
         else {
             XCTFail()
         }
 
         // Usage #2
-        XCTAssertTrue(value[2][0].number? == 3.412)
-        XCTAssertTrue(value[2][1].bool? == true)
+        XCTAssertTrue(value[2][0].number == 3.412)
+        XCTAssertTrue(value[2][1].bool == true)
     }
     
     func testFlickrResult() {
@@ -127,10 +127,10 @@ class JSValueLiteralsTests : XCTestCase {
         
         XCTAssertTrue(json.hasValue)
         
-        XCTAssertTrue(json["stat"].string? == "ok")
+        XCTAssertTrue(json["stat"].string == "ok")
 
         XCTAssertTrue(json["blogs"]["blog"].hasValue)
-        XCTAssertTrue(json["blogs"]["blog"][0]["id"].number? == 73)
-        XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool? == true)
+        XCTAssertTrue(json["blogs"]["blog"][0]["id"].number == 73)
+        XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool == true)
     }
 }
