@@ -390,7 +390,7 @@ class JSValueParsingTests : XCTestCase {
         let string = NSString(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
         XCTAssertNotNil(string)
         
-        let json = JSON.parse(string!)
+        let json = JSON.parse(string! as String)
         XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error message found")
     }
 }
