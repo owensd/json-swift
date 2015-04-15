@@ -216,6 +216,15 @@ class JSValueUsageTests : XCTestCase {
 //        let expected = "{\"id\":73.0,\"password\":true,\"name\":\"Bloxus test\",\"url\":\"http://remote.bloxus.com/\"}"
 //        XCTAssertEqual(str, expected)
 //    }
+      func testStringifyEscaping() {
+          var json: JSON = [
+              "url" : "should escape double quotes \""
+          ]
+  
+          let str = json.stringify(0)
+          let expected = "{\"url\":\"should escape double quotes \\\"\"}"
+          XCTAssertEqual(str, expected)
+      }
 }
 
 // MARK: Test Helpers

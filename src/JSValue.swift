@@ -245,7 +245,8 @@ extension JSValue {
             return "\(number)"
             
         case .JSString(let string):
-            return "\"\(string)\""
+            let escaped = Array(string).reduce("") { $1 == "\"" ? "\($0)\\\($1)" : "\($0)\($1)" }
+            return "\"\(escaped)\""
             
         case .JSArray(let array):
             return "[\(newline)" + join(",\(newline)", array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) + "\(newline)\(currentIndent)]"
