@@ -393,4 +393,14 @@ class JSValueParsingTests : XCTestCase {
         let json = JSON.parse(string as! String)
         XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error message found")
     }
+    
+    func testStringifyEscaping() {
+        var json: JSON = [
+            "url" : "should escape double quotes \""
+        ]
+    
+        let str = json.stringify(0)
+        let expected = "{\"url\":\"should escape double quotes \\\"\"}"
+        XCTAssertEqual(str, expected)
+    }
 }
