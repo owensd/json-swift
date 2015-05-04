@@ -53,6 +53,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		6CE0D62E1AF7DEE30048DAF1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7D7BD7B9195418CB00AC2E4E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7D1E362E199478A600856119;
+			remoteInfo = "JSON-iOS";
+		};
 		7D7BD7CF195418CC00AC2E4E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7D7BD7B9195418CB00AC2E4E /* Project object */;
@@ -295,6 +302,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				6CE0D62F1AF7DEE30048DAF1 /* PBXTargetDependency */,
 			);
 			name = "JSON-iOSTests";
 			productName = "JSON-iOSTests";
@@ -488,6 +496,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		6CE0D62F1AF7DEE30048DAF1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7D1E362E199478A600856119 /* JSON-iOS */;
+			targetProxy = 6CE0D62E1AF7DEE30048DAF1 /* PBXContainerItemProxy */;
+		};
 		7D7BD7D0195418CC00AC2E4E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7D7BD7C1195418CB00AC2E4E /* JSON-OSX */;
