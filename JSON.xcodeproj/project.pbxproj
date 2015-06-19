@@ -355,6 +355,7 @@
 		7D7BD7B9195418CB00AC2E4E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = owensd.io;
 				TargetAttributes = {

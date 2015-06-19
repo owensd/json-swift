@@ -19,7 +19,7 @@ public final class ReplayableGenerator<S: SequenceType> : GeneratorType, Sequenc
     
     /// Initializes a new `ReplayableGenerator<S>` with an underlying `SequenceType`.
     ///
-    /// :param: sequence the sequence that will be used to traverse the content.
+    /// - parameter sequence: the sequence that will be used to traverse the content.
     public init(_ sequence: S) {
         self.generator = sequence.generate()
     }

@@ -29,18 +29,18 @@ extension JSValue {
 
     /// Parses the given sequence of UTF8 code points and attempts to return a `JSValue` from it.
     ///
-    /// :param: seq The sequence of UTF8 code points.
+    /// - parameter seq: The sequence of UTF8 code points.
     ///
-    /// :returns: A `JSParsingResult` containing the parsed `JSValue` or error information.
+    /// - returns: A `JSParsingResult` containing the parsed `JSValue` or error information.
     public static func parse(seq: JSParsingSequence) -> JSParsingResult {
-        var generator = ReplayableGenerator(seq)
+        let generator = ReplayableGenerator(seq)
 
         let result = parse(generator)
         if let value = result.value {
             for codeunit in generator {
                 if codeunit.isWhitespace() { continue }
                 else {
-                    var remainingText = substring(generator)
+                    let remainingText = substring(generator)
                     
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
@@ -99,7 +99,7 @@ extension JSValue {
         var key = ""
         var object = JSObjectType()
 
-        for (idx, codeunit) in enumerate(generator) {
+        for (idx, codeunit) in generator.enumerate() {
             switch (idx, codeunit) {
             case (0, Token.LeftCurly): continue
             case (_, Token.RightCurly):
@@ -192,7 +192,7 @@ extension JSValue {
     static func parseArray<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
         var values = [JSValue]()
 
-        for (idx, codeunit) in enumerate(generator) {
+        for (idx, codeunit) in generator.enumerate() {
             switch (idx, codeunit) {
             case (0, Token.LeftBracket): continue
             case (_, Token.RightBracket):
@@ -236,7 +236,7 @@ extension JSValue {
         var exponent = 0
         var exponentSign = 1
         
-        for (idx, codeunit) in enumerate(generator) {
+        for (idx, codeunit) in generator.enumerate() {
             switch (idx, codeunit, state) {
             case (0, Token.Minus, NumberParsingState.Initial):
                 numberSign = -1
@@ -300,7 +300,7 @@ extension JSValue {
     }
     
     static func parseTrue<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
-        for (idx, codeunit) in enumerate(generator) {
+        for (idx, codeunit) in generator.enumerate() {
             switch (idx, codeunit) {
             case (0, Token.t): continue
             case (1, Token.r): continue
@@ -327,7 +327,7 @@ extension JSValue {
     }
     
     static func parseFalse<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
-        for (idx, codeunit) in enumerate(generator) {
+        for (idx, codeunit) in generator.enumerate() {
             switch (idx, codeunit) {
             case (0, Token.f): continue
             case (1, Token.a): continue
@@ -355,7 +355,7 @@ extension JSValue {
     }
     
     static func parseNull<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
-        for (idx, codeunit) in enumerate(generator) {
+        for (idx, codeunit) in generator.enumerate() {
             switch (idx, codeunit) {
             case (0, Token.n): continue
             case (1, Token.u): continue
@@ -396,7 +396,7 @@ extension JSValue {
     static func parseString<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>, quote: UInt8) -> JSParsingResult {
         var bytes = [UInt8]()
 
-        for (idx, codeunit) in enumerate(generator) {
+        for (idx, codeunit) in generator.enumerate() {
             switch (idx, codeunit) {
             case (0, quote): continue
             case (_, quote):
@@ -535,8 +535,8 @@ extension JSValue {
     
     static func exp(number: Double, _ exp: Int) -> Double {
         return exp < 0 ?
-            reduce(0 ..< abs(exp), number, { x, _ in x / 10 }) :
-            reduce(0 ..< exp, number, { x, _ in x * 10 })
+            (0 ..< abs(exp)).reduce(number, combine: { x, _ in x / 10 }) :
+            (0 ..< exp).reduce(number, combine: { x, _ in x * 10 })
     }
 }
 

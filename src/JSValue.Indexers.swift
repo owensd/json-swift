@@ -10,7 +10,7 @@ extension JSValue {
     
     /// Attempts to treat the `JSValue` as a `JSObject` and perform the lookup.
     ///
-    /// :returns: A `JSValue` that represents the value found at `key`
+    /// - returns: A `JSValue` that represents the value found at `key`
     public subscript(key: String) -> JSValue {
         get {
             if let dict = self.object {

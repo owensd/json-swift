@@ -172,13 +172,13 @@ extension JSValue {
     }
 }
 
-extension JSValue : Printable {
+extension JSValue : CustomStringConvertible {
     
     /// Attempts to convert the `JSValue` into its string representation.
     ///
-    /// :param: indent the indent string to use; defaults to "  "
+    /// - parameter indent: the indent string to use; defaults to "  "
     ///
-    /// :returns: A `FailableOf<T>` that will contain the `String` value if successful,
+    /// - returns: A `FailableOf<T>` that will contain the `String` value if successful,
     ///           otherwise, the `Error` information for the conversion.
     public func stringify(indent: String = "  ") -> String {
         return prettyPrint(indent, 0)
@@ -186,12 +186,12 @@ extension JSValue : Printable {
     
     /// Attempts to convert the `JSValue` into its string representation.
     ///
-    /// :param: indent the number of spaces to include.
+    /// - parameter indent: the number of spaces to include.
     ///
-    /// :returns: A `FailableOf<T>` that will contain the `String` value if successful,
+    /// - returns: A `FailableOf<T>` that will contain the `String` value if successful,
     ///           otherwise, the `Error` information for the conversion.
     public func stringify(indent: Int) -> String {
-        let padding = reduce(0..<indent, "") { s, i in return s + " " }
+        let padding = (0..<indent).reduce("") { s, i in return s + " " }
         return prettyPrint(padding, 0)
     }
     
@@ -203,7 +203,7 @@ extension JSValue : Printable {
 
 /// Used to compare two `JSValue` values.
 ///
-/// :returns: `True` when `hasValue` is `true` and the underlying values are the same; `false` otherwise.
+/// - returns: `True` when `hasValue` is `true` and the underlying values are the same; `false` otherwise.
 public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
     switch (lhs.value, rhs.value) {
     case (.JSNull, .JSNull):
@@ -231,7 +231,7 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 
 extension JSValue {
     func prettyPrint(indent: String, _ level: Int) -> String {
-        let currentIndent = indent == "" ? "" : join(indent, map(0...level, { (item: Int) in "" }))
+        let currentIndent = indent == "" ? "" : indent.join((0...level).map({ (item: Int) in "" }))
         let nextIndent = currentIndent + indent
         
         let newline = indent == "" ? "" : "\n"
@@ -249,10 +249,10 @@ extension JSValue {
             return "\"\(escaped)\""
             
         case .JSArray(let array):
-            return "[\(newline)" + join(",\(newline)", array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) + "\(newline)\(currentIndent)]"
+            return "[\(newline)" + ",\(newline)".join(array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) + "\(newline)\(currentIndent)]"
             
         case .JSObject(let dict):
-            return "{\(newline)" + join(",\(newline)", map(dict, { "\(nextIndent)\"\($0)\":\(space)\($1.prettyPrint(indent, level + 1))"})) + "\(newline)\(currentIndent)}"
+            return "{\(newline)" + ",\(newline)".join(dict.map({ "\(nextIndent)\"\($0)\":\(space)\($1.prettyPrint(indent, level + 1))"})) + "\(newline)\(currentIndent)}"
             
         case .JSNull:
             return "null"

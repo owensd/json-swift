@@ -21,7 +21,12 @@ class JSValuePerformanceTests: XCTestCase {
         XCTAssertNotNil(data)
         
         self.measureBlock() {
-            let json: AnyObject! = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil)
+            let json: AnyObject!
+            do {
+                json = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
+            } catch _ {
+                json = nil
+            }
             XCTAssertTrue(json != nil)
         }
     }

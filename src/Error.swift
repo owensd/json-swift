@@ -43,7 +43,7 @@ public struct ErrorKeys {
     public static let FilePath                               = "NSFilePath"
 }
 
-extension Error: Printable {
+extension Error: CustomStringConvertible {
     public var description: String {
         return "an error..."
     }

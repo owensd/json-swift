@@ -164,7 +164,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345678, 0.01)
+        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345678, accuracy: 0.01)
     }
     
     func testParseNegativeDouble() {
@@ -172,7 +172,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, -123.949, 0.01)
+        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, -123.949, accuracy: 0.01)
     }
 
     func testParseExponent() {
@@ -180,7 +180,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345e2, 0.01)
+        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345e2, accuracy: 0.01)
     }
 
     func testParsePositiveExponent() {
@@ -188,7 +188,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345e+2, 0.01)
+        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, 12.345e+2, accuracy: 0.01)
     }
     
     func testParseNegativeExponent() {
@@ -196,7 +196,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = JSValue.parse(string)
         
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
-        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, -123.9492e-5, 0.01)
+        XCTAssertEqualWithAccuracy(jsvalue.value!.number!, -123.9492e-5, accuracy: 0.01)
     }
 
     func testParseEmptyArray() {
@@ -293,7 +293,7 @@ class JSValueParsingTests : XCTestCase {
             XCTAssertEqual(json[3].bool!, true)
             XCTAssertEqual(json[4].bool!, false)
             XCTAssertEqual(json[5].null, true)
-            XCTAssertEqualWithAccuracy(json[6].number!, -2.11234123, 0.01)
+            XCTAssertEqualWithAccuracy(json[6].number!, -2.11234123, accuracy: 0.01)
         }
     }
     
@@ -311,7 +311,7 @@ class JSValueParsingTests : XCTestCase {
             XCTAssertEqual(json["key4"].bool!, true)
             XCTAssertEqual(json["key5"].bool!, false)
             XCTAssertEqual(json["key6"].null, true)
-            XCTAssertEqualWithAccuracy(json["key7"].number!, -2.11234123, 0.01)        }
+            XCTAssertEqualWithAccuracy(json["key7"].number!, -2.11234123, accuracy: 0.01)        }
     }
     
     func testParseNestedMixedTypes() {
@@ -332,7 +332,7 @@ class JSValueParsingTests : XCTestCase {
             XCTAssertEqual(json["\n鱿aK㝡␒㼙2촹f"]["foo"].string!, "bar")
             XCTAssertEqual(json["key5"].bool!, false)
             XCTAssertEqual(json["key6"].null, true)
-            XCTAssertEqualWithAccuracy(json["key\"7"].number!, -2.11234123, 0.01)
+            XCTAssertEqualWithAccuracy(json["key\"7"].number!, -2.11234123, accuracy: 0.01)
         }
     }
     
@@ -351,7 +351,12 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertEqual(jsvalue.value!.string!, "\n")
         
         let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-        let json: AnyObject! = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil);
+        let json: AnyObject!
+        do {
+            json = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
+        } catch _ {
+            json = nil
+        };
         let jsonString = json as? NSString
         XCTAssertEqual("\n", jsonString!)
     }
@@ -364,7 +369,12 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertEqual(jsvalue.value!.string!, "\\/\n\r\t")
         
         let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-        let json: AnyObject! = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil);
+        let json: AnyObject!
+        do {
+            json = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
+        } catch _ {
+            json = nil
+        };
         let jsonString = json as? NSString
         XCTAssertEqual(jsvalue.value!.string!, String(jsonString!))
     }
@@ -387,7 +397,12 @@ class JSValueParsingTests : XCTestCase {
         let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource("sample", ofType: "json")
         XCTAssertNotNil(path)
         
-        let string = NSString(contentsOfFile: path!, encoding: NSUTF8StringEncoding, error: nil)
+        let string: NSString?
+        do {
+            string = try NSString(contentsOfFile: path!, encoding: NSUTF8StringEncoding)
+        } catch _ {
+            string = nil
+        }
         XCTAssertNotNil(string)
 
         let json = JSON.parse(string as! String)
