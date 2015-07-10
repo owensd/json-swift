@@ -9,7 +9,7 @@
 import XCTest
 import ParseKit
 
-struct EmptyTokenizer : TokenizerType {
+struct EmptyTokenizer : Tokenizer {
     
     let rules: [(content: String.CharacterView, offset: String.Index) -> String.Index?] = []
     let content: String.CharacterView
@@ -23,7 +23,7 @@ struct EmptyTokenizer : TokenizerType {
     }
 }
 
-struct DogTokenizer : TokenizerType {
+struct DogTokenizer : Tokenizer {
     let rules: [(content: String.CharacterView, offset: String.Index) -> String.Index?]
     let content: String.CharacterView
     
@@ -31,7 +31,7 @@ struct DogTokenizer : TokenizerType {
         if offset != content.endIndex && content[offset] == "d" {
             let next = offset.successor()
             if next != content.endIndex && content[next] == "o" {
-                let next = offset.successor()
+                let next = next.successor()
                 if next != content.endIndex && content[next] == "g" {
                     return next
                 }
@@ -55,49 +55,43 @@ struct DogTokenizer : TokenizerType {
 
 class ParseKitTests: XCTestCase {
 
-// TODO(owensd): Enable this test when/if precondition() is actually a testable thing.
-//    func testTokenizerThrowsWithNoRules() {
-//        let tokenizer = EmptyTokenizer(content: "let x = 10")
-//        XCTAssertDoesThrow(try tokenizer.next())
-//    }
-
-    func testTokenizerThrowsWithNoMatchingRules() {
-        let tokenizer = DogTokenizer(content: "let foo = 12")
+    // TODO(owensd): Enable this test when/if precondition() is actually a testable thing.
+    func testTokenizerThrowsWithNoRules() {
+        let tokenizer = EmptyTokenizer(content: "let x = 10")
         XCTAssertDoesThrow(try tokenizer.next())
     }
 
+//    func testTokenizerThrowsWithNoMatchingRules() {
+//        let tokenizer = DogTokenizer(content: "let foo = 12")
+//        XCTAssertDoesThrow(try tokenizer.next())
+//    }
+//
 //    func testTokenizerMatchesDogThrowsWithNoMatchingRules() {
-//        func matchOnWordDog(content: TokenizerString, offset: TokenizerIndex) -> TokenizerIndex? {
-//            if offset != content.endIndex && content[offset] == "d" {
-//                let next = offset.successor()
-//                if next != content.endIndex && content[next] == "o" {
-//                    let next = next.successor()
-//                    if next != content.endIndex && content[next] == "g" {
-//                        return next
-//                    }
-//                }
-//            }
-//            
-//            return nil
-//        }
-//        
-//        let rules: [TokenizerRule] = [matchOnWordDog]
-//        let content = "dog cat"
-//        
-//        let tokenizer = Tokenizer(rules: rules, content: content)
+//        let tokenizer = DogTokenizer(content: "dog cat")
 //        
 //        do {
-//            let token = try tokenizer.next()
-//            XCTAssertNotNil(token)
-//            XCTAssertEqual(token!.token, "dog")
+//            guard let result = try tokenizer.next() else { XCTFail(); return }
+//            XCTAssertEqual(String(result.token.content), "dog")
+//            XCTAssertDoesThrow(try tokenizer.next(result.nextIndex))
 //        }
 //        catch {
 //            XCTFail()
 //        }
-//
-//        XCTAssertDoesThrow(try tokenizer.next())
 //    }
-    
+//
+//    func testTokenizerMatchesDogReturnsNilOnNext() {
+//        let tokenizer = DogTokenizer(content: "dog")
+//        
+//        do {
+//            guard let result = try tokenizer.next() else { XCTFail(); return }
+//            XCTAssertEqual(String(result.token.content), "dog")
+//            XCTAssertNil(try tokenizer.next(result.nextIndex))
+//        }
+//        catch {
+//            XCTFail()
+//        }
+//    }
+
     
     func testCSVTokenizer() {
 //        let csv = "fname,lname,age\ndavid,owens,33"
@@ -142,5 +136,7 @@ class ParseKitTests: XCTestCase {
     func testJSONTokenizer() {
         
     }
-    
 }
+
+
+

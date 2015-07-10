@@ -12,6 +12,10 @@ func XCTAssertNotNil<T>(value: T?, message: String = "", file: String = __FILE__
     if value == nil { XCTFail(message) }
 }
 
+func XCTAssertNil<T>(value: T?, message: String = "", file: String = __FILE__, line: UInt = __LINE__) {
+    if value != nil { XCTFail(message) }
+}
+
 func XCTAssertDoesNotThrow<T>(@autoclosure fn: () throws -> T, message: String = "", file: String = __FILE__, line: UInt = __LINE__) {
     do {
         try fn()

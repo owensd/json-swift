@@ -1,0 +1,3 @@
+[submodule "swift-fix"]
+	path = swift-fix
+	url = git@github.com:owensd/swift-fix.git
