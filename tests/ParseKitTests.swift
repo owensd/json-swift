@@ -52,13 +52,11 @@ struct DogTokenizer : Tokenizer {
             
 }
 
-
 class ParseKitTests: XCTestCase {
 
-    // TODO(owensd): Enable this test when/if precondition() is actually a testable thing.
     func testTokenizerThrowsWithNoRules() {
         let tokenizer = EmptyTokenizer(content: "let x = 10")
-        XCTAssertDoesThrow(try tokenizer.next())
+        XCTAssertDoesThrowErrorOfType(try tokenizer.next(), type: reflect(TokenizerError.NoTokenizerRulesPresent))
     }
 
 //    func testTokenizerThrowsWithNoMatchingRules() {

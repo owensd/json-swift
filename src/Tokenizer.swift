@@ -58,12 +58,22 @@ public struct TokenizerResult<ContentType where ContentType : ExtensibleCollecti
 public protocol Tokenizer {
     typealias ContentType : ExtensibleCollectionType
 
+    // BUG(http://openradar.appspot.com/21571050): Generic typealiases are not supported. Once that is
+    // fixed, then this can definition can be promoted out.
+    
+    /// The set of rules that a tokenizer should use in order to match tokens.
     var rules: [(content: ContentType, offset: ContentType.Index) -> ContentType.Index?] { get }
+    
+    /// The content stream the tokenizer works over.
     var content: ContentType { get }
 
     init(content: ContentType)
     
-    // HACK(owensd): This version is necessary because default parameters crash the compiler in Swift 2, beta 2.
+    // BUG(https://twitter.com/jckarter/status/613709523144982529): Default parameters in protocols
+    // crash the compiler... good times.
+    
+    /// Attempts to find the next token in the content. 
+    /// If there is an error
     func next() throws -> TokenizerResult<ContentType>?
     func next(index: ContentType.Index?) throws -> TokenizerResult<ContentType>?
 }
@@ -74,9 +84,7 @@ extension Tokenizer {
     }
     
     public func next(index: ContentType.Index?) throws -> TokenizerResult<ContentType>? {
-        try assert(!rules.isEmpty, TokenizerError.NoTokenizerRulesPresent)
         try assert(!rules.isEmpty, "There are no rules specified for your tokenizer.", TokenizerError.NoTokenizerRulesPresent)
-
 
         let startAt = index ?? content.startIndex
         if startAt == content.endIndex { return nil }

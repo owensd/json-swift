@@ -10,6 +10,7 @@
 		7D69E69F1B33E8A800F79C36 /* ParseKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDBA6501B33DB1D0006C094 /* ParseKitTests.swift */; };
 		7D69E6A11B33F20000F79C36 /* XCTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D69E6A01B33F20000F79C36 /* XCTestHelpers.swift */; };
 		7DD030B01B4F98B200B8135B /* Assertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD030AF1B4F98B200B8135B /* Assertion.swift */; };
+		7DD030C81B508F4B00B8135B /* ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD030C71B508F4B00B8135B /* ErrorHandling.swift */; };
 		7DDBA6381B33DAA00006C094 /* ParseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DDBA62D1B33DAA00006C094 /* ParseKit.framework */; };
 		7DDBA6561B33E54B0006C094 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDBA6551B33E54B0006C094 /* Tokenizer.swift */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,7 @@
 		7D69E6A01B33F20000F79C36 /* XCTestHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XCTestHelpers.swift; sourceTree = "<group>"; };
 		7DD030AE1B4F983000B8135B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		7DD030AF1B4F98B200B8135B /* Assertion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Assertion.swift; sourceTree = "<group>"; };
+		7DD030C71B508F4B00B8135B /* ErrorHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
 		7DDBA62D1B33DAA00006C094 /* ParseKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ParseKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DDBA6371B33DAA00006C094 /* ParseKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParseKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DDBA64A1B33DB1D0006C094 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 			children = (
 				7DD030AE1B4F983000B8135B /* README.md */,
 				7DD030AF1B4F98B200B8135B /* Assertion.swift */,
+				7DD030C71B508F4B00B8135B /* ErrorHandling.swift */,
 			);
 			path = "swift-fix";
 			sourceTree = "<group>";
@@ -244,6 +247,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DD030C81B508F4B00B8135B /* ErrorHandling.swift in Sources */,
 				7DD030B01B4F98B200B8135B /* Assertion.swift in Sources */,
 				7DDBA6561B33E54B0006C094 /* Tokenizer.swift in Sources */,
 			);
