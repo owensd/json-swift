@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7D47428A1B5480220038A3CC /* Print.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D4742891B5480220038A3CC /* Print.swift */; };
 		7D69E69F1B33E8A800F79C36 /* ParseKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDBA6501B33DB1D0006C094 /* ParseKitTests.swift */; };
 		7D69E6A11B33F20000F79C36 /* XCTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D69E6A01B33F20000F79C36 /* XCTestHelpers.swift */; };
 		7DD030B01B4F98B200B8135B /* Assertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD030AF1B4F98B200B8135B /* Assertion.swift */; };
@@ -26,6 +27,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7D4742891B5480220038A3CC /* Print.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Print.swift; sourceTree = "<group>"; };
 		7D69E6A01B33F20000F79C36 /* XCTestHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XCTestHelpers.swift; sourceTree = "<group>"; };
 		7DD030AE1B4F983000B8135B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		7DD030AF1B4F98B200B8135B /* Assertion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Assertion.swift; sourceTree = "<group>"; };
@@ -58,12 +60,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7D47428B1B54AEF40038A3CC /* modules */ = {
+			isa = PBXGroup;
+			children = (
+				7DD030AB1B4F983000B8135B /* swift-fix */,
+			);
+			name = modules;
+			sourceTree = "<group>";
+		};
 		7DD030AB1B4F983000B8135B /* swift-fix */ = {
 			isa = PBXGroup;
 			children = (
 				7DD030AE1B4F983000B8135B /* README.md */,
 				7DD030AF1B4F98B200B8135B /* Assertion.swift */,
 				7DD030C71B508F4B00B8135B /* ErrorHandling.swift */,
+				7D4742891B5480220038A3CC /* Print.swift */,
 			);
 			path = "swift-fix";
 			sourceTree = "<group>";
@@ -71,7 +82,7 @@
 		7DDBA6231B33DAA00006C094 = {
 			isa = PBXGroup;
 			children = (
-				7DD030AB1B4F983000B8135B /* swift-fix */,
+				7D47428B1B54AEF40038A3CC /* modules */,
 				7DDBA6471B33DB1D0006C094 /* src */,
 				7DDBA64C1B33DB1D0006C094 /* tests */,
 				7DDBA62E1B33DAA00006C094 /* Products */,
@@ -250,6 +261,7 @@
 				7DD030C81B508F4B00B8135B /* ErrorHandling.swift in Sources */,
 				7DD030B01B4F98B200B8135B /* Assertion.swift in Sources */,
 				7DDBA6561B33E54B0006C094 /* Tokenizer.swift in Sources */,
+				7D47428A1B5480220038A3CC /* Print.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

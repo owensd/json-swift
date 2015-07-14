@@ -10,8 +10,8 @@ import XCTest
 import ParseKit
 
 struct EmptyTokenizer : Tokenizer {
-    
-    let rules: [(content: String.CharacterView, offset: String.Index) -> String.Index?] = []
+    static var rules: [(content: String.CharacterView, offset: String.Index) -> String.Index?] = []
+
     let content: String.CharacterView
     
     init(content: String) {
@@ -24,7 +24,10 @@ struct EmptyTokenizer : Tokenizer {
 }
 
 struct DogTokenizer : Tokenizer {
-    let rules: [(content: String.CharacterView, offset: String.Index) -> String.Index?]
+    static let rules: [(content: String.CharacterView, offset: String.Index) -> String.Index?] = [
+        DogTokenizer.matchOnWordDog
+    ]
+    
     let content: String.CharacterView
     
     static func matchOnWordDog(content: String.CharacterView, offset: String.Index) -> String.Index? {
@@ -46,7 +49,6 @@ struct DogTokenizer : Tokenizer {
     }
     
     init(content: String.CharacterView) {
-        self.rules = [DogTokenizer.matchOnWordDog]
         self.content = content
     }
             

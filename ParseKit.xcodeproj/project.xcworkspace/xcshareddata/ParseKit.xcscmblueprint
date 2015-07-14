@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "4EC9242325463947345742C074D276FC6778FE31",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "4EC9242325463947345742C074D276FC6778FE31" : 0,
+    "717D634FF4F5DE2059D6C1DE08C09226A76076C4" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "E7B9C461-402C-4158-B6CE-25533AA94669",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "4EC9242325463947345742C074D276FC6778FE31" : "json-swift\/",
+    "717D634FF4F5DE2059D6C1DE08C09226A76076C4" : "json-swift\/swift-fix\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "ParseKit",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 203,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "ParseKit.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:owensd\/json-swift.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "4EC9242325463947345742C074D276FC6778FE31"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:owensd\/swift-fix.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "717D634FF4F5DE2059D6C1DE08C09226A76076C4"
+    }
+  ]
+}
