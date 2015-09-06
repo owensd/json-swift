@@ -231,7 +231,7 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 
 extension JSValue {
     func prettyPrint(indent: String, _ level: Int) -> String {
-        let currentIndent = indent == "" ? "" : indent.join((0...level).map({ (item: Int) in "" }))
+        let currentIndent = indent == "" ? "" : indent.joinWithSeparator((0...level).map({ (item: Int) in "" }))
         let nextIndent = currentIndent + indent
         
         let newline = indent == "" ? "" : "\n"
@@ -249,10 +249,10 @@ extension JSValue {
             return "\"\(escaped)\""
             
         case .JSArray(let array):
-            return "[\(newline)" + ",\(newline)".join(array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) + "\(newline)\(currentIndent)]"
+            return "[\(newline)" + ",\(newline)".joinWithSeparator(array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) + "\(newline)\(currentIndent)]"
             
         case .JSObject(let dict):
-            return "{\(newline)" + ",\(newline)".join(dict.map({ "\(nextIndent)\"\($0)\":\(space)\($1.prettyPrint(indent, level + 1))"})) + "\(newline)\(currentIndent)}"
+            return "{\(newline)" + ",\(newline)".joinWithSeparator(dict.map({ "\(nextIndent)\"\($0)\":\(space)\($1.prettyPrint(indent, level + 1))"})) + "\(newline)\(currentIndent)}"
             
         case .JSNull:
             return "null"
