@@ -204,7 +204,7 @@ extension JSValue {
                 else {
                     let parsedValue = parse(generator)
                     if let value = parsedValue.value {
-                        values.append(value)
+                        values.appendContentsOf(value)
                         generator.replay()
                     }
                     else {
@@ -402,7 +402,7 @@ extension JSValue {
             case (_, quote):
                 generator.next()        // eat the quote
 
-                bytes.append(0)
+                bytes.appendContentsOf(0)
                 let ptr = UnsafePointer<CChar>(bytes)
                 if let string = String.fromCString(ptr) {
                     return (JSValue(string), nil)
@@ -421,28 +421,28 @@ extension JSValue {
                     switch next {
 
                     case Token.Backslash:
-                        bytes.append(Token.Backslash)
+                        bytes.appendContentsOf(Token.Backslash)
                         
                     case Token.Forwardslash:
-                        bytes.append(Token.Forwardslash)
+                        bytes.appendContentsOf(Token.Forwardslash)
                         
                     case quote:
-                        bytes.append(Token.DoubleQuote)
+                        bytes.appendContentsOf(Token.DoubleQuote)
 
                     case Token.n:
-                        bytes.append(Token.Linefeed)
+                        bytes.appendContentsOf(Token.Linefeed)
 
                     case Token.b:
-                        bytes.append(Token.Backspace)
+                        bytes.appendContentsOf(Token.Backspace)
 
                     case Token.f:
-                        bytes.append(Token.Formfeed)
+                        bytes.appendContentsOf(Token.Formfeed)
 
                     case Token.r:
-                        bytes.append(Token.CarriageReturn)
+                        bytes.appendContentsOf(Token.CarriageReturn)
 
                     case Token.t:
-                        bytes.append(Token.HorizontalTab)
+                        bytes.appendContentsOf(Token.HorizontalTab)
 
                     case Token.u:
                         let c1 = generator.next()
@@ -494,7 +494,7 @@ extension JSValue {
                 }
 
             default:
-                bytes.append(codeunit)
+                bytes.appendContentsOf(codeunit)
             }
         }
 
