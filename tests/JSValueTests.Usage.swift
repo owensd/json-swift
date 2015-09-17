@@ -19,7 +19,7 @@ import JSONLib
 class JSValueUsageTests : XCTestCase {
 
     func testValidateSingleValueStringUsagePatternIfLet() {
-        var json: JSValue = "Hello"
+        let json: JSValue = "Hello"
         if let value = json.string {
             XCTAssertEqual(value, "Hello")
         }
@@ -29,14 +29,14 @@ class JSValueUsageTests : XCTestCase {
     }
     
     func testValidateSingleValueStringUsagePatternOptionalChaining() {
-        var json: JSValue = "Hello"
+        let json: JSValue = "Hello"
         
         let value = json.string?.uppercaseString ?? ""
         XCTAssertEqual(value, "HELLO")
     }
     
     func testValidateSingleValueNumberUsagePatternIfLet() {
-        var json: JSValue = 123
+        let json: JSValue = 123
         if let value = json.number {
             XCTAssertEqual(value, 123)
         }
@@ -46,14 +46,14 @@ class JSValueUsageTests : XCTestCase {
     }
     
     func testValidateSingleValueNumberUsagePatternOptionalChaining() {
-        var json: JSValue = 123
+        let json: JSValue = 123
         
         let value = json.number?.distanceTo(100) ?? 0
         XCTAssertEqual(value, -23)
     }
     
     func testValidateSingleValueBoolUsagePatternIfLet() {
-        var json: JSValue = false
+        let json: JSValue = false
         if let value = json.bool {
             XCTAssertEqual(value, false)
         }
@@ -63,7 +63,7 @@ class JSValueUsageTests : XCTestCase {
     }
     
     func testValidateSingleValueBoolUsagePatternOptionalChaining() {
-        var json: JSValue = true
+        let json: JSValue = true
         
         let value = json.bool?.boolValue ?? false
         XCTAssertEqual(value, true)
@@ -108,7 +108,7 @@ class JSValueUsageTests : XCTestCase {
     func testValidateSingleLevelAccessInDictionaryUsageWithMissingKey() {
         var json: JSValue = ["status": "ok"]
         
-        if let status = json["stat"].string {
+        if let _ = json["stat"].string {
             XCTFail()
         }
     }
@@ -164,7 +164,7 @@ class JSValueUsageTests : XCTestCase {
         let password = json["needspassword"] ⇒ toBool
         let url = json["url"] ⇒ toURL
         
-        let blog = makeFailable ⇒ id ⇒ name ⇒ password ⇒ url
+        _ = makeFailable ⇒ id ⇒ name ⇒ password ⇒ url
         
 //        XCTAssertTrue(blog.1 != nil)
 //        if let error = blog.1 {

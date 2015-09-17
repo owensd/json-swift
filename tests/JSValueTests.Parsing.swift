@@ -410,7 +410,7 @@ class JSValueParsingTests : XCTestCase {
     }
     
     func testStringifyEscaping() {
-        var json: JSON = [
+        let json: JSON = [
             "url" : "should escape double quotes \""
         ]
     
