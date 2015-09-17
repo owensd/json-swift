@@ -469,7 +469,7 @@ extension JSValue {
                                 let data = character.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
                                 let ptr = UnsafePointer<UInt8>(data.bytes)
                                 let escapeBytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.length)
-                                bytes.extend(escapeBytes)
+                                bytes.appendContentsOf(escapeBytes)
 
                             default:
                                 let info = [
