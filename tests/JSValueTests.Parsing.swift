@@ -336,6 +336,20 @@ class JSValueParsingTests : XCTestCase {
         }
     }
     
+    func testParsePrettyPrintedNestedMixedTypes() {
+        let string = "{\"key1\": 1, \"key2\": [        -12 , 12        ], \"key3\": \"Bob\", \"\\n鱿aK㝡␒㼙2촹f\": { 'foo': 'bar' }, \"key5\": false, \"key6\": null, \"key\\\"7\": -2.11234123}"
+        let json1 = JSON.parse(string)
+        
+        XCTAssertTrue(json1.error == nil, json1.error?.userInfo?.description ?? "No error info")
+        
+        let prettyPrinted = json1.value!.stringify()
+        print(prettyPrinted)
+        let json2 = JSON.parse(prettyPrinted)
+        
+        XCTAssertTrue(json2.error == nil, json2.error?.userInfo?.description ?? "No error info")
+        XCTAssertEqual(json1.value!, json2.value!)
+    }
+    
     func testMutipleNestedArrayDictionaryTypes() {
         let string = "[[[[{},{},{\"ꫯ\":\"ꫯ\"}]]],[],[],[{}]]"
         let json = JSON.parse(string)
