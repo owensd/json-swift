@@ -249,10 +249,10 @@ extension JSValue {
             return "\"\(escaped)\""
             
         case .JSArray(let array):
-            return (array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })).joinWithSeparator("[\(newline)" + ",\(newline)") + "\(newline)\(currentIndent)]"
+            return "[\(newline)" + (array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) .joinWithSeparator(",\(newline)") + "\(newline)\(currentIndent)]"
             
         case .JSObject(let dict):
-            return "{" + (dict.map({ "\(nextIndent)\"\($0)\":\(space)\($1.prettyPrint(indent, level + 1))"})).joinWithSeparator("{\(newline)" + ",\(newline)") + "\(newline)\(currentIndent)}"
+            return "{\(newline)" + (dict.map({ "\(nextIndent)\"\($0.stringByReplacingOccurrencesOfString("\"", withString: "\\\""))\":\(space)\($1.prettyPrint(indent, level + 1))"})).joinWithSeparator(",\(newline)") + "\(newline)\(currentIndent)}"
             
         case .JSNull:
             return "null"
