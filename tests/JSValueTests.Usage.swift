@@ -135,11 +135,11 @@ class JSValueUsageTests : XCTestCase {
                 "url" : "http://remote.bloxus.com/"
             ]
         
-        let blog = make(
-            (json["id"].number ⇒ toInt),
-            json["name"].string,
-            json["needspassword"].bool,
-            (json["url"].string ⇒ toURL))
+        let blog = make ⇒
+            (json["id"].number ⇒ toInt) ⇒
+            json["name"].string ⇒
+            json["needspassword"].bool ⇒
+            (json["url"].string ⇒ toURL)
         
         XCTAssertTrue(blog != nil)
         
@@ -164,7 +164,7 @@ class JSValueUsageTests : XCTestCase {
         let password = json["needspassword"] ⇒ toBool
         let url = json["url"] ⇒ toURL
         
-        _ = makeFailable(id, name, password, url)
+        _ = makeFailable ⇒ id ⇒ name ⇒ password ⇒ url
         
 //        XCTAssertTrue(blog.1 != nil)
 //        if let error = blog.1 {
@@ -243,7 +243,10 @@ func toURL(string: String?) -> NSURL? {
     return nil
 }
 
-func make(id: Int?, _ name: String?, _ needsPassword: Bool?, _ url: NSURL?) -> Blog?
+func make(id: Int?)
+    (name: String?)
+    (needsPassword: Bool?)
+    (url: NSURL?) -> Blog?
 {
     if id == nil { return nil }
     if name == nil { return nil }
@@ -253,8 +256,10 @@ func make(id: Int?, _ name: String?, _ needsPassword: Bool?, _ url: NSURL?) -> B
     return Blog(id: id!, name: name!, needsPassword: needsPassword!, url: url!)
 }
 
-func makeFailable(id: (Int?, Error?), _ name: (String?, Error?),
-                  _ needsPassword: (Bool?, Error?), _ url: (NSURL?, Error?)) -> (Blog?, Error?)
+func makeFailable(id: (Int?, Error?))
+    (_ name: (String?, Error?))
+    (_ needsPassword: (Bool?, Error?))
+    (_ url: (NSURL?, Error?)) -> (Blog?, Error?)
 {
     if let error = id.1 { return (nil, error) }
     if let error = name.1 { return (nil, error) }
