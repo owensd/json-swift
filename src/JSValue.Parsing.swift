@@ -521,11 +521,11 @@ extension JSValue {
     static func contextualString<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>, left: Int = 5, right: Int = 10) -> String {
         var string = ""
 
-        for var i = left; i > 0; i-- {
+        for _ in left.stride(to: 0, by: -1) {
             generator.replay()
         }
 
-        for var i = 0; i < (left + right); i++ {
+        for _ in 0..<(left + right) {
             let codeunit = generator.next() ?? 0
             string += String(codeunit)
         }
