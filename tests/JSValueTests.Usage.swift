@@ -244,29 +244,43 @@ func toURL(string: String?) -> NSURL? {
 }
 
 func make(id: Int?)
-    (name: String?)
-    (needsPassword: Bool?)
-    (url: NSURL?) -> Blog?
+    -> String?
+    -> Bool?
+    -> NSURL?
+    -> Blog?
 {
-    if id == nil { return nil }
-    if name == nil { return nil }
-    if needsPassword == nil { return nil }
-    if url == nil { return nil }
-    
-    return Blog(id: id!, name: name!, needsPassword: needsPassword!, url: url!)
+    return { name in
+        return { needsPassword in
+            return { url in
+                if id == nil { return nil }
+                if name == nil { return nil }
+                if needsPassword == nil { return nil }
+                if url == nil { return nil }
+                
+                return Blog(id: id!, name: name!, needsPassword: needsPassword!, url: url!)
+            }
+        }
+    }
 }
 
 func makeFailable(id: (Int?, Error?))
-    (_ name: (String?, Error?))
-    (_ needsPassword: (Bool?, Error?))
-    (_ url: (NSURL?, Error?)) -> (Blog?, Error?)
+    -> (String?, Error?)
+    -> (Bool?, Error?)
+    -> (NSURL?, Error?)
+    -> (Blog?, Error?)
 {
-    if let error = id.1 { return (nil, error) }
-    if let error = name.1 { return (nil, error) }
-    if let error = needsPassword.1 { return (nil, error) }
-    if let error = url.1 { return (nil, error) }
-    
-    return (Blog(id: id.0!, name: name.0!, needsPassword: needsPassword.0!, url: url.0!), nil)
+    return { name in
+        return { needsPassword in
+            return { url in
+                if let error = id.1 { return (nil, error) }
+                if let error = name.1 { return (nil, error) }
+                if let error = needsPassword.1 { return (nil, error) }
+                if let error = url.1 { return (nil, error) }
+                
+                return (Blog(id: id.0!, name: name.0!, needsPassword: needsPassword.0!, url: url.0!), nil)
+            }
+        }
+    }
 }
 
 func toInt(value: JSValue) -> (Int?, Error?) {
