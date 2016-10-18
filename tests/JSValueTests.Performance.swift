@@ -13,17 +13,17 @@ import Swift
 
 class JSValuePerformanceTests: XCTestCase {
     
-    func baseline(name: String) {
-        let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource(name, ofType: "json")
+    func baseline(_ name: String) {
+        let path = Bundle(for: JSValuePerformanceTests.self).path(forResource: name, ofType: "json")
         XCTAssertNotNil(path)
         
-        let data = NSData(contentsOfFile: path!)!
+        let data = try! Data(contentsOf: URL(fileURLWithPath: path!))
         XCTAssertNotNil(data)
         
-        self.measureBlock() {
-            let json: AnyObject!
+        self.measure() {
+            let json: Any!
             do {
-                json = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
+                json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
             } catch _ {
                 json = nil
             }
@@ -31,14 +31,14 @@ class JSValuePerformanceTests: XCTestCase {
         }
     }
     
-    func library(name: String) {
-        let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource(name, ofType: "json")
+    func library(_ name: String) {
+        let path = Bundle(for: JSValuePerformanceTests.self).path(forResource: name, ofType: "json")
         XCTAssertNotNil(path)
         
-        let data = NSData(contentsOfFile: path!)!
+        let data = try! Data(contentsOf: URL(fileURLWithPath: path!))
         XCTAssertNotNil(data)
         
-        self.measureBlock() {
+        self.measure() {
             let json = JSON.parse(data)
             XCTAssertTrue(json.1 == nil)
         }

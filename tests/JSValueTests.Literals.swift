@@ -14,13 +14,13 @@ class JSValueLiteralsTests : XCTestCase {
     func testStringValue() {
         let value: JSValue = "hello world"
         XCTAssertTrue(value.hasValue)
-        XCTAssertTrue(value.string?.compare("hello world") == NSComparisonResult.OrderedSame)
+        XCTAssertTrue(value.string?.compare("hello world") == ComparisonResult.orderedSame)
     }
 
     func testCompareStringToNonStringValue() {
         let value: JSValue = 1234
         XCTAssertTrue(value.hasValue)
-        XCTAssertFalse(value.string?.compare("1234") == NSComparisonResult.OrderedSame)
+        XCTAssertFalse(value.string?.compare("1234") == ComparisonResult.orderedSame)
     }
 
     func testIntegerValue() {

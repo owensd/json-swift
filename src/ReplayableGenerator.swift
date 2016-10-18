@@ -8,20 +8,20 @@
 
 /// Creates a `GeneratorType` that is able to "replay" its previous value on the next `next()` call.
 /// Useful for generator sequences in which you need to simply step-back a single element.
-public final class ReplayableGenerator<S: SequenceType> : GeneratorType, SequenceType {
+public final class ReplayableGenerator<S: Sequence> : IteratorProtocol, Swift.Sequence {
     typealias Sequence = S
-    public typealias Element = Sequence.Generator.Element
+    public typealias Element = Sequence.Iterator.Element
     
     var firstRun = true
     var usePrevious = false
     var previousElement: Element? = nil
-    var generator: Sequence.Generator
+    var generator: Sequence.Iterator
     
     /// Initializes a new `ReplayableGenerator<S>` with an underlying `SequenceType`.
     ///
     /// - parameter sequence: the sequence that will be used to traverse the content.
     public init(_ sequence: S) {
-        self.generator = sequence.generate()
+        self.generator = sequence.makeIterator()
     }
     
     /// Moves the current element to the next element in the collection, if one exists.
@@ -49,7 +49,7 @@ public final class ReplayableGenerator<S: SequenceType> : GeneratorType, Sequenc
     /// `generate` will call `replay()`.
     ///
     /// :return: A iteratable collection backing the content.
-    public func generate() -> ReplayableGenerator {
+    public func makeIterator() -> ReplayableGenerator {
         switch firstRun {
         case true: firstRun = false
         default: self.replay()
