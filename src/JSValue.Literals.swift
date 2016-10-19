@@ -8,8 +8,8 @@
 
 import Foundation
 
-extension JSValue : IntegerLiteralConvertible {
-    private static func convert(value: Int64) -> JSValue {
+extension JSValue : ExpressibleByIntegerLiteral {
+    private static func convert(_ value: Int64) -> JSValue {
         if value < JSValue.MinimumSafeInt || value > JSValue.MaximumSafeInt {
             
             let error = Error(
@@ -27,13 +27,13 @@ extension JSValue : IntegerLiteralConvertible {
     }
 }
 
-extension JSValue : FloatLiteralConvertible {
+extension JSValue : ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) {
         self = JSValue(value)
     }
 }
 
-extension JSValue : StringLiteralConvertible {
+extension JSValue : ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self = JSValue(value)
     }
@@ -47,13 +47,13 @@ extension JSValue : StringLiteralConvertible {
 	}
 }
 
-extension JSValue : ArrayLiteralConvertible {
+extension JSValue : ExpressibleByArrayLiteral {
     public init(arrayLiteral elements: JSValue...) {
         self = JSValue(elements)
     }
 }
 
-extension JSValue : DictionaryLiteralConvertible {
+extension JSValue : ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (String, JSValue)...) {
         var dict = JSObjectType()
         for (k, v) in elements {
@@ -64,13 +64,13 @@ extension JSValue : DictionaryLiteralConvertible {
     }
 }
 
-extension JSValue : NilLiteralConvertible {
+extension JSValue : ExpressibleByNilLiteral {
     public init(nilLiteral: ()) {
-        self = JSValue(JSBackingValue.JSNull)
+        self = JSValue(JSBackingValue.jsNull)
     }
 }
 
-extension JSValue: BooleanLiteralConvertible {
+extension JSValue: ExpressibleByBooleanLiteral {
     public init(booleanLiteral value: Bool) {
         self = JSValue(value)
     }

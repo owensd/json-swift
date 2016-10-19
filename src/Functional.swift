@@ -6,14 +6,19 @@
 //  Copyright (c) 2014 David Owens II. All rights reserved.
 //
 
-infix operator ⇒ { associativity left precedence 150 }
+precedencegroup FunctionalPrecedence {
+  associativity: left
+  higherThan: MultiplicationPrecedence
+}
+
+infix operator ⇒ : FunctionalPrecedence
 
 /// Allows for a transformative function to be applied to a value, allowing for optionals.
 ///
 /// - parameter lhs: The transformative function
 /// - parameter rhs: The value to apply to the function
 /// - returns: The transformation of `rhs` using `lhs`.
-public func ⇒ <A, B>(lhs: (A -> B)?, rhs: A?) -> B? {
+public func ⇒ <A, B>(lhs: ((A) -> B)?, rhs: A?) -> B? {
     if let lhs = lhs {
         if let rhs = rhs {
             return lhs(rhs)
@@ -28,7 +33,7 @@ public func ⇒ <A, B>(lhs: (A -> B)?, rhs: A?) -> B? {
 /// - parameter lhs: The value to apply to the function
 /// - parameter rhs: The transformative function
 /// - returns: The transformation of `lhs` using `rhs`.
-public func ⇒ <A, B>(lhs: A?, rhs: (A -> B)?) -> B? {
+public func ⇒ <A, B>(lhs: A?, rhs: ((A) -> B)?) -> B? {
     if let lhs = lhs {
         if let rhs = rhs {
             return rhs(lhs)
@@ -43,7 +48,7 @@ public func ⇒ <A, B>(lhs: A?, rhs: (A -> B)?) -> B? {
 /// - parameter lhs: The transformative function
 /// - parameter rhs: The value to apply to the function
 /// - returns: The transformation of `rhs` using `lhs`.
-public func ⇒ <A, B>(lhs: A -> B, rhs: A) -> B { return lhs(rhs) }
+public func ⇒ <A, B>(lhs: (A) -> B, rhs: A) -> B { return lhs(rhs) }
 
 
 /// Allows for a value to be transformed by a function.
@@ -51,4 +56,4 @@ public func ⇒ <A, B>(lhs: A -> B, rhs: A) -> B { return lhs(rhs) }
 /// - parameter lhs: The value to apply to the function
 /// - parameter rhs: The transformative function
 /// - returns: The transformation of `lhs` using `rhs`.
-public func ⇒ <A, B>(lhs: A, rhs: A -> B) -> B { return rhs(lhs) }
+public func ⇒ <A, B>(lhs: A, rhs: (A) -> B) -> B { return rhs(lhs) }

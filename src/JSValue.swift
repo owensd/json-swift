@@ -55,55 +55,55 @@ public struct JSValue : Equatable {
          */
         
         /// Holds an array of JavaScript values that conform to valid `JSValue` types.
-        case JSArray([JSValue])
+        case jsArray([JSValue])
 
         /// Holds an unordered set of key/value pairs conforming to valid `JSValue` types.
-        case JSObject([String : JSValue])
+        case jsObject([String : JSValue])
 
         /// Holds the value conforming to JavaScript's String object.
-        case JSString(String)
+        case jsString(String)
         
         /// Holds the value conforming to JavaScript's Number object.
-        case JSNumber(Double)
+        case jsNumber(Double)
         
         /// Holds the value conforming to JavaScript's Boolean wrapper.
-        case JSBool(Bool)
+        case jsBool(Bool)
         
         /// Holds the value that corresponds to `null`.
-        case JSNull
+        case jsNull
         
         /// Holds the error information when the `JSValue` could not be made into a valid item.
-        case Invalid(Error)
+        case invalid(Error)
     }
 
     /// Initializes a new `JSValue` with a `JSArrayType` value.
     public init(_ value: JSArrayType) {
-        self.value = JSBackingValue.JSArray(value)
+        self.value = JSBackingValue.jsArray(value)
     }
 
     /// Initializes a new `JSValue` with a `JSObjectType` value.
     public init(_ value: JSObjectType) {
-        self.value = JSBackingValue.JSObject(value)
+        self.value = JSBackingValue.jsObject(value)
     }
 
     /// Initializes a new `JSValue` with a `JSStringType` value.
     public init(_ value: JSStringType) {
-        self.value = JSBackingValue.JSString(value)
+        self.value = JSBackingValue.jsString(value)
     }
 
     /// Initializes a new `JSValue` with a `JSNumberType` value.
     public init(_ value: JSNumberType) {
-        self.value = JSBackingValue.JSNumber(value)
+        self.value = JSBackingValue.jsNumber(value)
     }
     
     /// Initializes a new `JSValue` with a `JSBoolType` value.
     public init(_ value: JSBoolType) {
-        self.value = JSBackingValue.JSBool(value)
+        self.value = JSBackingValue.jsBool(value)
     }
 
     /// Initializes a new `JSValue` with an `Error` value.
     init(_ error: Error) {
-        self.value = JSBackingValue.Invalid(error)
+        self.value = JSBackingValue.invalid(error)
     }
 
     /// Initializes a new `JSValue` with a `JSBackingValue` value.
@@ -118,57 +118,57 @@ public struct JSValue : Equatable {
 extension JSValue {
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(int8 value: Int8) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
 
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(in16 value: Int16) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
 
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(int32 value: Int32) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
 
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(int64 value: Int64) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
 
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(uint8 value: UInt8) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
     
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(uint16 value: UInt16) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
     
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(uint32 value: UInt32) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
     
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(uint64 value: UInt64) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
 
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(int value: Int) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
     
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(uint value: UInt) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
     
     /// Convenience initializer for a `JSValue` with a non-standard `JSNumberType` value.
     public init(float value: Float) {
-        self.value = JSBackingValue.JSNumber(Double(value))
+        self.value = JSBackingValue.jsNumber(Double(value))
     }
 }
 
@@ -180,7 +180,7 @@ extension JSValue : CustomStringConvertible {
     ///
     /// - returns: A `FailableOf<T>` that will contain the `String` value if successful,
     ///           otherwise, the `Error` information for the conversion.
-    public func stringify(indent: String = "  ") -> String {
+    public func stringify(_ indent: String = "  ") -> String {
         return prettyPrint(indent, 0)
     }
     
@@ -190,7 +190,7 @@ extension JSValue : CustomStringConvertible {
     ///
     /// - returns: A `FailableOf<T>` that will contain the `String` value if successful,
     ///           otherwise, the `Error` information for the conversion.
-    public func stringify(indent: Int) -> String {
+    public func stringify(_ indent: Int) -> String {
         let padding = (0..<indent).reduce("") { s, i in return s + " " }
         return prettyPrint(padding, 0)
     }
@@ -206,22 +206,22 @@ extension JSValue : CustomStringConvertible {
 /// - returns: `True` when `hasValue` is `true` and the underlying values are the same; `false` otherwise.
 public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
     switch (lhs.value, rhs.value) {
-    case (.JSNull, .JSNull):
+    case (.jsNull, .jsNull):
         return true
         
-    case let (.JSBool(lhsValue), .JSBool(rhsValue)):
+    case let (.jsBool(lhsValue), .jsBool(rhsValue)):
         return lhsValue == rhsValue
 
-    case let (.JSString(lhsValue), .JSString(rhsValue)):
+    case let (.jsString(lhsValue), .jsString(rhsValue)):
         return lhsValue == rhsValue
 
-    case let (.JSNumber(lhsValue), .JSNumber(rhsValue)):
+    case let (.jsNumber(lhsValue), .jsNumber(rhsValue)):
         return lhsValue == rhsValue
 
-    case let (.JSArray(lhsValue), .JSArray(rhsValue)):
+    case let (.jsArray(lhsValue), .jsArray(rhsValue)):
         return lhsValue == rhsValue
 
-    case let (.JSObject(lhsValue), .JSObject(rhsValue)):
+    case let (.jsObject(lhsValue), .jsObject(rhsValue)):
         return lhsValue == rhsValue
         
     default:
@@ -230,34 +230,34 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 }
 
 extension JSValue {
-    func prettyPrint(indent: String, _ level: Int) -> String {
-        let currentIndent = indent == "" ? "" : ((0...level).map({ (item: Int) in "" })).joinWithSeparator(indent)
+    func prettyPrint(_ indent: String, _ level: Int) -> String {
+        let currentIndent = indent == "" ? "" : ((0...level).map({ (item: Int) in "" })).joined(separator: indent)
         let nextIndent = currentIndent + indent
         
         let newline = indent == "" ? "" : "\n"
         let space = indent == "" ? "" : " "
         
         switch self.value {
-        case .JSBool(let bool):
+        case .jsBool(let bool):
             return bool ? "true" : "false"
             
-        case .JSNumber(let number):
+        case .jsNumber(let number):
             return "\(number)"
             
-        case .JSString(let string):
-            let escaped = string.stringByReplacingOccurrencesOfString("\"", withString: "\\\"")
+        case .jsString(let string):
+            let escaped = string.replacingOccurrences(of: "\"", with: "\\\"")
             return "\"\(escaped)\""
             
-        case .JSArray(let array):
-            return "[\(newline)" + (array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) .joinWithSeparator(",\(newline)") + "\(newline)\(currentIndent)]"
+        case .jsArray(let array):
+            return "[\(newline)" + (array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) .joined(separator: ",\(newline)") + "\(newline)\(currentIndent)]"
             
-        case .JSObject(let dict):
-            return "{\(newline)" + (dict.map({ "\(nextIndent)\"\($0.stringByReplacingOccurrencesOfString("\"", withString: "\\\""))\":\(space)\($1.prettyPrint(indent, level + 1))"})).joinWithSeparator(",\(newline)") + "\(newline)\(currentIndent)}"
+        case .jsObject(let dict):
+            return "{\(newline)" + (dict.map({ "\(nextIndent)\"\($0.replacingOccurrences(of: "\"", with: "\\\""))\":\(space)\($1.prettyPrint(indent, level + 1))"})).joined(separator: ",\(newline)") + "\(newline)\(currentIndent)}"
             
-        case .JSNull:
+        case .jsNull:
             return "null"
             
-        case .Invalid(let error):
+        case .invalid(let error):
             return "<Invalid JSON: \(error.description)>"
             
         }

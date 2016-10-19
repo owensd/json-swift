@@ -384,10 +384,10 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "\n")
         
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-        let json: AnyObject!
+        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: false)
+        let json: Any!
         do {
-            json = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
+            json = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments)
         } catch _ {
             json = nil
         };
@@ -402,10 +402,10 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "\\/\n\r\t")
         
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-        let json: AnyObject!
+        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: false)
+        let json: Any!
         do {
-            json = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
+            json = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments)
         } catch _ {
             json = nil
         };
@@ -428,12 +428,12 @@ class JSValueParsingTests : XCTestCase {
     }
 
     func testParsingSampleJSON() {
-        let path = NSBundle(forClass: JSValuePerformanceTests.self).pathForResource("sample", ofType: "json")
+        let path = Bundle(for: JSValuePerformanceTests.self).path(forResource: "sample", ofType: "json")
         XCTAssertNotNil(path)
         
         let string: NSString?
         do {
-            string = try NSString(contentsOfFile: path!, encoding: NSUTF8StringEncoding)
+            string = try NSString(contentsOfFile: path!, encoding: String.Encoding.utf8.rawValue)
         } catch _ {
             string = nil
         }

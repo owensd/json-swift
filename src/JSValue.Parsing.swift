@@ -15,14 +15,14 @@ extension JSValue {
     public typealias JSParsingSequence = UnsafeBufferPointer<UInt8>
 
 
-    public static func parse(string: String) -> JSParsingResult {
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
+    public static func parse(_ string: String) -> JSParsingResult {
+        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: false)!
         return parse(data)
     }
 
-    public static func parse(data: NSData) -> JSParsingResult {
-        let ptr = UnsafePointer<UInt8>(data.bytes)
-        let bytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.length)
+    public static func parse(_ data: Data) -> JSParsingResult {
+        let ptr = (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count)
+        let bytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.count)
 
         return parse(bytes)
     }
@@ -32,7 +32,7 @@ extension JSValue {
     /// - parameter seq: The sequence of UTF8 code points.
     ///
     /// - returns: A `JSParsingResult` containing the parsed `JSValue` or error information.
-    public static func parse(seq: JSParsingSequence) -> JSParsingResult {
+    public static func parse(_ seq: JSParsingSequence) -> JSParsingResult {
         let generator = ReplayableGenerator(seq)
 
         let result = parse(generator)
@@ -55,7 +55,7 @@ extension JSValue {
         return result
     }
 
-    static func parse<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
+    static func parse<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
         for codeunit in generator {
             if codeunit.isWhitespace() { continue }
             
@@ -89,23 +89,23 @@ extension JSValue {
     }
 
     enum ObjectParsingState {
-        case Initial
-        case Key
-        case Value
+        case initial
+        case key
+        case value
     }
-    static func parseObject<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
-        var state = ObjectParsingState.Initial
+    static func parseObject<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+        var state = ObjectParsingState.initial
 
         var key = ""
         var object = JSObjectType()
 
-        for (idx, codeunit) in generator.enumerate() {
+        for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.LeftCurly): continue
             case (_, Token.RightCurly):
                 switch state {
-                case .Initial: fallthrough
-                case .Value:
+                case .initial: fallthrough
+                case .value:
                     generator.next()        // eat the '}'
                     return (JSValue(object), nil)
                     
@@ -119,8 +119,8 @@ extension JSValue {
             case (_, Token.SingleQuote): fallthrough
             case (_, Token.DoubleQuote):
                 switch state {
-                case .Initial:
-                    state = .Key
+                case .initial:
+                    state = .key
                     
                     let parsedKey = parseString(generator, quote: codeunit)
                     if let parsedKey = parsedKey.value?.string {
@@ -140,8 +140,8 @@ extension JSValue {
 
             case (_, Token.Colon):
                 switch state {
-                case .Key:
-                    state = .Value
+                case .key:
+                    state = .value
                     
                     let parsedValue = parse(generator)
                     if let value = parsedValue.value {
@@ -161,8 +161,8 @@ extension JSValue {
 
             case (_, Token.Comma):
                 switch state {
-                case .Value:
-                    state = .Initial
+                case .value:
+                    state = .initial
                     key = ""
                     
                 default:
@@ -189,15 +189,15 @@ extension JSValue {
         return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    static func parseArray<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
+    static func parseArray<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
         var values = [JSValue]()
 
-        for (idx, codeunit) in generator.enumerate() {
+        for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.LeftBracket): continue
             case (_, Token.RightBracket):
                 generator.next()        // eat the ']'
-                return (JSValue(JSBackingValue.JSArray(values)), nil)
+                return (JSValue(JSBackingValue.jsArray(values)), nil)
 
             default:
                 if codeunit.isWhitespace() || codeunit == Token.Comma { continue }
@@ -221,14 +221,14 @@ extension JSValue {
     }
 
     enum NumberParsingState {
-        case Initial
-        case Whole
-        case Decimal
-        case Exponent
-        case ExponentDigits
+        case initial
+        case whole
+        case decimal
+        case exponent
+        case exponentDigits
     }
-    static func parseNumber<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
-        var state = NumberParsingState.Initial
+    static func parseNumber<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+        var state = NumberParsingState.initial
         
         var number = 0.0
         var numberSign = 1.0
@@ -236,51 +236,51 @@ extension JSValue {
         var exponent = 0
         var exponentSign = 1
         
-        for (idx, codeunit) in generator.enumerate() {
+        for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit, state) {
-            case (0, Token.Minus, NumberParsingState.Initial):
+            case (0, Token.Minus, NumberParsingState.initial):
                 numberSign = -1
-                state = .Whole
+                state = .whole
 
-            case (_, Token.Minus, NumberParsingState.Exponent):
+            case (_, Token.Minus, NumberParsingState.exponent):
                 exponentSign = -1
-                state = .ExponentDigits
+                state = .exponentDigits
 
-            case (_, Token.Plus, NumberParsingState.Initial):
-                state = .Whole
+            case (_, Token.Plus, NumberParsingState.initial):
+                state = .whole
 
-            case (_, Token.Plus, NumberParsingState.Exponent):
-                state = .ExponentDigits
+            case (_, Token.Plus, NumberParsingState.exponent):
+                state = .exponentDigits
 
-            case (_, Token.Zero...Token.Nine, NumberParsingState.Initial):
-                state = .Whole
+            case (_, Token.Zero...Token.Nine, NumberParsingState.initial):
+                state = .whole
                 fallthrough
 
-            case (_, Token.Zero...Token.Nine, NumberParsingState.Whole):
+            case (_, Token.Zero...Token.Nine, NumberParsingState.whole):
                 number = number * 10 + Double(codeunit - Token.Zero)
                     
-            case (_, Token.Zero...Token.Nine, NumberParsingState.Decimal):
+            case (_, Token.Zero...Token.Nine, NumberParsingState.decimal):
                 number = number + depth * Double(codeunit - Token.Zero)
                 depth /= 10
                     
-            case (_, Token.Zero...Token.Nine, NumberParsingState.Exponent):
-                state = .ExponentDigits
+            case (_, Token.Zero...Token.Nine, NumberParsingState.exponent):
+                state = .exponentDigits
                 fallthrough
                     
-            case (_, Token.Zero...Token.Nine, NumberParsingState.ExponentDigits):
+            case (_, Token.Zero...Token.Nine, NumberParsingState.exponentDigits):
                 exponent = exponent * 10 + Int(codeunit) - Int(Token.Zero)
 
-            case (_, Token.Period, NumberParsingState.Whole):
-                state = .Decimal
+            case (_, Token.Period, NumberParsingState.whole):
+                state = .decimal
 
-            case (_, Token.e, NumberParsingState.Whole):      state = .Exponent
-            case (_, Token.E, NumberParsingState.Whole):      state = .Exponent
-            case (_, Token.e, NumberParsingState.Decimal):    state = .Exponent
-            case (_, Token.E, NumberParsingState.Decimal):    state = .Exponent
+            case (_, Token.e, NumberParsingState.whole):      state = .exponent
+            case (_, Token.E, NumberParsingState.whole):      state = .exponent
+            case (_, Token.e, NumberParsingState.decimal):    state = .exponent
+            case (_, Token.E, NumberParsingState.decimal):    state = .exponent
                     
             default:
                 if codeunit.isValidTerminator() {
-                    return (JSValue(JSBackingValue.JSNumber(exp(number, exponent * exponentSign) * numberSign)), nil)
+                    return (JSValue(JSBackingValue.jsNumber(exp(number, exponent * exponentSign) * numberSign)), nil)
                 }
                 else {
                     let info = [
@@ -299,8 +299,8 @@ extension JSValue {
         return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
-    static func parseTrue<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
-        for (idx, codeunit) in generator.enumerate() {
+    static func parseTrue<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+        for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.t): continue
             case (1, Token.r): continue
@@ -326,8 +326,8 @@ extension JSValue {
         return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
-    static func parseFalse<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
-        for (idx, codeunit) in generator.enumerate() {
+    static func parseFalse<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+        for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.f): continue
             case (1, Token.a): continue
@@ -354,15 +354,15 @@ extension JSValue {
         return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
     
-    static func parseNull<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> JSParsingResult {
-        for (idx, codeunit) in generator.enumerate() {
+    static func parseNull<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+        for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.n): continue
             case (1, Token.u): continue
             case (2, Token.l): continue
             case (3, Token.l): continue
             case (4, _):
-                if codeunit.isValidTerminator() { return (JSValue(JSBackingValue.JSNull), nil) }
+                if codeunit.isValidTerminator() { return (JSValue(JSBackingValue.jsNull), nil) }
                 fallthrough
 
             default:
@@ -373,7 +373,7 @@ extension JSValue {
             }
         }
 
-        if generator.atEnd() { return (JSValue(JSBackingValue.JSNull), nil) }
+        if generator.atEnd() { return (JSValue(JSBackingValue.jsNull), nil) }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
@@ -381,7 +381,7 @@ extension JSValue {
         return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
     }
 
-    private static func parseHexDigit(digit: UInt8) -> Int? {
+    fileprivate static func parseHexDigit(_ digit: UInt8) -> Int? {
         if Token.Zero <= digit && digit <= Token.Nine {
             return Int(digit) - Int(Token.Zero)
         } else if Token.a <= digit && digit <= Token.f {
@@ -393,19 +393,18 @@ extension JSValue {
         }
     }
     
-    static func parseString<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>, quote: UInt8) -> JSParsingResult {
+    static func parseString<S: Sequence>(_ generator: ReplayableGenerator<S>, quote: UInt8) -> JSParsingResult where S.Iterator.Element == UInt8 {
         var bytes = [UInt8]()
 
-        for (idx, codeunit) in generator.enumerate() {
+        for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, quote): continue
             case (_, quote):
                 generator.next()        // eat the quote
 
-                bytes.append(0)
-                let ptr = UnsafePointer<CChar>(bytes)
-                if let string = String.fromCString(ptr) {
-                    return (JSValue(string), nil)
+                if let string = String(bytes: bytes, encoding: .utf8) {
+                  bytes = []
+                  return (JSValue(string), nil)
                 }
                 else {
                     let info = [
@@ -451,7 +450,7 @@ extension JSValue {
                         let c4 = generator.next()
                         
                         switch (c1, c2, c3, c4) {
-                            case let (.Some(c1), .Some(c2), .Some(c3), .Some(c4)):
+                            case let (.some(c1), .some(c2), .some(c3), .some(c4)):
                                 let value1 = parseHexDigit(c1)
                                 let value2 = parseHexDigit(c2)
                                 let value3 = parseHexDigit(c3)
@@ -465,11 +464,18 @@ extension JSValue {
                                 }
 
                                 let codepoint = (value1! << 12) | (value2! << 8) | (value3! << 4) | value4!;
-                                let character = String(UnicodeScalar(codepoint))
-                                let data = character.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
-                                let ptr = UnsafePointer<UInt8>(data.bytes)
-                                let escapeBytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.length)
-                                bytes.appendContentsOf(escapeBytes)
+                                if let scalar = UnicodeScalar(codepoint) {
+                                  let character = String(describing: scalar)
+                                  let data = character.data(using: String.Encoding.utf8, allowLossyConversion: false)!
+                                  let ptr = (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count)
+                                  let escapeBytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.count)
+                                  bytes.append(contentsOf: escapeBytes)
+                                } else {
+                                  let info = [
+                                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                    ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar"]
+                                  return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                                }
 
                             default:
                                 let info = [
@@ -507,7 +513,7 @@ extension JSValue {
 
     // MARK: Helper functions
 
-    static func substring<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>) -> String {
+    static func substring<S: Sequence>(_ generator: ReplayableGenerator<S>) -> String where S.Iterator.Element == UInt8 {
         var string = ""
 
         for codeunit in generator {
@@ -518,7 +524,7 @@ extension JSValue {
     }
 
 
-    static func contextualString<S: SequenceType where S.Generator.Element == UInt8>(generator: ReplayableGenerator<S>, left: Int = 5, right: Int = 10) -> String {
+    static func contextualString<S: Sequence>(_ generator: ReplayableGenerator<S>, left: Int = 5, right: Int = 10) -> String where S.Iterator.Element == UInt8 {
         var string = ""
 
         for _ in 0..<left {
@@ -533,10 +539,10 @@ extension JSValue {
         return string
     }
     
-    static func exp(number: Double, _ exp: Int) -> Double {
+    static func exp(_ number: Double, _ exp: Int) -> Double {
         return exp < 0 ?
-            (0 ..< abs(exp)).reduce(number, combine: { x, _ in x / 10 }) :
-            (0 ..< exp).reduce(number, combine: { x, _ in x * 10 })
+            (0 ..< abs(exp)).reduce(number, { x, _ in x / 10 }) :
+            (0 ..< exp).reduce(number, { x, _ in x * 10 })
     }
 }
 
@@ -615,7 +621,7 @@ extension UInt8 {
 
 /// The code unit value for all of the token characters used.
 struct Token {
-    private init() {}
+    fileprivate init() {}
     
     // Control Codes
     static let Linefeed         = UInt8(10)
