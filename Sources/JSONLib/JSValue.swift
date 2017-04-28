@@ -228,7 +228,10 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 
 extension JSValue {
     func prettyPrint(_ indent: String, _ level: Int) -> String {
-        let currentIndent = indent == "" ? "" : ((0...level).map({ (item: Int) in "" })).joined(separator: indent)
+        var currentIndent = ""
+        for _ in (0..<level) {
+            currentIndent += indent
+        }
         let nextIndent = currentIndent + indent
         
         let newline = indent == "" ? "" : "\n"
@@ -246,10 +249,16 @@ extension JSValue {
             return "\"\(escaped)\""
             
         case .jsArray(let array):
-            return "[\(newline)" + (array.map({ "\(nextIndent)\($0.prettyPrint(indent, level + 1))" })) .joined(separator: ",\(newline)") + "\(newline)\(currentIndent)]"
+            let start = "[\(newline)"
+            let content = (array.map({"\(nextIndent)\($0.prettyPrint(indent, level + 1))" })).joined(separator: ",\(newline)")
+            let end = "\(newline)\(currentIndent)]"
+            return start + content + end
             
         case .jsObject(let dict):
-            return "{\(newline)" + (dict.map({ "\(nextIndent)\"\($0.replacingOccurrences(of: "\"", with: "\\\""))\":\(space)\($1.prettyPrint(indent, level + 1))"})).joined(separator: ",\(newline)") + "\(newline)\(currentIndent)}"
+            let start = "{\(newline)"
+            let content = (dict.map({ "\(nextIndent)\"\($0.replacingOccurrences(of: "\"", with: "\\\""))\":\(space)\($1.prettyPrint(indent, level + 1))"})).joined(separator: ",\(newline)")
+            let end = "\(newline)\(currentIndent)}"
+            return start + content + end
             
         case .jsNull:
             return "null"
