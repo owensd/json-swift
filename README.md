@@ -49,7 +49,7 @@ if let value = stat.string {
 }
 else if let error = stat.error {
     println("code: \(error.code), domain: '\(error.domain)', info: '\(error.userInfo[LocalizedDescriptionKey]!)'")
-    // prints: code: 6, domain: 'com.kiadsoftware.json.error', info: 'There is no value stored with key: 'stats'.'
+    // prints: code: 6, domain: 'com.kiadstudios.json.error', info: 'There is no value stored with key: 'stats'.'
 }
 ```
 

@@ -1,0 +1,65 @@
+{
+  "": {
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/master.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/Error.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/Error.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/Error.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/Error~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/Error.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/Functional.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/Functional.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/Functional.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/Functional~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/Functional.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/JSValue.Accessors.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Accessors.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Accessors.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Accessors~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Accessors.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/JSValue.Encodings.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Encodings.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Encodings.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Encodings~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Encodings.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/JSValue.ErrorHandling.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.ErrorHandling.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.ErrorHandling.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.ErrorHandling~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.ErrorHandling.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/JSValue.Indexers.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Indexers.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Indexers.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Indexers~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Indexers.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/JSValue.Literals.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Literals.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Literals.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Literals~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Literals.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/JSValue.Parsing.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Parsing.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Parsing.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Parsing~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.Parsing.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/JSValue.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/JSValue.swiftdeps"
+  },
+  "/Users/owensd/Projects/json-swift/Sources/ReplayableGenerator.swift": {
+    "dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/ReplayableGenerator.d",
+    "object": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/ReplayableGenerator.swift.o",
+    "swiftmodule": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/ReplayableGenerator~partial.swiftmodule",
+    "swift-dependencies": "/Users/owensd/Projects/json-swift/.build/debug/json_swift.build/ReplayableGenerator.swiftdeps"
+  }
+}

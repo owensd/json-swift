@@ -1,0 +1,14 @@
+version: "Apple Swift version 3.1 (swiftlang-802.0.48 clang-802.0.38)"
+options: "d040b3f50e1fc88e593fd084a528a395"
+build_time: [546683894, 899990000]
+inputs:
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/Error.swift": [546683632, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/Functional.swift": [546683633, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/JSValue.Accessors.swift": [546683634, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/JSValue.Encodings.swift": [546683635, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/JSValue.ErrorHandling.swift": [546683636, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/JSValue.Indexers.swift": [546683637, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/JSValue.Literals.swift": [546683638, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/JSValue.Parsing.swift": [546683638, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/JSValue.swift": [546683802, 0]
+  "/Users/owensd/Projects/json-swift/Sources/JSONLib/ReplayableGenerator.swift": [546683640, 0]

@@ -1,0 +1,138 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "ReplayableGenerator"
+provides-nominal:
+- "C10json_swift19ReplayableGenerator"
+provides-member:
+- ["C10json_swift19ReplayableGenerator", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "=="
+- "AssignmentPrecedence"
+- "Bool"
+- "BooleanLiteralType"
+- "IteratorProtocol"
+- "ReplayableGenerator"
+- "Sequence"
+- "Swift"
+depends-member:
+- ["Ps9AnyObject", "_copyContents"]
+- ["Ps9AnyObject", "_copyToContiguousArray"]
+- ["Ps9AnyObject", "_customContainsEquatableElement"]
+- ["Ps9AnyObject", "_preprocessingPass"]
+- ["Ps9AnyObject", "drop"]
+- ["Ps9AnyObject", "dropFirst"]
+- ["Ps9AnyObject", "dropLast"]
+- ["Ps9AnyObject", "filter"]
+- !private ["Ps9AnyObject", "firstRun"]
+- ["Ps9AnyObject", "forEach"]
+- !private ["Ps9AnyObject", "generator"]
+- ["Ps9AnyObject", "makeIterator"]
+- ["Ps9AnyObject", "map"]
+- ["Ps9AnyObject", "next"]
+- ["Ps9AnyObject", "prefix"]
+- !private ["Ps9AnyObject", "previousElement"]
+- !private ["Ps9AnyObject", "replay"]
+- ["Ps9AnyObject", "split"]
+- ["Ps9AnyObject", "suffix"]
+- ["Ps9AnyObject", "underestimatedCount"]
+- !private ["Ps9AnyObject", "usePrevious"]
+- ["Ps9AnyObject", ""]
+- ["Ps16IteratorProtocol", "Element"]
+- ["Ps16IteratorProtocol", "_copyContents"]
+- ["Ps16IteratorProtocol", "_copyToContiguousArray"]
+- ["Ps16IteratorProtocol", "_customContainsEquatableElement"]
+- ["Ps16IteratorProtocol", "_preprocessingPass"]
+- ["Ps16IteratorProtocol", "drop"]
+- ["Ps16IteratorProtocol", "dropFirst"]
+- ["Ps16IteratorProtocol", "dropLast"]
+- ["Ps16IteratorProtocol", "filter"]
+- !private ["Ps16IteratorProtocol", "firstRun"]
+- ["Ps16IteratorProtocol", "forEach"]
+- !private ["Ps16IteratorProtocol", "generator"]
+- ["Ps16IteratorProtocol", "makeIterator"]
+- ["Ps16IteratorProtocol", "map"]
+- ["Ps16IteratorProtocol", "next"]
+- ["Ps16IteratorProtocol", "prefix"]
+- !private ["Ps16IteratorProtocol", "previousElement"]
+- !private ["Ps16IteratorProtocol", "replay"]
+- ["Ps16IteratorProtocol", "split"]
+- ["Ps16IteratorProtocol", "suffix"]
+- ["Ps16IteratorProtocol", "underestimatedCount"]
+- !private ["Ps16IteratorProtocol", "usePrevious"]
+- ["Ps16IteratorProtocol", ""]
+- ["C10json_swift19ReplayableGenerator", "Bool"]
+- ["C10json_swift19ReplayableGenerator", "Element"]
+- ["C10json_swift19ReplayableGenerator", "Iterator"]
+- ["C10json_swift19ReplayableGenerator", "ReplayableGenerator"]
+- ["C10json_swift19ReplayableGenerator", "S"]
+- ["C10json_swift19ReplayableGenerator", "Sequence"]
+- ["C10json_swift19ReplayableGenerator", "SubSequence"]
+- ["C10json_swift19ReplayableGenerator", "_copyContents"]
+- ["C10json_swift19ReplayableGenerator", "_copyToContiguousArray"]
+- ["C10json_swift19ReplayableGenerator", "_customContainsEquatableElement"]
+- ["C10json_swift19ReplayableGenerator", "_preprocessingPass"]
+- ["C10json_swift19ReplayableGenerator", "atEnd"]
+- ["C10json_swift19ReplayableGenerator", "deinit"]
+- ["C10json_swift19ReplayableGenerator", "drop"]
+- ["C10json_swift19ReplayableGenerator", "dropFirst"]
+- ["C10json_swift19ReplayableGenerator", "dropLast"]
+- ["C10json_swift19ReplayableGenerator", "filter"]
+- ["C10json_swift19ReplayableGenerator", "firstRun"]
+- ["C10json_swift19ReplayableGenerator", "forEach"]
+- ["C10json_swift19ReplayableGenerator", "generator"]
+- ["C10json_swift19ReplayableGenerator", "init"]
+- ["C10json_swift19ReplayableGenerator", "makeIterator"]
+- ["C10json_swift19ReplayableGenerator", "map"]
+- ["C10json_swift19ReplayableGenerator", "next"]
+- ["C10json_swift19ReplayableGenerator", "prefix"]
+- ["C10json_swift19ReplayableGenerator", "previousElement"]
+- ["C10json_swift19ReplayableGenerator", "replay"]
+- ["C10json_swift19ReplayableGenerator", "split"]
+- ["C10json_swift19ReplayableGenerator", "suffix"]
+- ["C10json_swift19ReplayableGenerator", "underestimatedCount"]
+- ["C10json_swift19ReplayableGenerator", "usePrevious"]
+- ["Ps8Sequence", "Iterator"]
+- ["Ps8Sequence", "_copyContents"]
+- ["Ps8Sequence", "_copyToContiguousArray"]
+- ["Ps8Sequence", "_customContainsEquatableElement"]
+- ["Ps8Sequence", "_preprocessingPass"]
+- ["Ps8Sequence", "drop"]
+- ["Ps8Sequence", "dropFirst"]
+- ["Ps8Sequence", "dropLast"]
+- ["Ps8Sequence", "filter"]
+- !private ["Ps8Sequence", "firstRun"]
+- ["Ps8Sequence", "forEach"]
+- !private ["Ps8Sequence", "generator"]
+- ["Ps8Sequence", "makeIterator"]
+- ["Ps8Sequence", "map"]
+- ["Ps8Sequence", "next"]
+- ["Ps8Sequence", "prefix"]
+- !private ["Ps8Sequence", "previousElement"]
+- !private ["Ps8Sequence", "replay"]
+- ["Ps8Sequence", "split"]
+- ["Ps8Sequence", "suffix"]
+- ["Ps8Sequence", "underestimatedCount"]
+- !private ["Ps8Sequence", "usePrevious"]
+- ["Ps8Sequence", ""]
+depends-nominal:
+- "Ps9AnyObject"
+- "Ps16IteratorProtocol"
+- "C10json_swift19ReplayableGenerator"
+- "Ps8Sequence"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Swift.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/SwiftOnoneSupport.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Foundation.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/ObjectiveC.apinotesc"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Dispatch.apinotesc"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Darwin.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Dispatch.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/ObjectiveC.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/CoreGraphics.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/CoreGraphics.apinotesc"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/IOKit.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/CoreText.apinotesc"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Foundation.apinotesc"
+interface-hash: "9692ca54889e6e99b9af7ce3b68bbd56"

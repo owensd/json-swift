@@ -1,0 +1,173 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+provides-nominal:
+- "VV7JSONLib7JSValue12ErrorMessage"
+- "VV7JSONLib7JSValue9ErrorCode"
+provides-member:
+- ["V7JSONLib7JSValue", ""]
+- ["VV7JSONLib7JSValue12ErrorMessage", ""]
+- ["VV7JSONLib7JSValue9ErrorCode", ""]
+- ["V7JSONLib7JSValue", "ErrorMessage"]
+- ["V7JSONLib7JSValue", "ErrorCode"]
+provides-dynamic-lookup:
+depends-top-level:
+- "FloatLiteralType"
+- "Int"
+- "IntegerLiteralType"
+- "JSValue"
+- "String"
+- "StringLiteralType"
+- "UnicodeScalarType"
+depends-member:
+- ["Ps9AnyObject", "init"]
+- ["Ps7CVarArg", "init"]
+- ["Ps10Comparable", "init"]
+- ["Ps28CustomDebugStringConvertible", "init"]
+- ["Ps29CustomPlaygroundQuickLookable", "init"]
+- ["Ps17CustomReflectable", "init"]
+- ["Ps23CustomStringConvertible", "ErrorMessage"]
+- ["Ps23CustomStringConvertible", "JSValue"]
+- ["Ps23CustomStringConvertible", "MaximumSafeInt"]
+- ["Ps23CustomStringConvertible", "MinimumSafeInt"]
+- ["Ps23CustomStringConvertible", "init"]
+- ["Ps9Equatable", "ErrorMessage"]
+- ["Ps9Equatable", "JSValue"]
+- ["Ps9Equatable", "MaximumSafeInt"]
+- ["Ps9Equatable", "MinimumSafeInt"]
+- ["Ps9Equatable", "init"]
+- ["VV7JSONLib7JSValue9ErrorCode", "ErrorMessage"]
+- ["VV7JSONLib7JSValue9ErrorCode", "IndexOutOfRange"]
+- ["VV7JSONLib7JSValue9ErrorCode", "IndexingIntoUnsupportedType"]
+- ["VV7JSONLib7JSValue9ErrorCode", "InvalidIntegerValue"]
+- ["VV7JSONLib7JSValue9ErrorCode", "JSValue"]
+- ["VV7JSONLib7JSValue9ErrorCode", "KeyNotFound"]
+- ["VV7JSONLib7JSValue9ErrorCode", "ParsingError"]
+- !private ["VV7JSONLib7JSValue9ErrorCode", "init"]
+- ["VV7JSONLib7JSValue12ErrorMessage", "Int"]
+- ["VV7JSONLib7JSValue12ErrorMessage", "String"]
+- ["VV7JSONLib7JSValue12ErrorMessage", "code"]
+- ["VV7JSONLib7JSValue12ErrorMessage", "init"]
+- ["VV7JSONLib7JSValue12ErrorMessage", "message"]
+- ["Ps25ExpressibleByArrayLiteral", "ErrorMessage"]
+- ["Ps25ExpressibleByArrayLiteral", "JSValue"]
+- ["Ps25ExpressibleByArrayLiteral", "MaximumSafeInt"]
+- ["Ps25ExpressibleByArrayLiteral", "MinimumSafeInt"]
+- ["Ps27ExpressibleByBooleanLiteral", "ErrorMessage"]
+- ["Ps27ExpressibleByBooleanLiteral", "JSValue"]
+- ["Ps27ExpressibleByBooleanLiteral", "MaximumSafeInt"]
+- ["Ps27ExpressibleByBooleanLiteral", "MinimumSafeInt"]
+- ["Ps30ExpressibleByDictionaryLiteral", "ErrorMessage"]
+- ["Ps30ExpressibleByDictionaryLiteral", "JSValue"]
+- ["Ps30ExpressibleByDictionaryLiteral", "MaximumSafeInt"]
+- ["Ps30ExpressibleByDictionaryLiteral", "MinimumSafeInt"]
+- ["Ps43ExpressibleByExtendedGraphemeClusterLiteral", "ErrorMessage"]
+- ["Ps43ExpressibleByExtendedGraphemeClusterLiteral", "JSValue"]
+- ["Ps43ExpressibleByExtendedGraphemeClusterLiteral", "MaximumSafeInt"]
+- ["Ps43ExpressibleByExtendedGraphemeClusterLiteral", "MinimumSafeInt"]
+- ["Ps43ExpressibleByExtendedGraphemeClusterLiteral", "init"]
+- ["Ps25ExpressibleByFloatLiteral", "ErrorMessage"]
+- ["Ps25ExpressibleByFloatLiteral", "JSValue"]
+- ["Ps25ExpressibleByFloatLiteral", "MaximumSafeInt"]
+- ["Ps25ExpressibleByFloatLiteral", "MinimumSafeInt"]
+- ["Ps27ExpressibleByIntegerLiteral", "ErrorMessage"]
+- ["Ps27ExpressibleByIntegerLiteral", "JSValue"]
+- ["Ps27ExpressibleByIntegerLiteral", "MaximumSafeInt"]
+- ["Ps27ExpressibleByIntegerLiteral", "MinimumSafeInt"]
+- ["Ps23ExpressibleByNilLiteral", "ErrorMessage"]
+- ["Ps23ExpressibleByNilLiteral", "JSValue"]
+- ["Ps23ExpressibleByNilLiteral", "MaximumSafeInt"]
+- ["Ps23ExpressibleByNilLiteral", "MinimumSafeInt"]
+- ["Ps26ExpressibleByStringLiteral", "ErrorMessage"]
+- ["Ps26ExpressibleByStringLiteral", "JSValue"]
+- ["Ps26ExpressibleByStringLiteral", "MaximumSafeInt"]
+- ["Ps26ExpressibleByStringLiteral", "MinimumSafeInt"]
+- ["Ps26ExpressibleByStringLiteral", "init"]
+- ["Ps33ExpressibleByUnicodeScalarLiteral", "ErrorMessage"]
+- ["Ps33ExpressibleByUnicodeScalarLiteral", "JSValue"]
+- ["Ps33ExpressibleByUnicodeScalarLiteral", "MaximumSafeInt"]
+- ["Ps33ExpressibleByUnicodeScalarLiteral", "MinimumSafeInt"]
+- ["Ps33ExpressibleByUnicodeScalarLiteral", "init"]
+- ["Ps8Hashable", "init"]
+- ["V7JSONLib7JSValue", "ErrorCode"]
+- ["V7JSONLib7JSValue", "ErrorMessage"]
+- ["V7JSONLib7JSValue", "Int"]
+- ["V7JSONLib7JSValue", "JSValue"]
+- ["V7JSONLib7JSValue", "MaximumSafeInt"]
+- ["V7JSONLib7JSValue", "MinimumSafeInt"]
+- ["V7JSONLib7JSValue", "String"]
+- ["Ps25LosslessStringConvertible", "init"]
+- ["Ps10MirrorPath", "init"]
+- ["PSo8NSCoding", "init"]
+- ["PSo9NSCopying", "init"]
+- ["PSo16NSMutableCopying", "init"]
+- ["PSo16NSObjectProtocol", "init"]
+- ["PSo14NSSecureCoding", "init"]
+- ["CSo8NSString", "init"]
+- ["SS", "init"]
+- ["Ps16TextOutputStream", "init"]
+- ["Ps20TextOutputStreamable", "init"]
+- ["Ps51_ExpressibleByBuiltinExtendedGraphemeClusterLiteral", "init"]
+- ["Ps34_ExpressibleByBuiltinStringLiteral", "init"]
+- ["Ps39_ExpressibleByBuiltinUTF16StringLiteral", "init"]
+- ["Ps41_ExpressibleByBuiltinUnicodeScalarLiteral", "init"]
+- ["Ps33_ExpressibleByStringInterpolation", "init"]
+- ["Ps35_HasCustomAnyHashableRepresentation", "init"]
+- ["Ps9_Hashable", "init"]
+- ["Ps21_ObjectiveCBridgeable", "init"]
+depends-nominal:
+- "Ps9AnyObject"
+- "Ps7CVarArg"
+- "Ps10Comparable"
+- "Ps28CustomDebugStringConvertible"
+- "Ps29CustomPlaygroundQuickLookable"
+- "Ps17CustomReflectable"
+- "Ps23CustomStringConvertible"
+- "Ps9Equatable"
+- "VV7JSONLib7JSValue9ErrorCode"
+- "VV7JSONLib7JSValue12ErrorMessage"
+- "Ps25ExpressibleByArrayLiteral"
+- "Ps27ExpressibleByBooleanLiteral"
+- "Ps30ExpressibleByDictionaryLiteral"
+- "Ps43ExpressibleByExtendedGraphemeClusterLiteral"
+- "Ps25ExpressibleByFloatLiteral"
+- "Ps27ExpressibleByIntegerLiteral"
+- "Ps23ExpressibleByNilLiteral"
+- "Ps26ExpressibleByStringLiteral"
+- "Ps33ExpressibleByUnicodeScalarLiteral"
+- "Ps8Hashable"
+- "V7JSONLib7JSValue"
+- "Ps25LosslessStringConvertible"
+- "Ps10MirrorPath"
+- "PSo8NSCoding"
+- "PSo9NSCopying"
+- "PSo16NSMutableCopying"
+- "PSo16NSObjectProtocol"
+- "PSo14NSSecureCoding"
+- "CSo8NSString"
+- "SS"
+- "Ps16TextOutputStream"
+- "Ps20TextOutputStreamable"
+- "Ps51_ExpressibleByBuiltinExtendedGraphemeClusterLiteral"
+- "Ps34_ExpressibleByBuiltinStringLiteral"
+- "Ps39_ExpressibleByBuiltinUTF16StringLiteral"
+- "Ps41_ExpressibleByBuiltinUnicodeScalarLiteral"
+- "Ps33_ExpressibleByStringInterpolation"
+- "Ps35_HasCustomAnyHashableRepresentation"
+- "Ps9_Hashable"
+- "Ps21_ObjectiveCBridgeable"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Swift.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/SwiftOnoneSupport.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Foundation.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/ObjectiveC.apinotesc"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Dispatch.apinotesc"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Darwin.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Dispatch.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/ObjectiveC.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/CoreGraphics.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/CoreGraphics.apinotesc"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/IOKit.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/CoreText.apinotesc"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx/x86_64/Foundation.apinotesc"
+interface-hash: "c29c19b1b5ac78dd91b043663511c8d6"
