@@ -1,0 +1,13 @@
+os:
+  - osx
+language: generic
+sudo: required
+dist: trusty
+osx_image: xcode8.3
+script:
+  - swift build
+  - swift test
+notifications:
+  email:
+    on_success: never
+    on_failure: change
