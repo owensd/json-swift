@@ -15,14 +15,12 @@ public final class ReplayableGenerator<S: Sequence> : IteratorProtocol, Swift.Se
     var generator: Sequence.Iterator
     
     /// Initializes a new `ReplayableGenerator<S>` with an underlying `SequenceType`.
-    ///
     /// - parameter sequence: the sequence that will be used to traverse the content.
     public init(_ sequence: S) {
         self.generator = sequence.makeIterator()
     }
     
     /// Moves the current element to the next element in the collection, if one exists.
-    ///
     /// :return: The `current` element or `nil` if the element does not exist.
     public func next() -> Element? {
         switch usePrevious {

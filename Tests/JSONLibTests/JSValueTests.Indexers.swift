@@ -78,4 +78,10 @@ class JSValueIndexersTests : XCTestCase {
         XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool == false)
     }
 
+    static let allTests = [
+        ("testBasicArrayMutability", testBasicArrayMutability),
+        ("testNestedArray", testNestedArray),
+        ("testNestedMixedTypes", testNestedMixedTypes),
+    ]
+
 }

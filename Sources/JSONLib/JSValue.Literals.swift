@@ -3,8 +3,6 @@
  * Licensed under the MIT License. See License in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-import Foundation
-
 extension JSValue : ExpressibleByIntegerLiteral {
     private static func convert(_ value: Int64) -> JSValue {
         if value < JSValue.MinimumSafeInt || value > JSValue.MaximumSafeInt {

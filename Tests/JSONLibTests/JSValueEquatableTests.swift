@@ -4,9 +4,9 @@
  * ------------------------------------------------------------------------------------------ */
 
 import XCTest
-import JSONLib
+@testable import JSONLib
 
-class JSValueEquatableTests : XCTestCase {
+class JSValueEquatableTests: XCTestCase {
 
     func testEquatableNullTrue() {
         let lhs: JSON = nil
@@ -91,4 +91,19 @@ class JSValueEquatableTests : XCTestCase {
         
         XCTAssertNotEqual(lhs, rhs)
     }
+
+    static let allTests = [
+        ("testEquatableNullTrue", testEquatableNullTrue),
+        ("testEquatableBoolTrue", testEquatableBoolTrue),
+        ("testEquatableBoolFalse", testEquatableBoolFalse),
+        ("testEquatableStringTrue", testEquatableStringTrue),
+        ("testEquatableStringFalse", testEquatableStringFalse),
+        ("testEquatableNumberTrue", testEquatableNumberTrue),
+        ("testEquatableNumberFalse", testEquatableNumberFalse),
+        ("testEquatableArrayTrue", testEquatableArrayTrue),
+        ("testEquatableArrayFalse", testEquatableArrayFalse),
+        ("testEquatableObjectTrue", testEquatableObjectTrue),
+        ("testEquatableObjectFalse", testEquatableObjectFalse),
+        ("testEquatableTypeMismatch", testEquatableTypeMismatch),
+    ]
 }

@@ -340,7 +340,6 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(json1.error == nil, json1.error?.userInfo?.description ?? "No error info")
         
         let prettyPrinted = json1.value!.stringify()
-        print(prettyPrinted)
         let json2 = JSON.parse(prettyPrinted)
         
         XCTAssertTrue(json2.error == nil, json2.error?.userInfo?.description ?? "No error info")
@@ -377,7 +376,7 @@ class JSValueParsingTests : XCTestCase {
     func testParseStringWithSingleEscapedControlCharacters() {
         let string = "\"\\n\""
         let jsvalue = JSValue.parse(string)
-        
+
         XCTAssertTrue(jsvalue.error == nil, jsvalue.error?.userInfo?.description ?? "No error info")
         XCTAssertEqual(jsvalue.value!.string!, "\n")
         
@@ -388,8 +387,8 @@ class JSValueParsingTests : XCTestCase {
         } catch _ {
             json = nil
         };
-        let jsonString = json as? NSString
-        XCTAssertEqual("\n", jsonString!)
+        let jsonString = json as! String
+        XCTAssertEqual("\n", jsonString)
     }
     
     func testParseStringWithEscapedControlCharacters() {
@@ -406,8 +405,8 @@ class JSValueParsingTests : XCTestCase {
         } catch _ {
             json = nil
         };
-        let jsonString = json as? NSString
-        XCTAssertEqual(jsvalue.value!.string!, String(jsonString!))
+        let jsonString = json as! String
+        XCTAssertEqual(jsvalue.value!.string!, jsonString)
     }
     
     func testParseStringWithUnicodeEscapes() {
@@ -424,10 +423,11 @@ class JSValueParsingTests : XCTestCase {
         // TODO: Validate the error information
     }
 
+// TODO(owensd): This should be redone to support Linux as well.
+#if os(macOS)
     func testParsingSampleJSON() {
         // SwiftBug(SR-4725) - Support test collateral properly
         let path = NSString.path(withComponents: [Bundle(for: JSValuePerformanceTests.self).bundlePath, "..", "..", "..", "TestCollateral", "sample.json"])
-        print("path: \(path)")
         XCTAssertNotNil(path)
         
         let string: NSString?
@@ -441,6 +441,7 @@ class JSValueParsingTests : XCTestCase {
         let json = JSON.parse(string! as String)
         XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error message found")
     }
+#endif
     
     func testStringifyEscaping() {
         let json: JSON = [
@@ -451,4 +452,49 @@ class JSValueParsingTests : XCTestCase {
         let expected = "{\"url\":\"should escape double quotes \\\"\"}"
         XCTAssertEqual(str, expected)
     }
+
+    static let allTests = [
+        ("testParseNull", testParseNull),
+        ("testParseNullWithWhitespace", testParseNullWithWhitespace),
+        ("testParseNullInvalidJSON", testParseNullInvalidJSON),
+        ("testParseTrue", testParseTrue),
+        ("testParseTrueWithWhitespace", testParseTrueWithWhitespace),
+        ("testParseTrueInvalidJSON", testParseTrueInvalidJSON),
+        ("testParseFalse", testParseFalse),
+        ("testParseFalseWithWhitespace", testParseFalseWithWhitespace),
+        ("testParseFalseInvalidJSON", testParseFalseInvalidJSON),
+        ("testParseStringWithDoubleQuote", testParseStringWithDoubleQuote),
+        ("testParseStringWithSingleQuote", testParseStringWithSingleQuote),
+        ("testParseStringWithEscapedQuote", testParseStringWithEscapedQuote),
+        ("testParseStringWithEscapedQuoteMatchingEndQuotes", testParseStringWithEscapedQuoteMatchingEndQuotes),
+        ("testParseStringWithMultipleEscapes", testParseStringWithMultipleEscapes),
+        ("testParseStringWithMultipleUnicodeTypes", testParseStringWithMultipleUnicodeTypes),
+        ("testParseStringWithTrailingEscapedQuotes", testParseStringWithTrailingEscapedQuotes),
+        ("testParseInteger", testParseInteger),
+        ("testParseNegativeInteger", testParseNegativeInteger),
+        ("testParseDouble", testParseDouble),
+        ("testParseNegativeDouble", testParseNegativeDouble),
+        ("testParseExponent", testParseExponent),
+        ("testParsePositiveExponent", testParsePositiveExponent),
+        ("testParseNegativeExponent", testParseNegativeExponent),
+        ("testParseEmptyArray", testParseEmptyArray),
+        ("testSingleElementArray", testSingleElementArray),
+        ("testMultipleElementArray", testMultipleElementArray),
+        ("testParseEmptyDictionary", testParseEmptyDictionary),
+        ("testParseEmptyDictionaryWithExtraWhitespace", testParseEmptyDictionaryWithExtraWhitespace),
+        ("testParseDictionaryWithSingleKeyValuePair", testParseDictionaryWithSingleKeyValuePair),
+        ("testParseDictionaryWithMultipleKeyValuePairs", testParseDictionaryWithMultipleKeyValuePairs),
+        ("testParseMixedArray", testParseMixedArray),
+        ("testParseMixedDictionary", testParseMixedDictionary),
+        ("testParseNestedMixedTypes", testParseNestedMixedTypes),
+        ("testParsePrettyPrintedNestedMixedTypes", testParsePrettyPrintedNestedMixedTypes),
+        ("testPrettyPrintedNestedObjectType", testPrettyPrintedNestedObjectType),
+        ("testPrettyPrintedNestedArrayType", testPrettyPrintedNestedArrayType),
+        ("testMutipleNestedArrayDictionaryTypes", testMutipleNestedArrayDictionaryTypes),
+        ("testParseStringWithSingleEscapedControlCharacters", testParseStringWithSingleEscapedControlCharacters),
+        ("testParseStringWithEscapedControlCharacters", testParseStringWithEscapedControlCharacters),
+        ("testParseStringWithUnicodeEscapes", testParseStringWithUnicodeEscapes),
+        ("testParseStringWithInvalidUnicodeEscapes", testParseStringWithInvalidUnicodeEscapes),
+        ("testStringifyEscaping", testStringifyEscaping),
+    ]
 }

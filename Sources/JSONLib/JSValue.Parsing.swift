@@ -9,27 +9,19 @@ extension JSValue {
     /// The type that represents the result of the parse.
     public typealias JSParsingResult = (value: JSValue?, error: Error?)
 
-    public typealias JSParsingSequence = UnsafeBufferPointer<UInt8>
-
-
     public static func parse(_ string: String) -> JSParsingResult {
         let data = string.data(using: String.Encoding.utf8, allowLossyConversion: false)!
         return parse(data)
     }
 
     public static func parse(_ data: Data) -> JSParsingResult {
-        let ptr = (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count)
-        let bytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.count)
-
-        return parse(bytes)
+        return parse([UInt8](data))
     }
 
     /// Parses the given sequence of UTF8 code points and attempts to return a `JSValue` from it.
-    ///
     /// - parameter seq: The sequence of UTF8 code points.
-    ///
     /// - returns: A `JSParsingResult` containing the parsed `JSValue` or error information.
-    public static func parse(_ seq: JSParsingSequence) -> JSParsingResult {
+    public static func parse(_ seq: [UInt8]) -> JSParsingResult {
         let generator = ReplayableGenerator(seq)
 
         let result = parse(generator)
@@ -90,6 +82,7 @@ extension JSValue {
         case key
         case value
     }
+
     static func parseObject<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
         var state = ObjectParsingState.initial
 
@@ -224,6 +217,7 @@ extension JSValue {
         case exponent
         case exponentDigits
     }
+    
     static func parseNumber<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
         var state = NumberParsingState.initial
         
@@ -464,8 +458,7 @@ extension JSValue {
                                 if let scalar = UnicodeScalar(codepoint) {
                                   let character = String(describing: scalar)
                                   let data = character.data(using: String.Encoding.utf8, allowLossyConversion: false)!
-                                  let ptr = (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count)
-                                  let escapeBytes = UnsafeBufferPointer<UInt8>(start: ptr, count: data.count)
+                                  let escapeBytes = [UInt8](data)
                                   bytes.append(contentsOf: escapeBytes)
                                 } else {
                                   let info = [

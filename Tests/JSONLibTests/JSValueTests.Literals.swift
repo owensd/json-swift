@@ -130,4 +130,21 @@ class JSValueLiteralsTests : XCTestCase {
         XCTAssertTrue(json["blogs"]["blog"][0]["id"].number == 73)
         XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool == true)
     }
+
+    static let allTests = [
+        ("testStringValue", testStringValue),
+        ("testCompareStringToNonStringValue", testCompareStringToNonStringValue),
+        ("testIntegerValue", testIntegerValue),
+        ("testUnderUnsafeMinimumIntegerValue", testUnderUnsafeMinimumIntegerValue),
+        ("testOverUnsafeMaximumIntegerValue", testOverUnsafeMaximumIntegerValue),
+        ("testUnsafeMinimumIntegerValue", testUnsafeMinimumIntegerValue),
+        ("testUnsafeMaximumIntegerValue", testUnsafeMaximumIntegerValue),
+        ("testDoubleValue", testDoubleValue),
+        ("testBoolTrueValue", testBoolTrueValue),
+        ("testBoolFalseValue", testBoolFalseValue),
+        ("testNilValue", testNilValue),
+        ("testBasicArray", testBasicArray),
+        ("testNestedArray", testNestedArray),
+        ("testFlickrResult", testFlickrResult),
+    ]
 }
