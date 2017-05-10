@@ -214,6 +214,20 @@ class JSValueUsageTests : XCTestCase {
 //        let expected = "{\"id\":73.0,\"password\":true,\"name\":\"Bloxus test\",\"url\":\"http://remote.bloxus.com/\"}"
 //        XCTAssertEqual(str, expected)
 //    }
+
+   func testStringifyWithFlatPrintOut() {
+       var json: JSON = [
+           "id" : [
+               "nested": [
+                   "value": "hi"
+               ]
+           ]
+       ]
+       
+       let str = json.stringify(nil)
+       let expected = "{\"id\": {\"nested\": {\"value\": \"hi\"}}}"
+       XCTAssertEqual(str, expected)
+   }
 }
 
 // MARK: Test Helpers

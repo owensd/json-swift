@@ -173,11 +173,12 @@ extension JSValue : CustomStringConvertible {
     
     /// Attempts to convert the `JSValue` into its string representation.
     ///
-    /// - parameter indent: the indent string to use; defaults to "  "
+    /// - parameter indent: the indent string to use; defaults to "  ". If `nil` is
+    ///                     given, then the JSON is flattened.
     ///
     /// - returns: A `FailableOf<T>` that will contain the `String` value if successful,
     ///           otherwise, the `Error` information for the conversion.
-    public func stringify(_ indent: String = "  ") -> String {
+    public func stringify(_ indent: String? = "  ") -> String {
         return prettyPrint(indent, 0)
     }
     
@@ -227,14 +228,16 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 }
 
 extension JSValue {
-    func prettyPrint(_ indent: String, _ level: Int) -> String {
+    func prettyPrint(_ indent: String?, _ level: Int) -> String {
         var currentIndent = ""
+        let nextIndentLevel = level + (indent == nil ? 0 : 1)
+
         for _ in (0..<level) {
-            currentIndent += indent
+            currentIndent += indent ?? ""
         }
-        let nextIndent = currentIndent + indent
+        let nextIndent = currentIndent + (indent ?? "")
         
-        let newline = indent == "" ? "" : "\n"
+        let newline = (indent == nil || indent == "") ? "" : "\n"
         let space = indent == "" ? "" : " "
         
         switch self.value {
@@ -250,13 +253,13 @@ extension JSValue {
             
         case .jsArray(let array):
             let start = "[\(newline)"
-            let content = (array.map({"\(nextIndent)\($0.prettyPrint(indent, level + 1))" })).joined(separator: ",\(newline)")
+            let content = (array.map({"\(nextIndent)\($0.prettyPrint(indent, nextIndentLevel))" })).joined(separator: ",\(newline)")
             let end = "\(newline)\(currentIndent)]"
             return start + content + end
             
         case .jsObject(let dict):
             let start = "{\(newline)"
-            let content = (dict.map({ "\(nextIndent)\"\($0.replacingOccurrences(of: "\"", with: "\\\""))\":\(space)\($1.prettyPrint(indent, level + 1))"})).joined(separator: ",\(newline)")
+            let content = (dict.map({ "\(nextIndent)\"\($0.replacingOccurrences(of: "\"", with: "\\\""))\":\(space)\($1.prettyPrint(indent, nextIndentLevel))"})).joined(separator: ",\(newline)")
             let end = "\(newline)\(currentIndent)}"
             return start + content + end
             
