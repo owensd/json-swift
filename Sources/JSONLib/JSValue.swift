@@ -245,7 +245,13 @@ extension JSValue {
             return bool ? "true" : "false"
             
         case .jsNumber(let number):
-            return "\(number)"
+            // JSON only stores doubles (and only 54 bits of it!). If the number actually ends in just '.0',
+            // truncate it here as it should really just be output as an integer value.
+            var value = "\(number)"
+            if value.hasSuffix(".0") {
+                value = value.replacingOccurrences(of: ".0", with: "")
+            }
+            return value
             
         case .jsString(let string):
             let escaped = string.replacingOccurrences(of: "\"", with: "\\\"")

@@ -216,7 +216,7 @@ class JSValueUsageTests : XCTestCase {
 //    }
 
    func testStringifyWithFlatPrintOut() {
-       var json: JSON = [
+       let json: JSON = [
            "id" : [
                "nested": [
                    "value": "hi"
@@ -226,6 +226,26 @@ class JSValueUsageTests : XCTestCase {
        
        let str = json.stringify(nil)
        let expected = "{\"id\": {\"nested\": {\"value\": \"hi\"}}}"
+       XCTAssertEqual(str, expected)
+   }
+
+    func testStringifyWithIntegerValue() {
+       let json: JSON = [
+           "id": 12
+       ]
+       
+       let str = json.stringify(nil)
+       let expected = "{\"id\": 12}"
+       XCTAssertEqual(str, expected)
+   }
+
+    func testStringifyWithDoubleValue() {
+       let json: JSON = [
+           "id": 12.01
+       ]
+       
+       let str = json.stringify(nil)
+       let expected = "{\"id\": 12.01}"
        XCTAssertEqual(str, expected)
    }
 }
