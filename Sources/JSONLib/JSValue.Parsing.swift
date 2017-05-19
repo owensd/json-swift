@@ -6,75 +6,68 @@
 import Foundation
 
 extension JSValue {
-    /// The type that represents the result of the parse.
-    public typealias JSParsingResult = (value: JSValue?, error: Error?)
-
-    public static func parse(_ string: String) -> JSParsingResult {
+    public static func parse(_ string: String) throws -> JSValue {
         let data = string.data(using: String.Encoding.utf8, allowLossyConversion: false)!
-        return parse(data)
+        return try parse(data)
     }
 
-    public static func parse(_ data: Data) -> JSParsingResult {
-        return parse([UInt8](data))
+    public static func parse(_ data: Data) throws -> JSValue {
+        return try parse([UInt8](data))
     }
 
     /// Parses the given sequence of UTF8 code points and attempts to return a `JSValue` from it.
     /// - parameter seq: The sequence of UTF8 code points.
     /// - returns: A `JSParsingResult` containing the parsed `JSValue` or error information.
-    public static func parse(_ seq: [UInt8]) -> JSParsingResult {
+    public static func parse(_ seq: [UInt8]) throws -> JSValue {
         let generator = ReplayableGenerator(seq)
 
-        let result = parse(generator)
-        if let value = result.value {
-            for codeunit in generator {
-                if codeunit.isWhitespace() { continue }
-                else {
-                    let remainingText = substring(generator)
-                    
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(remainingText)"]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
-                }
+        let value = try parse(generator)
+        for codeunit in generator {
+            if codeunit.isWhitespace() { continue }
+            else {
+                let remainingText = substring(generator)
+                
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(remainingText)"]
+                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
-
-            return (value, nil)
         }
-        
-        return result
+
+        return value
     }
 
-    static func parse<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+    static func parse<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
         for codeunit in generator {
             if codeunit.isWhitespace() { continue }
             
             if codeunit == Token.LeftCurly {
-                return JSValue.parseObject(generator)
+                return try JSValue.parseObject(generator)
             }
             else if codeunit == Token.LeftBracket {
-                return JSValue.parseArray(generator)
+                return try JSValue.parseArray(generator)
             }
             else if codeunit.isDigit() || codeunit == Token.Minus {
-                return JSValue.parseNumber(generator)
+                return try JSValue.parseNumber(generator)
             }
             else if codeunit == Token.t {
-                return JSValue.parseTrue(generator)
+                return try JSValue.parseTrue(generator)
             }
             else if codeunit == Token.f {
-                return JSValue.parseFalse(generator)
+                return try JSValue.parseFalse(generator)
             }
             else if codeunit == Token.n {
-                return JSValue.parseNull(generator)
+                return try JSValue.parseNull(generator)
             }
             else if codeunit == Token.DoubleQuote || codeunit == Token.SingleQuote {
-                return JSValue.parseString(generator, quote: codeunit)
+                return try JSValue.parseString(generator, quote: codeunit)
             }
         }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "No valid JSON value was found to parse in string."]
-        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     enum ObjectParsingState {
@@ -83,7 +76,7 @@ extension JSValue {
         case value
     }
 
-    static func parseObject<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+    static func parseObject<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
         var state = ObjectParsingState.initial
 
         var key = ""
@@ -97,13 +90,13 @@ extension JSValue {
                 case .initial: fallthrough
                 case .value:
                     let _ = generator.next()        // eat the '}'
-                    return (JSValue(object), nil)
+                    return JSValue(object)
                     
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Expected token '}' at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             case (_, Token.SingleQuote): fallthrough
@@ -112,20 +105,14 @@ extension JSValue {
                 case .initial:
                     state = .key
                     
-                    let parsedKey = parseString(generator, quote: codeunit)
-                    if let parsedKey = parsedKey.value?.string {
-                        key = parsedKey
-                        generator.replay()
-                    }
-                    else {
-                        return (nil, parsedKey.error)
-                    }
+                    key = try parseString(generator, quote: codeunit).string!
+                    generator.replay()
                     
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Expected token ''' (single quote) or '\"' at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             case (_, Token.Colon):
@@ -133,20 +120,15 @@ extension JSValue {
                 case .key:
                     state = .value
                     
-                    let parsedValue = parse(generator)
-                    if let value = parsedValue.value {
-                        object[key] = value
-                        generator.replay()
-                    }
-                    else {
-                        return (nil, parsedValue.error)
-                    }
+                    let value = try parse(generator)
+                    object[key] = value
+                    generator.replay()
 
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Expected token ':' at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             case (_, Token.Comma):
@@ -159,7 +141,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Expected token ',' at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             default:
@@ -168,7 +150,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
             }
         }
@@ -176,10 +158,10 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse object. Context: '\(contextualString(generator))'."]
-        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
-    static func parseArray<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+    static func parseArray<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
         var values = [JSValue]()
 
         for (idx, codeunit) in generator.enumerated() {
@@ -187,19 +169,14 @@ extension JSValue {
             case (0, Token.LeftBracket): continue
             case (_, Token.RightBracket):
                 let _ = generator.next()        // eat the ']'
-                return (JSValue(JSBackingValue.jsArray(values)), nil)
+                return JSValue(JSBackingValue.jsArray(values))
 
             default:
                 if codeunit.isWhitespace() || codeunit == Token.Comma { continue }
                 else {
-                    let parsedValue = parse(generator)
-                    if let value = parsedValue.value {
-                        values.append(value)
-                        generator.replay()
-                    }
-                    else {
-                        return (nil, parsedValue.error)
-                    }
+                    let value = try parse(generator)
+                    values.append(value)
+                    generator.replay()
                 }
             }
         }
@@ -207,7 +184,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse array. Context: '\(contextualString(generator))'."]
-        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     enum NumberParsingState {
@@ -218,7 +195,7 @@ extension JSValue {
         case exponentDigits
     }
     
-    static func parseNumber<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+    static func parseNumber<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
         var state = NumberParsingState.initial
         
         var number = 0.0
@@ -271,26 +248,26 @@ extension JSValue {
                     
             default:
                 if codeunit.isValidTerminator() {
-                    return (JSValue(JSBackingValue.jsNumber(exp(number, exponent * exponentSign) * numberSign)), nil)
+                    return JSValue(JSBackingValue.jsNumber(exp(number, exponent * exponentSign) * numberSign))
                 }
                 else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). State: \(state). Context: '\(contextualString(generator))'."]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
             }
         }
 
-        if generator.atEnd() { return (JSValue(exp(number, exponent * exponentSign) * numberSign), nil) }
+        if generator.atEnd() { return JSValue(exp(number, exponent * exponentSign) * numberSign) }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse array. Context: '\(contextualString(generator))'."]
-        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
     
-    static func parseTrue<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+    static func parseTrue<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.t): continue
@@ -298,26 +275,26 @@ extension JSValue {
             case (2, Token.u): continue
             case (3, Token.e): continue
             case (4, _):
-                if codeunit.isValidTerminator() { return (JSValue(true), nil) }
+                if codeunit.isValidTerminator() { return JSValue(true) }
                 fallthrough
 
             default:
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
 
-        if generator.atEnd() { return (JSValue(true), nil) }
+        if generator.atEnd() { return JSValue(true) }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'true' literal. Context: '\(contextualString(generator))'."]
-        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
     
-    static func parseFalse<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+    static func parseFalse<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.f): continue
@@ -326,26 +303,26 @@ extension JSValue {
             case (3, Token.s): continue
             case (4, Token.e): continue
             case (5, _):
-                if codeunit.isValidTerminator() { return (JSValue(false), nil) }
+                if codeunit.isValidTerminator() { return JSValue(false) }
                 fallthrough
 
             default:
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
 
-        if generator.atEnd() { return (JSValue(false), nil) }
+        if generator.atEnd() { return JSValue(false) }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'false' literal. Context: '\(contextualString(generator))'."]
-        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
     
-    static func parseNull<S: Sequence>(_ generator: ReplayableGenerator<S>) -> JSParsingResult where S.Iterator.Element == UInt8 {
+    static func parseNull<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.n): continue
@@ -353,23 +330,23 @@ extension JSValue {
             case (2, Token.l): continue
             case (3, Token.l): continue
             case (4, _):
-                if codeunit.isValidTerminator() { return (JSValue(JSBackingValue.jsNull), nil) }
+                if codeunit.isValidTerminator() { return JSValue(JSBackingValue.jsNull) }
                 fallthrough
 
             default:
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
 
-        if generator.atEnd() { return (JSValue(JSBackingValue.jsNull), nil) }
+        if generator.atEnd() { return JSValue(JSBackingValue.jsNull) }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'null' literal. Context: '\(contextualString(generator))'."]
-        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     fileprivate static func parseHexDigit(_ digit: UInt8) -> Int? {
@@ -384,7 +361,7 @@ extension JSValue {
         }
     }
     
-    static func parseString<S: Sequence>(_ generator: ReplayableGenerator<S>, quote: UInt8) -> JSParsingResult where S.Iterator.Element == UInt8 {
+    static func parseString<S: Sequence>(_ generator: ReplayableGenerator<S>, quote: UInt8) throws -> JSValue where S.Iterator.Element == UInt8 {
         var bytes = [UInt8]()
 
         for (idx, codeunit) in generator.enumerated() {
@@ -395,13 +372,13 @@ extension JSValue {
 
                 if let string = String(bytes: bytes, encoding: .utf8) {
                   bytes = []
-                  return (JSValue(string), nil)
+                  return JSValue(string)
                 }
                 else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unable to convert the parsed bytes into a string. Bytes: \(bytes)'."]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             case (_, Token.Backslash):
@@ -451,7 +428,7 @@ extension JSValue {
                                     let info = [
                                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                         ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
-                                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                                 }
 
                                 let codepoint = (value1! << 12) | (value2! << 8) | (value3! << 4) | value4!;
@@ -464,14 +441,14 @@ extension JSValue {
                                   let info = [
                                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                     ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar"]
-                                  return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                                  throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                                 }
 
                             default:
                                 let info = [
                                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                     ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
-                                return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
                         }
 
@@ -479,14 +456,14 @@ extension JSValue {
                         let info = [
                             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                             ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx + 1). Token: \(next). Context: '\(contextualString(generator))'."]
-                        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                     }
                 }
                 else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             default:
@@ -497,7 +474,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse string. Context: '\(contextualString(generator))'."]
-        return (nil, Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info))
+        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
     
 

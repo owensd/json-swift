@@ -28,7 +28,7 @@ guard let contents = try? NSString(contentsOfFile: testFile, encoding: String.En
 
 let filename = testFile.components(separatedBy: "/").last!
 let shouldParse = filename.hasPrefix("y_")
-let json = JSON.parse(contents as String)
+let json = try JSON.parse(contents as String)
 if shouldParse {
     if json.error != nil {
         print("** error parsing file: \(testFile)")

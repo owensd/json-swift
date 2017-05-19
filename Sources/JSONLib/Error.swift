@@ -11,7 +11,7 @@
 /// Example:
 ///   `func readContentsOfFileAtPath(path: String) -> Failable<String>`
 ///
-public final class Error {
+public final class Error: Swift.Error {
     public typealias ErrorInfoDictionary = [String:String]
 
     /// The error code used to differentiate between various error states.
