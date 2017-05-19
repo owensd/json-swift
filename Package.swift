@@ -8,5 +8,8 @@ let package = Package(
         Target(name: "JSONLib", dependencies: []),
         Target(name: "ParserTestHarness", dependencies: ["JSONLib"]),
         Target(name: "ParserPerfTestHarness", dependencies: ["JSONLib"])
+    ],
+    dependencies: [
+         .Package(url: "https://github.com/bignerdranch/Freddy.git", majorVersion: 3)
     ]
 )

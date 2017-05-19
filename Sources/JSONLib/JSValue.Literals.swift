@@ -50,7 +50,7 @@ extension JSValue : ExpressibleByArrayLiteral {
 
 extension JSValue : ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (String, JSValue)...) {
-        var dict = JSObjectType()
+        var dict = [String:JSValue]()
         for (k, v) in elements {
             dict[k] = v
         }
@@ -61,7 +61,7 @@ extension JSValue : ExpressibleByDictionaryLiteral {
 
 extension JSValue : ExpressibleByNilLiteral {
     public init(nilLiteral: ()) {
-        self = JSValue(JSBackingValue.jsNull)
+        self = .null
     }
 }
 

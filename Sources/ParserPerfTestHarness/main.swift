@@ -6,6 +6,7 @@
 import Foundation
 import JSONLib
 import QuartzCore
+import Freddy
 
 func printUsage() -> Never {
     print("usage: ParserPerfTestHarness [test file]")
@@ -99,15 +100,23 @@ let baselinePerfResults = try performance { let _ = try? JSONSerialization.jsonO
 print("memory results: \(baselineMemoryResults.description)")
 print("performance results: \(baselinePerfResults.description)")
 
-let diffMemoryResults = Results(
-    minimum: diff(memoryResults.minimum, baselineMemoryResults.minimum),
-    maximum: diff(memoryResults.maximum, baselineMemoryResults.maximum),
-    average: diff(memoryResults.average, baselineMemoryResults.average))
-let diffPerfResults = Results(
-    minimum: diff(perfResults.minimum, baselinePerfResults.minimum),
-    maximum: diff(perfResults.maximum, baselinePerfResults.maximum),
-    average: diff(perfResults.average, baselinePerfResults.average))
+// let diffMemoryResults = Results(
+//     minimum: diff(memoryResults.minimum, baselineMemoryResults.minimum),
+//     maximum: diff(memoryResults.maximum, baselineMemoryResults.maximum),
+//     average: diff(memoryResults.average, baselineMemoryResults.average))
+// let diffPerfResults = Results(
+//     minimum: diff(perfResults.minimum, baselinePerfResults.minimum),
+//     maximum: diff(perfResults.maximum, baselinePerfResults.maximum),
+//     average: diff(perfResults.average, baselinePerfResults.average))
 
-print("baseline difference:")
-print("memory results: \(diffMemoryResults.description)")
-print("performance results: \(diffPerfResults.description)")
+// print("baseline difference:")
+// print("memory results: \(diffMemoryResults.description)")
+// print("performance results: \(diffPerfResults.description)")
+
+print("Freddy Results:")
+
+let freddyMemoryResults = try memory { let _ = try? JSON(data: data) }
+let freddyPerfResults = try performance { let _ = try? JSON(data: data) }
+
+print("memory results: \(freddyMemoryResults.description)")
+print("performance results: \(freddyPerfResults.description)")

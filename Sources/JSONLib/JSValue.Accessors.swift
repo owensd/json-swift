@@ -11,10 +11,10 @@ extension JSValue {
     
     /// Attempts to retrieve a `String` out of the `JSValue`.
     ///
-    /// - returns: If the `JSValue` is a `JSString`, then the stored `String` value is returned, otherwise `nil`.
+    /// - returns: If the `JSValue` is a `String`, then the stored `String` value is returned, otherwise `nil`.
     public var string: String? {
-        switch self.value {
-        case .jsString(let value): return value
+        switch self {
+        case .string(let value): return value
         default: return nil
         }
     }
@@ -23,28 +23,39 @@ extension JSValue {
     ///
     /// - returns: If the `JSValue` is a `JSNumber`, then the stored `Double` value is returned, otherwise `nil`.
     public var number: Double? {
-        switch self.value {
-        case .jsNumber(let value): return value
+        switch self {
+        case .number(let value): return value
         default: return nil
         }
     }
+
+    /// Attempts to retrieve an `Int` out of the `JSValue`.
+    ///
+    /// - returns: If the `JSValue` is a `Double`, then the stored `Double` value is returned, otherwise `nil`.
+    public var integer: Int? {
+        switch self {
+        case .number(let value): return Int(value)
+        default: return nil
+        }
+    }
+
     
     /// Attempts to retrieve a `Bool` out of the `JSValue`.
     ///
-    /// - returns: If the `JSValue` is a `JSBool`, then the stored `Double` value is returned, otherwise `nil`.
+    /// - returns: If the `JSValue` is a `Bool`, then the stored `Bool` value is returned, otherwise `nil`.
     public var bool: Bool? {
-        switch self.value {
-        case .jsBool(let value): return value
+        switch self {
+        case .bool(let value): return value
         default: return nil
         }
     }
 
     /// Attempts to retrieve a `[String:JSValue]` out of the `JSValue`.
     ///
-    /// - returns: If the `JSValue` is a `JSObject`, then the stored `[String:JSValue]` value is returned, otherwise `nil`.
+    /// - returns: If the `JSValue` is a `[String:JSValue]`, then the stored `[String:JSValue]` value is returned, otherwise `nil`.
     public var object: [String:JSValue]? {
-        switch self.value {
-        case .jsObject(let value): return value
+        switch self {
+        case .object(let value): return value
         default: return nil
         }
     }
@@ -53,8 +64,8 @@ extension JSValue {
     ///
     /// - returns: If the `JSValue` is a `JSArray`, then the stored `[JSValue]` value is returned, otherwise `nil`.
     public var array: [JSValue]? {
-        switch self.value {
-        case .jsArray(let value): return value
+        switch self {
+        case .array(let value): return value
         default: return nil
         }
     }
@@ -63,8 +74,8 @@ extension JSValue {
     ///
     /// - returns: If the `JSValue` is a `JSNull`, then the `true` is returned, otherwise `false`.
     public var null: Bool {
-        switch self.value {
-        case .jsNull: return true
+        switch self {
+        case .null: return true
         default: return false
         }
     }
@@ -73,7 +84,7 @@ extension JSValue {
     ///
     /// - returns: `true` if the `JSValue` has a valid value stored, `false` if the `JSValue` is `Invalid`.
     public var hasValue: Bool {
-        switch self.value {
+        switch self {
         case .invalid(_): return false
         default: return true
         }
@@ -81,7 +92,7 @@ extension JSValue {
     
     /// The error information that is held when `hasValue` is `false`.
     public var error: Error? {
-        switch self.value {
+        switch self {
         case .invalid(let error): return error
         default: return nil
         }

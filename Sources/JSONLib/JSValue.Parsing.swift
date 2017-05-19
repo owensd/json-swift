@@ -80,7 +80,7 @@ extension JSValue {
         var state = ObjectParsingState.initial
 
         var key = ""
-        var object = JSObjectType()
+        var object = [String:JSValue]()
 
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
@@ -169,7 +169,7 @@ extension JSValue {
             case (0, Token.LeftBracket): continue
             case (_, Token.RightBracket):
                 let _ = generator.next()        // eat the ']'
-                return JSValue(JSBackingValue.jsArray(values))
+                return JSValue(values)
 
             default:
                 if codeunit.isWhitespace() || codeunit == Token.Comma { continue }
@@ -248,7 +248,7 @@ extension JSValue {
                     
             default:
                 if codeunit.isValidTerminator() {
-                    return JSValue(JSBackingValue.jsNumber(exp(number, exponent * exponentSign) * numberSign))
+                    return JSValue(exp(number, exponent * exponentSign) * numberSign)
                 }
                 else {
                     let info = [
@@ -330,7 +330,7 @@ extension JSValue {
             case (2, Token.l): continue
             case (3, Token.l): continue
             case (4, _):
-                if codeunit.isValidTerminator() { return JSValue(JSBackingValue.jsNull) }
+                if codeunit.isValidTerminator() { return .null }
                 fallthrough
 
             default:
@@ -341,7 +341,7 @@ extension JSValue {
             }
         }
 
-        if generator.atEnd() { return JSValue(JSBackingValue.jsNull) }
+        if generator.atEnd() { return .null }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
