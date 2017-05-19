@@ -8,39 +8,47 @@ import Foundation
 extension JSValue {
     public static func parse(_ string: String) throws -> JSValue {
         let data = string.data(using: String.Encoding.utf8, allowLossyConversion: false)!
-        return try parse(data)
-    }
+        return try data.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) -> JSValue in
+            let buffer = UnsafeBufferPointer(start: ptr, count: data.count)
+            let generator = ReplayableGenerator(buffer)
 
-    public static func parse(_ data: Data) throws -> JSValue {
-        return try parse([UInt8](data))
+            let value = try parse(generator)
+            try validateRemainingContent(generator)
+            return value
+        }
     }
 
     /// Parses the given sequence of UTF8 code points and attempts to return a `JSValue` from it.
     /// - parameter seq: The sequence of UTF8 code points.
     /// - returns: A `JSParsingResult` containing the parsed `JSValue` or error information.
-    public static func parse(_ seq: [UInt8]) throws -> JSValue {
-        let generator = ReplayableGenerator(seq)
+    public static func parse(_ bytes: [UInt8]) throws -> JSValue {
+        return try bytes.withUnsafeBufferPointer { ptr in
+            let generator = ReplayableGenerator(ptr)
 
-        let value = try parse(generator)
+            let value = try parse(generator)
+            try validateRemainingContent(generator)
+            return value
+        }
+    }
+
+    static func validateRemainingContent(_ generator: ReplayableGenerator) throws {
         for codeunit in generator {
             if codeunit.isWhitespace() { continue }
             else {
                 let remainingText = substring(generator)
-                
+
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(remainingText)"]
                 throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
-
-        return value
     }
 
-    static func parse<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
+    static func parse(_ generator: ReplayableGenerator) throws -> JSValue {
         for codeunit in generator {
             if codeunit.isWhitespace() { continue }
-            
+
             if codeunit == Token.LeftCurly {
                 return try JSValue.parseObject(generator)
             }
@@ -76,7 +84,7 @@ extension JSValue {
         case value
     }
 
-    static func parseObject<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
+    static func parseObject(_ generator: ReplayableGenerator) throws -> JSValue {
         var state = ObjectParsingState.initial
 
         var key = ""
@@ -91,7 +99,7 @@ extension JSValue {
                 case .value:
                     let _ = generator.next()        // eat the '}'
                     return JSValue(object)
-                    
+
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
@@ -104,10 +112,10 @@ extension JSValue {
                 switch state {
                 case .initial:
                     state = .key
-                    
+
                     key = try parseString(generator, quote: codeunit).string!
                     generator.replay()
-                    
+
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
@@ -119,7 +127,7 @@ extension JSValue {
                 switch state {
                 case .key:
                     state = .value
-                    
+
                     let value = try parse(generator)
                     object[key] = value
                     generator.replay()
@@ -136,7 +144,7 @@ extension JSValue {
                 case .value:
                     state = .initial
                     key = ""
-                    
+
                 default:
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
@@ -154,14 +162,14 @@ extension JSValue {
                 }
             }
         }
-        
+
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse object. Context: '\(contextualString(generator))'."]
         throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
-    static func parseArray<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
+    static func parseArray(_ generator: ReplayableGenerator) throws -> JSValue {
         var values = [JSValue]()
 
         for (idx, codeunit) in generator.enumerated() {
@@ -180,7 +188,7 @@ extension JSValue {
                 }
             }
         }
-        
+
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse array. Context: '\(contextualString(generator))'."]
@@ -194,16 +202,16 @@ extension JSValue {
         case exponent
         case exponentDigits
     }
-    
-    static func parseNumber<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
+
+    static func parseNumber(_ generator: ReplayableGenerator) throws -> JSValue {
         var state = NumberParsingState.initial
-        
+
         var number = 0.0
         var numberSign = 1.0
         var depth = 0.1
         var exponent = 0
         var exponentSign = 1
-        
+
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit, state) {
             case (0, Token.Minus, NumberParsingState.initial):
@@ -226,15 +234,15 @@ extension JSValue {
 
             case (_, Token.Zero...Token.Nine, NumberParsingState.whole):
                 number = number * 10 + Double(codeunit - Token.Zero)
-                    
+
             case (_, Token.Zero...Token.Nine, NumberParsingState.decimal):
                 number = number + depth * Double(codeunit - Token.Zero)
                 depth /= 10
-                    
+
             case (_, Token.Zero...Token.Nine, NumberParsingState.exponent):
                 state = .exponentDigits
                 fallthrough
-                    
+
             case (_, Token.Zero...Token.Nine, NumberParsingState.exponentDigits):
                 exponent = exponent * 10 + Int(codeunit) - Int(Token.Zero)
 
@@ -245,7 +253,7 @@ extension JSValue {
             case (_, Token.E, NumberParsingState.whole):      state = .exponent
             case (_, Token.e, NumberParsingState.decimal):    state = .exponent
             case (_, Token.E, NumberParsingState.decimal):    state = .exponent
-                    
+
             default:
                 if codeunit.isValidTerminator() {
                     return JSValue(exp(number, exponent * exponentSign) * numberSign)
@@ -266,8 +274,8 @@ extension JSValue {
             ErrorKeys.LocalizedFailureReason: "Unable to parse array. Context: '\(contextualString(generator))'."]
         throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
-    
-    static func parseTrue<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
+
+    static func parseTrue(_ generator: ReplayableGenerator) throws -> JSValue {
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.t): continue
@@ -293,8 +301,8 @@ extension JSValue {
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'true' literal. Context: '\(contextualString(generator))'."]
         throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
-    
-    static func parseFalse<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
+
+    static func parseFalse(_ generator: ReplayableGenerator) throws -> JSValue {
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.f): continue
@@ -321,8 +329,8 @@ extension JSValue {
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'false' literal. Context: '\(contextualString(generator))'."]
         throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
-    
-    static func parseNull<S: Sequence>(_ generator: ReplayableGenerator<S>) throws -> JSValue where S.Iterator.Element == UInt8 {
+
+    static func parseNull(_ generator: ReplayableGenerator) throws -> JSValue {
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.n): continue
@@ -360,8 +368,8 @@ extension JSValue {
             return nil
         }
     }
-    
-    static func parseString<S: Sequence>(_ generator: ReplayableGenerator<S>, quote: UInt8) throws -> JSValue where S.Iterator.Element == UInt8 {
+
+    static func parseString(_ generator: ReplayableGenerator, quote: UInt8) throws -> JSValue {
         var bytes = [UInt8]()
 
         for (idx, codeunit) in generator.enumerated() {
@@ -371,8 +379,8 @@ extension JSValue {
                 let _ = generator.next()        // eat the quote
 
                 if let string = String(bytes: bytes, encoding: .utf8) {
-                  bytes = []
-                  return JSValue(string)
+                    bytes = []
+                    return JSValue(string)
                 }
                 else {
                     let info = [
@@ -389,10 +397,10 @@ extension JSValue {
 
                     case Token.Backslash:
                         bytes.append(Token.Backslash)
-                        
+
                     case Token.Forwardslash:
                         bytes.append(Token.Forwardslash)
-                        
+
                     case quote:
                         bytes.append(Token.DoubleQuote)
 
@@ -416,39 +424,39 @@ extension JSValue {
                         let c2 = generator.next()
                         let c3 = generator.next()
                         let c4 = generator.next()
-                        
+
                         switch (c1, c2, c3, c4) {
-                            case let (.some(c1), .some(c2), .some(c3), .some(c4)):
-                                let value1 = parseHexDigit(c1)
-                                let value2 = parseHexDigit(c2)
-                                let value3 = parseHexDigit(c3)
-                                let value4 = parseHexDigit(c4)
-                                
-                                if value1 == nil || value2 == nil || value3 == nil || value4 == nil {
-                                    let info = [
-                                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                                        ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
-                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
-                                }
+                        case let (.some(c1), .some(c2), .some(c3), .some(c4)):
+                            let value1 = parseHexDigit(c1)
+                            let value2 = parseHexDigit(c2)
+                            let value3 = parseHexDigit(c3)
+                            let value4 = parseHexDigit(c4)
 
-                                let codepoint = (value1! << 12) | (value2! << 8) | (value3! << 4) | value4!;
-                                if let scalar = UnicodeScalar(codepoint) {
-                                  let character = String(describing: scalar)
-                                  let data = character.data(using: String.Encoding.utf8, allowLossyConversion: false)!
-                                  let escapeBytes = [UInt8](data)
-                                  bytes.append(contentsOf: escapeBytes)
-                                } else {
-                                  let info = [
-                                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                                    ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar"]
-                                  throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
-                                }
-
-                            default:
+                            if value1 == nil || value2 == nil || value3 == nil || value4 == nil {
                                 let info = [
                                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                     ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
                                 throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                            }
+
+                            let codepoint = (value1! << 12) | (value2! << 8) | (value3! << 4) | value4!;
+                            if let scalar = UnicodeScalar(codepoint) {
+                                let character = String(describing: scalar)
+                                let data = character.data(using: String.Encoding.utf8, allowLossyConversion: false)!
+                                let escapeBytes = [UInt8](data)
+                                bytes.append(contentsOf: escapeBytes)
+                            } else {
+                                let info = [
+                                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                    ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar"]
+                                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                            }
+
+                        default:
+                            let info = [
+                                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
+                            throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
                         }
 
@@ -476,22 +484,22 @@ extension JSValue {
             ErrorKeys.LocalizedFailureReason: "Unable to parse string. Context: '\(contextualString(generator))'."]
         throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
-    
+
 
     // MARK: Helper functions
 
-    static func substring<S: Sequence>(_ generator: ReplayableGenerator<S>) -> String where S.Iterator.Element == UInt8 {
+    static func substring(_ generator: ReplayableGenerator) -> String {
         var string = ""
 
         for codeunit in generator {
             string += String(codeunit)
         }
-        
+
         return string
     }
 
 
-    static func contextualString<S: Sequence>(_ generator: ReplayableGenerator<S>, left: Int = 5, right: Int = 10) -> String where S.Iterator.Element == UInt8 {
+    static func contextualString(_ generator: ReplayableGenerator, left: Int = 5, right: Int = 10) -> String {
         var string = ""
 
         for _ in 0..<left {
@@ -502,10 +510,10 @@ extension JSValue {
             let codeunit = generator.next() ?? 0
             string += String(codeunit)
         }
-        
+
         return string
     }
-    
+
     static func exp(_ number: Double, _ exp: Int) -> Double {
         return exp < 0 ?
             (0 ..< abs(exp)).reduce(number, { x, _ in x / 10 }) :
@@ -514,7 +522,7 @@ extension JSValue {
 }
 
 extension UInt8 {
-    
+
     /// Determines if the `UnicodeScalar` represents one of the standard Unicode whitespace characters.
     ///
     /// :return: `true` if the scalar is a Unicode whitespace character; `false` otherwise.
@@ -525,17 +533,17 @@ extension UInt8 {
         if self == 0xA0                        { return true }     // White_Space # Zs       NO-BREAK SPACE
 
         // TODO: These are no longer possible to be hit... does it matter???
-//        if self == 0x1680                      { return true }     // White_Space # Zs       OGHAM SPACE MARK
-//        if self >= 0x2000 && self <= 0x200A    { return true }     // White_Space # Zs  [11] EN QUAD..HAIR SPACE
-//        if self == 0x2028                      { return true }     // White_Space # Zl       LINE SEPARATOR
-//        if self == 0x2029                      { return true }     // White_Space # Zp       PARAGRAPH SEPARATOR
-//        if self == 0x202F                      { return true }     // White_Space # Zs       NARROW NO-BREAK SPACE
-//        if self == 0x205F                      { return true }     // White_Space # Zs       MEDIUM MATHEMATICAL SPACE
-//        if self == 0x3000                      { return true }     // White_Space # Zs       IDEOGRAPHIC SPACE
+        //        if self == 0x1680                      { return true }     // White_Space # Zs       OGHAM SPACE MARK
+        //        if self >= 0x2000 && self <= 0x200A    { return true }     // White_Space # Zs  [11] EN QUAD..HAIR SPACE
+        //        if self == 0x2028                      { return true }     // White_Space # Zl       LINE SEPARATOR
+        //        if self == 0x2029                      { return true }     // White_Space # Zp       PARAGRAPH SEPARATOR
+        //        if self == 0x202F                      { return true }     // White_Space # Zs       NARROW NO-BREAK SPACE
+        //        if self == 0x205F                      { return true }     // White_Space # Zs       MEDIUM MATHEMATICAL SPACE
+        //        if self == 0x3000                      { return true }     // White_Space # Zs       IDEOGRAPHIC SPACE
 
         return false
     }
-    
+
     /// Determines if the `UnicodeScalar` respresents a numeric digit.
     ///
     /// :return: `true` if the scalar is a Unicode numeric character; `false` otherwise.
@@ -554,49 +562,49 @@ extension UInt8 {
         return false
     }
 
-//    /// Stores the `UInt8` bytes that make up the UTF8 code points for the scalar.
-//    ///
-//    /// :param: buffer the buffer to write the UTF8 code points into.
-//    func utf8(inout buffer: [UInt8]) {
-//        /*
-//         *  This implementation should probably be replaced by the function below. However,
-//         *  I am not quite sure how to properly use `SinkType` yet...
-//         *
-//         *  UTF8.encode(input: UnicodeScalar, output: &S)
-//         */
-//
-//        if value <= 0x007F {
-//            buffer.append(UInt8(value))
-//        }
-//        else if 0x0080 <= value && value <= 0x07FF {
-//            buffer.append(UInt8(value &/ 64) &+ 192)
-//            buffer.append(UInt8(value &% 64) &+ 128)
-//        }
-//        else if (0x0800 <= value && value <= 0xD7FF) || (0xE000 <= value && value <= 0xFFFF) {
-//            buffer.append(UInt8(value &/ 4096) &+ 224)
-//            buffer.append(UInt8((value &% 4096) &/ 64) &+ 128)
-//            buffer.append(UInt8(value &% 64 &+ 128))
-//        }
-//        else {
-//            buffer.append(UInt8(value &/ 262144) &+ 240)
-//            buffer.append(UInt8((value &% 262144) &/ 4096) &+ 128)
-//            buffer.append(UInt8((value &% 4096) &/ 64) &+ 128)
-//            buffer.append(UInt8(value &% 64) &+ 128)
-//        }
-//    }
+    //    /// Stores the `UInt8` bytes that make up the UTF8 code points for the scalar.
+    //    ///
+    //    /// :param: buffer the buffer to write the UTF8 code points into.
+    //    func utf8(inout buffer: [UInt8]) {
+    //        /*
+    //         *  This implementation should probably be replaced by the function below. However,
+    //         *  I am not quite sure how to properly use `SinkType` yet...
+    //         *
+    //         *  UTF8.encode(input: UnicodeScalar, output: &S)
+    //         */
+    //
+    //        if value <= 0x007F {
+    //            buffer.append(UInt8(value))
+    //        }
+    //        else if 0x0080 <= value && value <= 0x07FF {
+    //            buffer.append(UInt8(value &/ 64) &+ 192)
+    //            buffer.append(UInt8(value &% 64) &+ 128)
+    //        }
+    //        else if (0x0800 <= value && value <= 0xD7FF) || (0xE000 <= value && value <= 0xFFFF) {
+    //            buffer.append(UInt8(value &/ 4096) &+ 224)
+    //            buffer.append(UInt8((value &% 4096) &/ 64) &+ 128)
+    //            buffer.append(UInt8(value &% 64 &+ 128))
+    //        }
+    //        else {
+    //            buffer.append(UInt8(value &/ 262144) &+ 240)
+    //            buffer.append(UInt8((value &% 262144) &/ 4096) &+ 128)
+    //            buffer.append(UInt8((value &% 4096) &/ 64) &+ 128)
+    //            buffer.append(UInt8(value &% 64) &+ 128)
+    //        }
+    //    }
 }
 
 /// The code unit value for all of the token characters used.
 struct Token {
     fileprivate init() {}
-    
+
     // Control Codes
     static let Linefeed         = UInt8(10)
     static let Backspace        = UInt8(8)
     static let Formfeed         = UInt8(12)
     static let CarriageReturn   = UInt8(13)
     static let HorizontalTab    = UInt8(9)
-    
+
     // Tokens for JSON
     static let LeftBracket      = UInt8(91)
     static let RightBracket     = UInt8(93)
