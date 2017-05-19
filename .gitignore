@@ -27,3 +27,4 @@ DerivedData
 
 .build
 .DS_Store
+json-swift.xcodeproj

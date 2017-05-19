@@ -11,10 +11,10 @@ import Swift
 class JSValuePerformanceTests: XCTestCase {
     
     func baseline(_ name: String) {
-        let path = Bundle(for: JSValuePerformanceTests.self).path(forResource: name, ofType: "json")
+        let path = "/Users/owensd/Projects/json-swift/TestCollateral/\(name).json"
         XCTAssertNotNil(path)
         
-        let data = try! Data(contentsOf: URL(fileURLWithPath: path!))
+        let data = try! Data(contentsOf: URL(fileURLWithPath: path))
         XCTAssertNotNil(data)
         
         self.measure() {
@@ -29,10 +29,11 @@ class JSValuePerformanceTests: XCTestCase {
     }
     
     func library(_ name: String) {
-        let path = Bundle(for: JSValuePerformanceTests.self).path(forResource: name, ofType: "json")
+//        let path = Bundle(for: JSValuePerformanceTests.self).path(forResource: name, ofType: "json")
+        let path = "/Users/owensd/Projects/json-swift/TestCollateral/\(name).json"
         XCTAssertNotNil(path)
         
-        let data = try! Data(contentsOf: URL(fileURLWithPath: path!))
+        let data = try! Data(contentsOf: URL(fileURLWithPath: path))
         XCTAssertNotNil(data)
         
         self.measure() {
@@ -56,7 +57,7 @@ class JSValuePerformanceTests: XCTestCase {
 //    func testSmallLib() {
 //        library("small-dict")
 //    }
-    
+//    
 //    func testMediumBaseline() {
 //        baseline("medium-dict")
 //    }
