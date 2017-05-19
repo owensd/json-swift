@@ -86,37 +86,15 @@ let data = contents.data(using: .utf8)!
 let filename = testFile.components(separatedBy: "/").last!
 let shouldParse = filename.hasPrefix("y_")
 
-let memoryResults = try memory { let _ = try JSON.parse(contents) }
-let perfResults = try performance { let _ = try JSON.parse(contents) }
 
-print("memory results: \(memoryResults.description)")
-print("performance results: \(perfResults.description)")
+print("NSJONSerialization:")
+let nsjsonSerializationPerfResults = try performance { let _ = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) }
+print("performance results: \(nsjsonSerializationPerfResults)")
 
-print("baseline:")
+print("\nJSONLib:")
+let jsonlibPerfResults = try performance { let _ = try JSON.parse(contents) }
+print("performance results: \(jsonlibPerfResults)")
 
-let baselineMemoryResults = try memory { let _ = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) }
-let baselinePerfResults = try performance { let _ = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) }
-
-print("memory results: \(baselineMemoryResults.description)")
-print("performance results: \(baselinePerfResults.description)")
-
-// let diffMemoryResults = Results(
-//     minimum: diff(memoryResults.minimum, baselineMemoryResults.minimum),
-//     maximum: diff(memoryResults.maximum, baselineMemoryResults.maximum),
-//     average: diff(memoryResults.average, baselineMemoryResults.average))
-// let diffPerfResults = Results(
-//     minimum: diff(perfResults.minimum, baselinePerfResults.minimum),
-//     maximum: diff(perfResults.maximum, baselinePerfResults.maximum),
-//     average: diff(perfResults.average, baselinePerfResults.average))
-
-// print("baseline difference:")
-// print("memory results: \(diffMemoryResults.description)")
-// print("performance results: \(diffPerfResults.description)")
-
-print("Freddy Results:")
-
-let freddyMemoryResults = try memory { let _ = try? JSON(data: data) }
+print("\nFreddy Results:")
 let freddyPerfResults = try performance { let _ = try? JSON(data: data) }
-
-print("memory results: \(freddyMemoryResults.description)")
 print("performance results: \(freddyPerfResults.description)")
