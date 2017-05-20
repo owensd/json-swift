@@ -447,6 +447,30 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue == nil)
     }
 
+    func testParseStringUnescapedNewline() {
+        let string = "[\"new\nline\"]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseStringEscapedNewline() {
+        let string = "[\"new\\nline\"]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue != nil)
+    }
+
+    func testParseStringUnescapedTab() {
+        let string = "[\"new\tline\"]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseStringEscapedTab() {
+        let string = "[\"new\\tline\"]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue != nil)
+    }
+
 // TODO(owensd): This should be redone to support Linux as well.
 #if os(macOS)
     func testParsingSampleJSON() {

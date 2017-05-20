@@ -434,6 +434,30 @@ extension JSValue {
                         ErrorKeys.LocalizedFailureReason: "Unable to convert the parsed bytes into a string. Bytes: \(stringStorage)'."]
                     throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
+            
+            case (_, Token.HorizontalTab):
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "An unescaped TAB character is not allowed in a string."]
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+
+            case (_, Token.Linefeed):
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "An unescaped linefeed character is not allowed in a string."]
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+
+            case (_, Token.CarriageReturn):
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "An unescaped carriage return character is not allowed in a string."]
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+
+            case (_, Token.Formfeed):
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "An unescaped formfeed character is not allowed in a string."]
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
             case (_, Token.Backslash):
                 let next = generator.next()

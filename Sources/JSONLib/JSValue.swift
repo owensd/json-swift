@@ -192,6 +192,14 @@ public func ==(lhs: JSValue, rhs: JSValue) -> Bool {
 
 extension JSValue {
     func prettyPrint(_ indent: String?, _ level: Int) -> String {
+        func escape(_ value: String) -> String {
+            return value
+                .replacingOccurrences(of: "\"", with: "\\\"")
+                .replacingOccurrences(of: "\t", with: "\\t")
+                .replacingOccurrences(of: "\n", with: "\\n")
+                .replacingOccurrences(of: "\r", with: "\\r")
+        }
+
         var currentIndent = ""
         let nextIndentLevel = level + (indent == nil ? 0 : 1)
 
@@ -217,8 +225,7 @@ extension JSValue {
             return value
             
         case .string(let string):
-            let escaped = string.replacingOccurrences(of: "\"", with: "\\\"")
-            return "\"\(escaped)\""
+            return "\"\(escape(string))\""
             
         case .array(let array):
             let start = "[\(newline)"
@@ -228,7 +235,7 @@ extension JSValue {
             
         case .object(let dict):
             let start = "{\(newline)"
-            let content = (dict.map({ "\(nextIndent)\"\($0.replacingOccurrences(of: "\"", with: "\\\""))\":\(space)\($1.prettyPrint(indent, nextIndentLevel))"})).joined(separator: ",\(newline)")
+            let content = (dict.map({ "\(nextIndent)\"\(escape($0))\":\(space)\($1.prettyPrint(indent, nextIndentLevel))"})).joined(separator: ",\(newline)")
             let end = "\(newline)\(currentIndent)}"
             return start + content + end
             
