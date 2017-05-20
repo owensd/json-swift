@@ -182,20 +182,45 @@ extension JSValue {
 
     static func parseArray(_ generator: ReplayableGenerator) throws -> JSValue {
         var values = [JSValue]()
+        var needsComma = false
+        var lastParsedComma = false
     
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.LeftBracket): continue
             case (_, Token.RightBracket):
+                if lastParsedComma {
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "A trailing `,` is not supported. Context: '\(contextualString(generator))'."]
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                }
                 let _ = generator.next()        // eat the ']'
                 return JSValue(values)
+            case (_, Token.Comma):
+                if !needsComma {
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "A `,` can on separate values. Context: '\(contextualString(generator))'."]
+                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                }
+                needsComma = false
+                lastParsedComma = true
 
             default:
-                if codeunit.isWhitespace() || codeunit == Token.Comma { continue }
+                if codeunit.isWhitespace() { continue }
                 else {
+                    if needsComma {
+                        let info = [
+                            ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                            ErrorKeys.LocalizedFailureReason: "Unable to parse array. Expected `,` to separate values. Context: '\(contextualString(generator))'."]
+                        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    }
                     let value = try parse(generator)
                     values.append(value)
                     generator.replay()
+                    needsComma = true
+                    lastParsedComma = false
                 }
             }
         }

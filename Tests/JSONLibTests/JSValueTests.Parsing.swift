@@ -357,7 +357,7 @@ class JSValueParsingTests : XCTestCase {
     }
 
     func testPrettyPrintedNestedArrayType() {
-        let string = "{\"key\": [ 'foo': 'bar' ]}"
+        let string = "{\"key\": [ 'foo', 'bar' ]}"
         let json1 = try! JSON.parse(string)
 
         XCTAssertTrue(json1.error == nil, json1.error?.userInfo?.description ?? "No error info")
@@ -427,6 +427,24 @@ class JSValueParsingTests : XCTestCase {
         let string = "\"\\uD834\\uDD1E\""
         let jsvalue = try? JSValue.parse(string)
         XCTAssertTrue(jsvalue != nil)
+    }
+
+    func testParseInvalidArrayMissingComma() {
+        let string = "[1 true]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseInvalidArrayEmptyComma() {
+        let string = "[1,,true]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseInvalidArrayTrailingComma() {
+        let string = "[1,true,]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
     }
 
 // TODO(owensd): This should be redone to support Linux as well.
