@@ -95,11 +95,14 @@ extension JSValue {
         case value
     }
 
+    // Implementation note: even though this is copied into the JSValue() as a return, it seems to be slightly more
+    // efficient to put this out here.
+    static var dict = [String:JSValue]()
     static func parseObject(_ generator: ReplayableGenerator) throws -> JSValue {
         var state = ObjectParsingState.initial
 
         var key = ""
-        var object = [String:JSValue]()
+        dict.removeAll(keepingCapacity: true)
 
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
@@ -109,7 +112,7 @@ extension JSValue {
                 case .initial: fallthrough
                 case .value:
                     let _ = generator.next()        // eat the '}'
-                    return JSValue(object)
+                    return JSValue(dict)
 
                 default:
                     let info = [
@@ -140,7 +143,7 @@ extension JSValue {
                     state = .value
 
                     let value = try parse(generator)
-                    object[key] = value
+                    dict[key] = value
                     generator.replay()
 
                 default:
