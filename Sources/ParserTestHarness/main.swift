@@ -28,25 +28,22 @@ guard let contents = try? NSString(contentsOfFile: testFile, encoding: String.En
 
 let filename = testFile.components(separatedBy: "/").last!
 let shouldParse = filename.hasPrefix("y_")
-let json = try JSON.parse(contents as String)
-if shouldParse {
-    if json.error != nil {
-        print("** error parsing file: \(testFile)")
-        print("--- ERROR INFO ---")
-        print("\(json.error!.userInfo!.description)")
-        print("------------------")
-        exit(-4)
-    }
-    else {
+do {
+    let json = try JSON.parse(contents as String)
+    if shouldParse {
         print("success parsing file: \(testFile)")
     }
-}
-else {
-    if json.error == nil {
+    else {
         print("** expected error while parsing file: \(testFile)")
         exit(-5)
     }
-    else {
-        print("success rejecting file: \(testFile)")
+}
+catch {
+    if shouldParse {
+        print("** error parsing file: \(testFile)")
+        print("--- ERROR INFO ---")
+        print("\(error)")
+        print("------------------")
+        exit(-4)
     }
 }
