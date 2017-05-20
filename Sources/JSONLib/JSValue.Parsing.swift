@@ -214,23 +214,22 @@ extension JSValue {
         case exponentDigits
     }
 
+    // Implementation Note: This is move outside here to avoid the re-allocation of this buffer each time.
+    // This has a significant impact on performance.
+    static var numberStorage: [UInt8] = []
     static func parseNumber(_ generator: ReplayableGenerator) throws -> JSValue {
+        numberStorage.removeAll(keepingCapacity: true)
         var state = NumberParsingState.initial
+        var valid = false
 
-        var number = 0.0
-        var numberSign = 1.0
-        var depth = 0.1
-        var exponent = 0
-        var exponentSign = 1
-
-        for (idx, codeunit) in generator.enumerated() {
+        loop: for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit, state) {
             case (0, Token.Minus, NumberParsingState.initial):
-                numberSign = -1
+                numberStorage.append(codeunit)
                 state = .whole
 
             case (_, Token.Minus, NumberParsingState.exponent):
-                exponentSign = -1
+                numberStorage.append(codeunit)
                 state = .exponentDigits
 
             case (_, Token.Plus, NumberParsingState.initial):
@@ -244,31 +243,29 @@ extension JSValue {
                 fallthrough
 
             case (_, Token.Zero...Token.Nine, NumberParsingState.whole):
-                number = number * 10 + Double(codeunit - Token.Zero)
+                numberStorage.append(codeunit)
 
             case (_, Token.Zero...Token.Nine, NumberParsingState.decimal):
-                number = number + depth * Double(codeunit - Token.Zero)
-                depth /= 10
+                numberStorage.append(codeunit)
 
             case (_, Token.Zero...Token.Nine, NumberParsingState.exponent):
                 state = .exponentDigits
                 fallthrough
 
             case (_, Token.Zero...Token.Nine, NumberParsingState.exponentDigits):
-                exponent = exponent * 10 + Int(codeunit) - Int(Token.Zero)
+                numberStorage.append(codeunit)
 
             case (_, Token.Period, NumberParsingState.whole):
+                numberStorage.append(codeunit)
                 state = .decimal
 
-            case (_, Token.e, NumberParsingState.whole):      state = .exponent
-            case (_, Token.E, NumberParsingState.whole):      state = .exponent
-            case (_, Token.e, NumberParsingState.decimal):    state = .exponent
-            case (_, Token.E, NumberParsingState.decimal):    state = .exponent
+            case (_, Token.e, NumberParsingState.whole):      state = .exponent; numberStorage.append(Token.e)
+            case (_, Token.E, NumberParsingState.whole):      state = .exponent; numberStorage.append(Token.e)
+            case (_, Token.e, NumberParsingState.decimal):    state = .exponent; numberStorage.append(Token.e)
+            case (_, Token.E, NumberParsingState.decimal):    state = .exponent; numberStorage.append(Token.e)
 
             default:
-                if codeunit.isValidTerminator() {
-                    return JSValue(exp(number, exponent * exponentSign) * numberSign)
-                }
+                if codeunit.isValidTerminator() { generator.replay(); valid = true; break loop }
                 else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
@@ -278,7 +275,18 @@ extension JSValue {
             }
         }
 
-        if generator.atEnd() { return JSValue(exp(number, exponent * exponentSign) * numberSign) }
+        if generator.atEnd() || valid {
+            let string = String(bytes: numberStorage, encoding: .utf8)
+            if let number = Double(string!) {
+                return JSValue(number)
+            }
+            else {
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Unable to convert parsed number into a `Double`: \(string!)."]
+                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+            }
+        }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
