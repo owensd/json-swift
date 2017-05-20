@@ -21,13 +21,20 @@ if FileManager.default.fileExists(atPath: testFile) == false {
     exit(-2)
 }
 
-guard let contents = try? NSString(contentsOfFile: testFile, encoding: String.Encoding.utf8.rawValue) else {
-    print("** unable to load the file at: \(testFile)")
-    exit(-3)
-}
-
 let filename = testFile.components(separatedBy: "/").last!
 let shouldParse = filename.hasPrefix("y_")
+
+guard let contents = try? NSString(contentsOfFile: testFile, encoding: String.Encoding.utf8.rawValue) else {
+    if shouldParse {
+        print("** unable to load the file at: \(testFile)")
+        exit(-3)
+    }
+    else {
+        print("expected failing parsing file: \(testFile)")
+        exit(0)
+    }
+}
+
 do {
     let json = try JSON.parse(contents as String)
     if shouldParse {
@@ -45,5 +52,8 @@ catch {
         print("\(error)")
         print("------------------")
         exit(-4)
+    }
+    else {
+        print("expected failing parsing file: \(testFile)")
     }
 }
