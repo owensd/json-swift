@@ -427,7 +427,7 @@ class JSValueParsingTests : XCTestCase {
 #if os(macOS)
     func testParsingSampleJSON() {
         // SwiftBug(SR-4725) - Support test collateral properly
-        let path = NSString.path(withComponents: [Bundle(for: JSValuePerformanceTests.self).bundlePath, "..", "..", "..", "TestCollateral", "sample.json"])
+        let path = NSString.path(withComponents: [Bundle(for: JSValueParsingTests.self).bundlePath, "..", "..", "..", "TestCollateral", "sample.json"])
         XCTAssertNotNil(path)
         
         let string: NSString?

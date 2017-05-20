@@ -95,14 +95,11 @@ extension JSValue {
         case value
     }
 
-    // Implementation note: even though this is copied into the JSValue() as a return, it seems to be slightly more
-    // efficient to put this out here.
-    static var dict = [String:JSValue]()
     static func parseObject(_ generator: ReplayableGenerator) throws -> JSValue {
         var state = ObjectParsingState.initial
 
         var key = ""
-        dict.removeAll(keepingCapacity: true)
+        var dict = [String:JSValue]()
 
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
@@ -183,12 +180,9 @@ extension JSValue {
         throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
-    // Implementation note: even though this is copied into the JSValue() as a return, it seems to be slightly more
-    // efficient to put this out here.
-    static var values = [JSValue]()
     static func parseArray(_ generator: ReplayableGenerator) throws -> JSValue {
-        values.removeAll(keepingCapacity: true)
-
+        var values = [JSValue]()
+    
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.LeftBracket): continue
