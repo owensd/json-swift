@@ -423,6 +423,12 @@ class JSValueParsingTests : XCTestCase {
         // TODO: Validate the error information
     }
 
+    func testParseStringWithSurrogatePairs() {
+        let string = "\"\\uD834\\uDD1E\""
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue != nil)
+    }
+
 // TODO(owensd): This should be redone to support Linux as well.
 #if os(macOS)
     func testParsingSampleJSON() {
@@ -496,5 +502,6 @@ class JSValueParsingTests : XCTestCase {
         ("testParseStringWithUnicodeEscapes", testParseStringWithUnicodeEscapes),
         ("testParseStringWithInvalidUnicodeEscapes", testParseStringWithInvalidUnicodeEscapes),
         ("testStringifyEscaping", testStringifyEscaping),
+        ("testParseStringWithSurrogatePairs", testParseStringWithSurrogatePairs)
     ]
 }

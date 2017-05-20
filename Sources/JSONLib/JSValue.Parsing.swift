@@ -390,9 +390,9 @@ extension JSValue {
 
     // Implementation Note: This is move outside here to avoid the re-allocation of this buffer each time.
     // This has a significant impact on performance.
-    static var bytes: [UInt8] = []
+    static var stringStorage: [UInt8] = []
     static func parseString(_ generator: ReplayableGenerator, quote: UInt8) throws -> JSValue {
-        bytes.removeAll(keepingCapacity: true)
+        stringStorage.removeAll(keepingCapacity: true)
 
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
@@ -400,13 +400,13 @@ extension JSValue {
             case (_, quote):
                 let _ = generator.next()        // eat the quote
 
-                if let string = String(bytes: bytes, encoding: .utf8) {
+                if let string = String(bytes: stringStorage, encoding: .utf8) {
                     return JSValue(string)
                 }
                 else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "Unable to convert the parsed bytes into a string. Bytes: \(bytes)'."]
+                        ErrorKeys.LocalizedFailureReason: "Unable to convert the parsed bytes into a string. Bytes: \(stringStorage)'."]
                     throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
@@ -417,69 +417,80 @@ extension JSValue {
                     switch next {
 
                     case Token.Backslash:
-                        bytes.append(Token.Backslash)
+                        stringStorage.append(Token.Backslash)
 
                     case Token.Forwardslash:
-                        bytes.append(Token.Forwardslash)
+                        stringStorage.append(Token.Forwardslash)
 
                     case quote:
-                        bytes.append(Token.DoubleQuote)
+                        stringStorage.append(Token.DoubleQuote)
 
                     case Token.n:
-                        bytes.append(Token.Linefeed)
+                        stringStorage.append(Token.Linefeed)
 
                     case Token.b:
-                        bytes.append(Token.Backspace)
+                        stringStorage.append(Token.Backspace)
 
                     case Token.f:
-                        bytes.append(Token.Formfeed)
+                        stringStorage.append(Token.Formfeed)
 
                     case Token.r:
-                        bytes.append(Token.CarriageReturn)
+                        stringStorage.append(Token.CarriageReturn)
 
                     case Token.t:
-                        bytes.append(Token.HorizontalTab)
+                        stringStorage.append(Token.HorizontalTab)
 
                     case Token.u:
-                        let c1 = generator.next()
-                        let c2 = generator.next()
-                        let c3 = generator.next()
-                        let c4 = generator.next()
+                            let codeunits: [UInt16]
 
-                        switch (c1, c2, c3, c4) {
-                        case let (.some(c1), .some(c2), .some(c3), .some(c4)):
-                            let value1 = parseHexDigit(c1)
-                            let value2 = parseHexDigit(c2)
-                            let value3 = parseHexDigit(c3)
-                            let value4 = parseHexDigit(c4)
+                            let codeunit = try parseCodeUnit(generator)
+                            if UTF16.isLeadSurrogate(codeunit) {
+                                guard let next = generator.next() else {
+                                    let info = [
+                                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                        ErrorKeys.LocalizedFailureReason: "Expected to find the second half of the surrogate pair."]
+                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                }
 
-                            if value1 == nil || value2 == nil || value3 == nil || value4 == nil {
-                                let info = [
-                                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                                    ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
-                                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                if next != Token.Backslash {
+                                    let info = [
+                                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                        ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar, expected \\."]
+                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                }
+
+                                guard let next2 = generator.next() else {
+                                    let info = [
+                                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                        ErrorKeys.LocalizedFailureReason: "Expected to find the second half of the surrogate pair."]
+                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                }
+
+                                if next2 != Token.u {
+                                    let info = [
+                                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                                        ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar, expected u."]
+                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                }
+
+                                let codeunit2 = try parseCodeUnit(generator)
+                                codeunits = [codeunit, codeunit2]
+                            }
+                            else {
+                                codeunits = [codeunit]
                             }
 
-                            let codepoint = (value1! << 12) | (value2! << 8) | (value3! << 4) | value4!;
-                            if let scalar = UnicodeScalar(codepoint) {
-                                let character = String(describing: scalar)
-                                let data = character.data(using: String.Encoding.utf8, allowLossyConversion: false)!
-                                let escapeBytes = [UInt8](data)
-                                bytes.append(contentsOf: escapeBytes)
-                            } else {
+                            let transcodingError = transcode(codeunits.makeIterator(),
+                                                    from: UTF16.self,
+                                                    to: UTF8.self,
+                                                    stoppingOnError: true) { stringStorage.append($0) }
+
+                            if transcodingError {
                                 let info = [
                                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                     ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar"]
                                 throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                             }
-
-                        default:
-                            let info = [
-                                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                                ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
-                            throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
-
-                        }
 
                     default:
                         let info = [
@@ -496,7 +507,7 @@ extension JSValue {
                 }
 
             default:
-                bytes.append(codeunit)
+                stringStorage.append(codeunit)
             }
         }
 
@@ -506,6 +517,35 @@ extension JSValue {
         throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
+    static func parseCodeUnit(_ generator: ReplayableGenerator) throws -> UInt16 {
+        let c1 = generator.next()
+        let c2 = generator.next()
+        let c3 = generator.next()
+        let c4 = generator.next()
+
+        switch (c1, c2, c3, c4) {
+        case let (.some(c1), .some(c2), .some(c3), .some(c4)):
+            let value1 = parseHexDigit(c1)
+            let value2 = parseHexDigit(c2)
+            let value3 = parseHexDigit(c3)
+            let value4 = parseHexDigit(c4)
+
+            if value1 == nil || value2 == nil || value3 == nil || value4 == nil {
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
+                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+            }
+
+            return UInt16((value1! << 12) | (value2! << 8) | (value3! << 4) | value4!)
+
+        default:
+            let info = [
+                ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
+            throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        }
+    }
 
     // MARK: Helper functions
 
