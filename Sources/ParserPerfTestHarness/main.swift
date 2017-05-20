@@ -82,6 +82,7 @@ guard let _contents = try? NSString(contentsOfFile: testFile, encoding: String.E
 
 let contents = _contents as String
 let data = contents.data(using: .utf8)!
+let bytes = [UInt8](data)
 
 let filename = testFile.components(separatedBy: "/").last!
 let shouldParse = filename.hasPrefix("y_")
@@ -92,7 +93,7 @@ let nsjsonSerializationPerfResults = try performance { let _ = try? JSONSerializ
 print("performance results: \(nsjsonSerializationPerfResults)")
 
 print("\nJSONLib:")
-let jsonlibPerfResults = try performance { let _ = try JSON.parse(contents) }
+let jsonlibPerfResults = try performance { let _ = try JSON.parse(data) }
 print("performance results: \(jsonlibPerfResults)")
 
 print("\nFreddy Results:")

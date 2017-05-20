@@ -18,6 +18,17 @@ extension JSValue {
         }
     }
 
+    public static func parse(_ data: Data) throws -> JSValue {
+        return try data.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) -> JSValue in
+            let buffer = UnsafeBufferPointer(start: ptr, count: data.count)
+            let generator = ReplayableGenerator(buffer)
+
+            let value = try parse(generator)
+            try validateRemainingContent(generator)
+            return value
+        }
+    }
+
     /// Parses the given sequence of UTF8 code points and attempts to return a `JSValue` from it.
     /// - parameter seq: The sequence of UTF8 code points.
     /// - returns: A `JSParsingResult` containing the parsed `JSValue` or error information.
@@ -369,8 +380,11 @@ extension JSValue {
         }
     }
 
+    // Implementation Note: This is move outside here to avoid the re-allocation of this buffer each time.
+    // This has a significant impact on performance.
+    static var bytes: [UInt8] = []
     static func parseString(_ generator: ReplayableGenerator, quote: UInt8) throws -> JSValue {
-        var bytes = [UInt8]()
+        bytes.removeAll(keepingCapacity: true)
 
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
@@ -379,7 +393,6 @@ extension JSValue {
                 let _ = generator.next()        // eat the quote
 
                 if let string = String(bytes: bytes, encoding: .utf8) {
-                    bytes = []
                     return JSValue(string)
                 }
                 else {

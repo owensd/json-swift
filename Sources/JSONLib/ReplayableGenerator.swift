@@ -23,32 +23,35 @@ public final class ReplayableGenerator: IteratorProtocol, Swift.Sequence {
     /// Moves the current element to the next element in the collection, if one exists.
     /// :return: The `current` element or `nil` if the element does not exist.
     public func next() -> Element? {
-        switch usePrevious {
-        case true:
+        if usePrevious {
             usePrevious = false
-            return previousElement
-
-        default:
+        }
+        else {
             previousElement = offset >= buffer.count ? nil : buffer[offset]
             offset += 1
-            return previousElement
         }
+
+        return previousElement
     }
 
     /// Ensures that the next call to `next()` will use the current value.
     public func replay() {
         usePrevious = true
-        return
     }
 
     /// Creates a generator that can be used to traversed the content. Each call to
     /// `generate` will call `replay()`.
     ///
-    /// :return: A iteratable collection backing the content.
+    /// :return: A iterable collection backing the content.
     public func makeIterator() -> ReplayableGenerator {
-        switch firstRun {
-        case true: firstRun = false
-        default: self.replay()
+        if firstRun {
+            firstRun = false
+            offset = 0
+            usePrevious = false
+            previousElement = nil
+        }
+        else {
+            self.replay()
         }
 
         return self
