@@ -475,6 +475,60 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue == nil)
     }
 
+    func testParseNumber0ePlus1() {
+        let string = "[0e+1]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue != nil)
+    }
+
+    func testParseNumber0e1() {
+        let string = "[0e1]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue != nil)
+    }
+
+    func testParseNumberCloseToZero() {
+        let string = "[-0.000000000000000000000000000000000000000000000000000000000000000000000000000001]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue != nil)
+    }
+
+    func testParseNumberNegativeReal() {
+        let string = "-0.1"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue != nil)
+    }
+
+    func testParseNumberPlusPlus() {
+        let string = "[++1234]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberPlus() {
+        let string = "[+1]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberTwoDot() {
+        let string = "[-2.]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberTwoDotE3() {
+        let string = "[2.e-3]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberLeadingDot() {
+        let string = "[.123]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
 // TODO(owensd): This should be redone to support Linux as well.
 #if os(macOS)
     func testParsingSampleJSON() {

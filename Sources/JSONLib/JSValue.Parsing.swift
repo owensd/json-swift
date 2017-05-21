@@ -66,7 +66,7 @@ extension JSValue {
             else if codeunit == Token.LeftBracket {
                 return try JSValue.parseArray(generator)
             }
-            else if codeunit.isDigit() || codeunit == Token.Minus {
+            else if codeunit.isDigit() || codeunit == Token.Minus || codeunit == Token.Plus || codeunit == Token.Period {
                 return try JSValue.parseNumber(generator)
             }
             else if codeunit == Token.t {
@@ -80,6 +80,9 @@ extension JSValue {
             }
             else if codeunit == Token.DoubleQuote || codeunit == Token.SingleQuote {
                 return try JSValue.parseString(generator, quote: codeunit)
+            }
+            else {
+                break
             }
         }
 
@@ -139,6 +142,7 @@ extension JSValue {
                 case .key:
                     state = .value
 
+                    let _ = generator.next() // eat the ':'
                     let value = try parse(generator)
                     dict[key] = value
                     generator.replay()
@@ -235,9 +239,11 @@ extension JSValue {
         case initial
         case leadingZero
         case leadingNegativeSign
-        case whole
+        case integer
         case decimal
+        case fractional
         case exponent
+        case exponentSign
         case exponentDigits
     }
 
@@ -245,66 +251,86 @@ extension JSValue {
     // This has a significant impact on performance.
     static var numberStorage: [UInt8] = []
     static func parseNumber(_ generator: ReplayableGenerator) throws -> JSValue {
+        // The https://tools.ietf.org/html/rfc7159 spec for numbers.
+        //    number = [ minus ] int [ frac ] [ exp ]
+        //    decimal-point = %x2E       ; .
+        //    digit1-9 = %x31-39         ; 1-9
+        //    e = %x65 / %x45            ; e E
+        //    exp = e [ minus / plus ] 1*DIGIT
+        //    frac = decimal-point 1*DIGIT
+        //    int = zero / ( digit1-9 *DIGIT )
+        //    minus = %x2D               ; -
+        //    plus = %x2B                ; +
+        //    zero = %x30                ; 0
+
         numberStorage.removeAll(keepingCapacity: true)
-        var state = NumberParsingState.initial
+        var state: NumberParsingState = .initial
         var valid = false
 
         loop: for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit, state) {
-            case (0, Token.Minus, NumberParsingState.initial):
+
+            case (_, Token.Minus, .initial):
                 numberStorage.append(codeunit)
                 state = .leadingNegativeSign
-
-            case (0, Token.Zero, NumberParsingState.initial):
-                numberStorage.append(codeunit)
-                state = .leadingZero
-
-            case (1, Token.Zero, NumberParsingState.leadingNegativeSign):
-                numberStorage.append(codeunit)
-                state = .leadingZero
-
-            case (_, Token.Minus, NumberParsingState.exponent):
-                numberStorage.append(codeunit)
-                state = .exponentDigits
-
-            case (_, Token.Plus, NumberParsingState.exponent):
-                state = .exponentDigits
-
-            case (_, Token.One...Token.Nine, NumberParsingState.initial):
-                numberStorage.append(codeunit)
-                state = .whole
-
-            case (_, Token.One...Token.Nine, NumberParsingState.leadingNegativeSign):
-                numberStorage.append(codeunit)
-                state = .whole
-
-            case (_, Token.Zero...Token.Nine, NumberParsingState.whole):
-                numberStorage.append(codeunit)
-
-            case (_, Token.Zero...Token.Nine, NumberParsingState.decimal):
-                numberStorage.append(codeunit)
-
-            case (_, Token.Zero...Token.Nine, NumberParsingState.leadingZero):
+            
+            case (_, Token.Plus, .initial):
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                    ErrorKeys.LocalizedFailureReason: "Leading zeros are not supported. Index: \(idx). Token: \(codeunit). State: \(state). Context: '\(contextualString(generator))'."]
+                    ErrorKeys.LocalizedFailureReason: "Leading plus is not supported. Index: \(idx). Token: \(codeunit). State: \(state). Context: '\(contextualString(generator))'."]
                 throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
-            case (_, Token.Zero...Token.Nine, NumberParsingState.exponent):
-                state = .exponentDigits
-                fallthrough
+            case (_, Token.Zero, .initial):
+                numberStorage.append(codeunit)
+                state = .leadingZero
 
-            case (_, Token.Zero...Token.Nine, NumberParsingState.exponentDigits):
+            case (_, Token.Zero, .leadingNegativeSign):
+                numberStorage.append(codeunit)
+                state = .leadingZero
+
+            case (_, Token.Zero...Token.Nine, .leadingZero):
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Leading zeros are not allowed."]
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+
+            case (_, Token.One...Token.Nine, .leadingNegativeSign): fallthrough
+            case (_, Token.One...Token.Nine, .initial):
+                numberStorage.append(codeunit)
+                state = .integer
+
+            case (_, Token.Zero...Token.Nine, .decimal):
+                numberStorage.append(codeunit)
+                state = .fractional
+
+            case (_, Token.Zero...Token.Nine, .integer): fallthrough
+            case (_, Token.Zero...Token.Nine, .fractional):
                 numberStorage.append(codeunit)
 
-            case (_, Token.Period, NumberParsingState.whole):
+            case (_, Token.e, .leadingZero): fallthrough
+            case (_, Token.E, .leadingZero): fallthrough
+            case (_, Token.e, .integer): fallthrough
+            case (_, Token.E, .integer): fallthrough
+            case (_, Token.e, .fractional): fallthrough
+            case (_, Token.E, .fractional):
+                numberStorage.append(codeunit)
+                state = .exponent
+
+            case (_, Token.Minus, .exponent): fallthrough
+            case (_, Token.Plus, .exponent):
+                numberStorage.append(codeunit)
+                state = .exponentSign
+            
+            case (_, Token.Zero...Token.Nine, .exponent): fallthrough
+            case (_, Token.Zero...Token.Nine, .exponentSign): fallthrough
+            case (_, Token.Zero...Token.Nine, .exponentDigits):
+                numberStorage.append(codeunit)
+                state = .exponentDigits
+
+            case (_, Token.Period, .leadingZero): fallthrough
+            case (_, Token.Period, .integer):
                 numberStorage.append(codeunit)
                 state = .decimal
-
-            case (_, Token.e, NumberParsingState.whole):      state = .exponent; numberStorage.append(Token.e)
-            case (_, Token.E, NumberParsingState.whole):      state = .exponent; numberStorage.append(Token.e)
-            case (_, Token.e, NumberParsingState.decimal):    state = .exponent; numberStorage.append(Token.e)
-            case (_, Token.E, NumberParsingState.decimal):    state = .exponent; numberStorage.append(Token.e)
 
             default:
                 if codeunit.isValidTerminator() { generator.replay(); valid = true; break loop }
@@ -318,6 +344,14 @@ extension JSValue {
         }
 
         if generator.atEnd() || valid {
+            if state == .decimal {
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "A trailing period is not allowed."]
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+
+            }
+
             let string = String(bytes: numberStorage, encoding: .utf8)
             if let number = Double(string!) {
                 return JSValue(number)
@@ -671,14 +705,14 @@ extension UInt8 {
         return false
     }
 
-    /// Determines if the `UnicodeScalar` respresents a numeric digit.
+    /// Determines if the `UnicodeScalar` represents a numeric digit.
     ///
     /// :return: `true` if the scalar is a Unicode numeric character; `false` otherwise.
     func isDigit() -> Bool {
         return self >= Token.Zero && self <= Token.Nine
     }
 
-    /// Determines if the `UnicodeScalar` respresents a valid terminating character.
+    /// Determines if the `UnicodeScalar` represents a valid terminating character.
     /// :return: `true` if the scalar is a valid terminator, `false` otherwise.
     func isValidTerminator() -> Bool {
         if self == Token.Comma            { return true }
