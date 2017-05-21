@@ -233,6 +233,8 @@ extension JSValue {
 
     enum NumberParsingState {
         case initial
+        case leadingZero
+        case leadingNegativeSign
         case whole
         case decimal
         case exponent
@@ -251,27 +253,42 @@ extension JSValue {
             switch (idx, codeunit, state) {
             case (0, Token.Minus, NumberParsingState.initial):
                 numberStorage.append(codeunit)
-                state = .whole
+                state = .leadingNegativeSign
+
+            case (0, Token.Zero, NumberParsingState.initial):
+                numberStorage.append(codeunit)
+                state = .leadingZero
+
+            case (1, Token.Zero, NumberParsingState.leadingNegativeSign):
+                numberStorage.append(codeunit)
+                state = .leadingZero
 
             case (_, Token.Minus, NumberParsingState.exponent):
                 numberStorage.append(codeunit)
                 state = .exponentDigits
 
-            case (_, Token.Plus, NumberParsingState.initial):
-                state = .whole
-
             case (_, Token.Plus, NumberParsingState.exponent):
                 state = .exponentDigits
 
-            case (_, Token.Zero...Token.Nine, NumberParsingState.initial):
+            case (_, Token.One...Token.Nine, NumberParsingState.initial):
+                numberStorage.append(codeunit)
                 state = .whole
-                fallthrough
+
+            case (_, Token.One...Token.Nine, NumberParsingState.leadingNegativeSign):
+                numberStorage.append(codeunit)
+                state = .whole
 
             case (_, Token.Zero...Token.Nine, NumberParsingState.whole):
                 numberStorage.append(codeunit)
 
             case (_, Token.Zero...Token.Nine, NumberParsingState.decimal):
                 numberStorage.append(codeunit)
+
+            case (_, Token.Zero...Token.Nine, NumberParsingState.leadingZero):
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "Leading zeros are not supported. Index: \(idx). Token: \(codeunit). State: \(state). Context: '\(contextualString(generator))'."]
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
             case (_, Token.Zero...Token.Nine, NumberParsingState.exponent):
                 state = .exponentDigits

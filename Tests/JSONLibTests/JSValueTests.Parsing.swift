@@ -469,11 +469,11 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue != nil)
     }
 
-    // func testParseNumberNetIntStartingWithZero() {
-    //     let string = "[-012]"
-    //     let jsvalue = try? JSValue.parse(string)
-    //     XCTAssertTrue(jsvalue == nil)
-    // }
+    func testParseNumberNetIntStartingWithZero() {
+        let string = "[-012]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
 
 // TODO(owensd): This should be redone to support Linux as well.
 #if os(macOS)
