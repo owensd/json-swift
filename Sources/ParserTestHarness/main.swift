@@ -8,52 +8,73 @@
 
 import Foundation
 import JSONLib
+import Freddy
 
 func printUsage() -> Never {
-    print("usage: ParserTestHarness [test file]")
+    print("usage: ParserTestHarness [-freddy] -file:[test file]")
     exit(-1)
 }
 
-if CommandLine.arguments.count != 2 { printUsage() }
-let testFile = CommandLine.arguments[1]
-if FileManager.default.fileExists(atPath: testFile) == false {
-    print("** file not found: \(testFile)")
-    exit(-2)
-}
+var useFreddy = false
+var file: String? = nil
 
-let filename = testFile.components(separatedBy: "/").last!
-let shouldParse = filename.hasPrefix("y_")
-
-guard let contents = try? NSString(contentsOfFile: testFile, encoding: String.Encoding.utf8.rawValue) else {
-    if shouldParse {
-        print("** unable to load the file at: \(testFile)")
-        exit(-3)
+for arg in CommandLine.arguments {
+    if arg == "-freddy" {
+        useFreddy = true
     }
-    else {
-        print("expected failing parsing file: \(testFile)")
-        exit(0)
+    else if arg.hasPrefix("-file") {
+        file = arg.replacingOccurrences(of: "-file:", with: "")
     }
 }
 
-do {
-    let json = try JSON.parse(contents as String)
-    if shouldParse {
-        print("success parsing file: \(testFile)")
+if let testFile = file {
+    if FileManager.default.fileExists(atPath: testFile) == false {
+        print("** file not found: \(testFile)")
+        exit(-2)
     }
-    else {
-        print("** expected error while parsing file: \(testFile)")
-        exit(-5)
+
+    let filename = testFile.components(separatedBy: "/").last!
+    let shouldParse = filename.hasPrefix("y_")
+
+    guard let data = try? Data(contentsOf: URL(fileURLWithPath: testFile)) else {
+        if shouldParse {
+            print("** unable to load the file at: \(testFile)")
+            exit(-3)
+        }
+        else {
+            print("expected failing parsing file: \(testFile)")
+            exit(0)
+        }
+    }
+
+    do {
+        if useFreddy {
+            let _ = try JSON(data: data)
+        }
+        else {
+            let _ = try JSON.parse(data)
+        }
+        if shouldParse {
+            print("success parsing file: \(testFile)")
+        }
+        else {
+            print("** expected error while parsing file: \(testFile)")
+            exit(-5)
+        }
+    }
+    catch {
+        if shouldParse {
+            print("** error parsing file: \(testFile)")
+            print("--- ERROR INFO ---")
+            print("\(error)")
+            print("------------------")
+            exit(-4)
+        }
+        else {
+            print("expected failing parsing file: \(testFile)")
+        }
     }
 }
-catch {
-    if shouldParse {
-        print("** error parsing file: \(testFile)")
-        print("--- ERROR INFO ---")
-        print("\(error)")
-        print("------------------")
-        exit(-4)
-    }
-    else {
-        print("expected failing parsing file: \(testFile)")
-    }
+else {
+    printUsage()
 }
