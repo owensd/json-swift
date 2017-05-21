@@ -56,14 +56,34 @@ extension JSValue {
         }
     }
 
+    static let maximumDepth = 2250
+    static var depthGuard: Int = 0
     static func parse(_ generator: ReplayableGenerator) throws -> JSValue {
         for codeunit in generator {
             if codeunit.isWhitespace() { continue }
 
             if codeunit == Token.LeftCurly {
+                depthGuard += 1
+                defer { depthGuard -= 1 }
+
+                if depthGuard > maximumDepth {
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unable to process JSON file with a nested depth greater than \(maximumDepth)."]
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                }
                 return try JSValue.parseObject(generator)
             }
             else if codeunit == Token.LeftBracket {
+                depthGuard += 1
+                defer { depthGuard -= 1 }
+
+                if depthGuard > maximumDepth {
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unable to process JSON file with a nested depth greater than \(maximumDepth)."]
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                }
                 return try JSValue.parseArray(generator)
             }
             else if codeunit.isDigit() || codeunit == Token.Minus || codeunit == Token.Plus || codeunit == Token.Period {
