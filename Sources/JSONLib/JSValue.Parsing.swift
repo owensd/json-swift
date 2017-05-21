@@ -293,9 +293,6 @@ extension JSValue {
         case exponentDigits
     }
 
-    // Implementation Note: This is move outside here to avoid the re-allocation of this buffer each time.
-    // This has a significant impact on performance.
-    static var numberStorage: [UInt8] = []
     static func parseNumber(_ generator: ReplayableGenerator) throws -> JSValue {
         // The https://tools.ietf.org/html/rfc7159 spec for numbers.
         //    number = [ minus ] int [ frac ] [ exp ]
@@ -309,7 +306,14 @@ extension JSValue {
         //    plus = %x2B                ; +
         //    zero = %x30                ; 0
 
-        numberStorage.removeAll(keepingCapacity: true)
+
+        var sign: Double = 1
+        var value: Double = 0
+        var fraction: Double = 0
+        var exponent: Double = 0
+        var exponentSign: Double = 1
+        var fractionMultiplier: Double = 10
+
         var state: NumberParsingState = .initial
         var valid = false
 
@@ -317,7 +321,7 @@ extension JSValue {
             switch (idx, codeunit, state) {
 
             case (_, Token.Minus, .initial):
-                numberStorage.append(codeunit)
+                sign = -1
                 state = .leadingNegativeSign
             
             case (_, Token.Plus, .initial):
@@ -327,11 +331,9 @@ extension JSValue {
                 throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
             case (_, Token.Zero, .initial):
-                numberStorage.append(codeunit)
                 state = .leadingZero
 
             case (_, Token.Zero, .leadingNegativeSign):
-                numberStorage.append(codeunit)
                 state = .leadingZero
 
             case (_, Token.Zero...Token.Nine, .leadingZero):
@@ -342,16 +344,20 @@ extension JSValue {
 
             case (_, Token.One...Token.Nine, .leadingNegativeSign): fallthrough
             case (_, Token.One...Token.Nine, .initial):
-                numberStorage.append(codeunit)
+                value = value * 10 + Double(codeunit - Token.Zero)
                 state = .integer
 
             case (_, Token.Zero...Token.Nine, .decimal):
-                numberStorage.append(codeunit)
+                fraction = Double(codeunit - Token.Zero) / fractionMultiplier
+                fractionMultiplier *= 10
                 state = .fractional
 
-            case (_, Token.Zero...Token.Nine, .integer): fallthrough
+            case (_, Token.Zero...Token.Nine, .integer):
+                value = value * 10 + Double(codeunit - Token.Zero)
+
             case (_, Token.Zero...Token.Nine, .fractional):
-                numberStorage.append(codeunit)
+                fraction = fraction + (Double(codeunit - Token.Zero) / fractionMultiplier)
+                fractionMultiplier *= 10
 
             case (_, Token.e, .leadingZero): fallthrough
             case (_, Token.E, .leadingZero): fallthrough
@@ -359,23 +365,23 @@ extension JSValue {
             case (_, Token.E, .integer): fallthrough
             case (_, Token.e, .fractional): fallthrough
             case (_, Token.E, .fractional):
-                numberStorage.append(codeunit)
                 state = .exponent
 
-            case (_, Token.Minus, .exponent): fallthrough
+            case (_, Token.Minus, .exponent):
+                exponentSign = -1
+                state = .exponentSign
+
             case (_, Token.Plus, .exponent):
-                numberStorage.append(codeunit)
                 state = .exponentSign
             
             case (_, Token.Zero...Token.Nine, .exponent): fallthrough
             case (_, Token.Zero...Token.Nine, .exponentSign): fallthrough
             case (_, Token.Zero...Token.Nine, .exponentDigits):
-                numberStorage.append(codeunit)
+                exponent = exponent * 10 + Double(codeunit - Token.Zero)
                 state = .exponentDigits
 
             case (_, Token.Period, .leadingZero): fallthrough
             case (_, Token.Period, .integer):
-                numberStorage.append(codeunit)
                 state = .decimal
 
             default:
@@ -398,16 +404,8 @@ extension JSValue {
 
             }
 
-            let string = String(bytes: numberStorage, encoding: .utf8)
-            if let number = Double(string!) {
-                return JSValue(number)
-            }
-            else {
-                let info = [
-                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                    ErrorKeys.LocalizedFailureReason: "Unable to convert parsed number into a `Double`: \(string!)."]
-                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
-            }
+            let value: Double = sign * exp((value + fraction), Int(exponentSign * exponent))
+            return JSValue(value)
         }
 
         let info = [
