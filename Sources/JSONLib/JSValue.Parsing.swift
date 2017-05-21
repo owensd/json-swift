@@ -51,7 +51,7 @@ extension JSValue {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Invalid characters after the last item in the JSON: \(remainingText)"]
-                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
     }
@@ -86,7 +86,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "No valid JSON value was found to parse in string."]
-        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     enum ObjectParsingState {
@@ -115,7 +115,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Expected token '}' at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             case (_, Token.SingleQuote): fallthrough
@@ -131,7 +131,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Expected token ''' (single quote) or '\"' at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             case (_, Token.Colon):
@@ -147,7 +147,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Expected token ':' at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             case (_, Token.Comma):
@@ -160,7 +160,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Expected token ',' at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             default:
@@ -169,7 +169,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
             }
         }
@@ -177,7 +177,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse object. Context: '\(contextualString(generator))'."]
-        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     static func parseArray(_ generator: ReplayableGenerator) throws -> JSValue {
@@ -193,7 +193,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "A trailing `,` is not supported. Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
                 let _ = generator.next()        // eat the ']'
                 return JSValue(values)
@@ -202,7 +202,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "A `,` can on separate values. Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
                 needsComma = false
                 lastParsedComma = true
@@ -214,7 +214,7 @@ extension JSValue {
                         let info = [
                             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                             ErrorKeys.LocalizedFailureReason: "Unable to parse array. Expected `,` to separate values. Context: '\(contextualString(generator))'."]
-                        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                     }
                     let value = try parse(generator)
                     values.append(value)
@@ -228,7 +228,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse array. Context: '\(contextualString(generator))'."]
-        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     enum NumberParsingState {
@@ -295,7 +295,7 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). State: \(state). Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
             }
         }
@@ -309,14 +309,14 @@ extension JSValue {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Unable to convert parsed number into a `Double`: \(string!)."]
-                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
 
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse array. Context: '\(contextualString(generator))'."]
-        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     static func parseTrue(_ generator: ReplayableGenerator) throws -> JSValue {
@@ -334,7 +334,7 @@ extension JSValue {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
 
@@ -343,7 +343,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'true' literal. Context: '\(contextualString(generator))'."]
-        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     static func parseFalse(_ generator: ReplayableGenerator) throws -> JSValue {
@@ -362,7 +362,7 @@ extension JSValue {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
 
@@ -371,7 +371,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'false' literal. Context: '\(contextualString(generator))'."]
-        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     static func parseNull(_ generator: ReplayableGenerator) throws -> JSValue {
@@ -389,7 +389,7 @@ extension JSValue {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
         }
 
@@ -398,7 +398,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse 'null' literal. Context: '\(contextualString(generator))'."]
-        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     fileprivate static func parseHexDigit(_ digit: UInt8) -> Int? {
@@ -432,32 +432,32 @@ extension JSValue {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unable to convert the parsed bytes into a string. Bytes: \(stringStorage)'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
             
             case (_, Token.HorizontalTab):
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "An unescaped TAB character is not allowed in a string."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
             case (_, Token.Linefeed):
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "An unescaped linefeed character is not allowed in a string."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
             case (_, Token.CarriageReturn):
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "An unescaped carriage return character is not allowed in a string."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
             case (_, Token.Formfeed):
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "An unescaped formfeed character is not allowed in a string."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
             case (_, Token.Backslash):
                 let next = generator.next()
@@ -498,28 +498,28 @@ extension JSValue {
                                     let info = [
                                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                         ErrorKeys.LocalizedFailureReason: "Expected to find the second half of the surrogate pair."]
-                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                                 }
 
                                 if next != Token.Backslash {
                                     let info = [
                                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                         ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar, expected \\."]
-                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                                 }
 
                                 guard let next2 = generator.next() else {
                                     let info = [
                                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                         ErrorKeys.LocalizedFailureReason: "Expected to find the second half of the surrogate pair."]
-                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                                 }
 
                                 if next2 != Token.u {
                                     let info = [
                                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                         ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar, expected u."]
-                                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                                 }
 
                                 let codeunit2 = try parseCodeUnit(generator)
@@ -538,21 +538,21 @@ extension JSValue {
                                 let info = [
                                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                                     ErrorKeys.LocalizedFailureReason: "Invalid unicode scalar"]
-                                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                             }
 
                     default:
                         let info = [
                             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                             ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx + 1). Token: \(next). Context: '\(contextualString(generator))'."]
-                        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                     }
                 }
                 else {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                         ErrorKeys.LocalizedFailureReason: "Unexpected token at index: \(idx). Token: \(codeunit). Context: '\(contextualString(generator))'."]
-                    throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
             default:
@@ -563,7 +563,7 @@ extension JSValue {
         let info = [
             ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
             ErrorKeys.LocalizedFailureReason: "Unable to parse string. Context: '\(contextualString(generator))'."]
-        throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+        throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
     }
 
     static func parseCodeUnit(_ generator: ReplayableGenerator) throws -> UInt16 {
@@ -583,7 +583,7 @@ extension JSValue {
                 let info = [
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
-                throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
 
             return UInt16((value1! << 12) | (value2! << 8) | (value3! << 4) | value4!)
@@ -592,7 +592,7 @@ extension JSValue {
             let info = [
                 ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                 ErrorKeys.LocalizedFailureReason: "Invalid unicode escape sequence"]
-            throw Error(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+            throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
         }
     }
 

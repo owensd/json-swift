@@ -5,15 +5,6 @@
 
 extension JSValue : ExpressibleByIntegerLiteral {
     private static func convert(_ value: Int64) -> JSValue {
-        if value < JSValue.MinimumSafeInt || value > JSValue.MaximumSafeInt {
-            
-            let error = Error(
-                code: JSValue.ErrorCode.InvalidIntegerValue.code,
-                domain: JSValueErrorDomain,
-                userInfo: [ErrorKeys.LocalizedDescription: "\(ErrorCode.InvalidIntegerValue.message) Value: \(value)"])
-            
-            return JSValue(error)
-        }
         return JSValue(Double(value))
     }
 

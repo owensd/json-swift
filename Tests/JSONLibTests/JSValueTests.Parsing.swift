@@ -17,7 +17,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
 
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertTrue(jsvalue?.null == true)
+        XCTAssertTrue(jsvalue.null == true)
     }
 
     func testParseNullWithWhitespace() {
@@ -25,7 +25,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertTrue(jsvalue?.null == true)
+        XCTAssertTrue(jsvalue.null == true)
     }
     
     func testParseNullInvalidJSON() {
@@ -41,7 +41,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertTrue(jsvalue?.bool == true)
+        XCTAssertTrue(jsvalue.bool == true)
     }
     
     func testParseTrueWithWhitespace() {
@@ -49,7 +49,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertTrue(jsvalue?.bool == true)
+        XCTAssertTrue(jsvalue.bool == true)
     }
     
     func testParseTrueInvalidJSON() {
@@ -65,7 +65,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertTrue(jsvalue?.bool == false)
+        XCTAssertTrue(jsvalue.bool == false)
     }
     
     func testParseFalseWithWhitespace() {
@@ -73,7 +73,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertTrue(jsvalue?.bool == false)
+        XCTAssertTrue(jsvalue.bool == false)
     }
     
     func testParseFalseInvalidJSON() {
@@ -89,7 +89,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "Bob")
+        XCTAssertEqual(jsvalue.string, "Bob")
     }
 
     func testParseStringWithSingleQuote() {
@@ -97,7 +97,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "Bob")
+        XCTAssertEqual(jsvalue.string, "Bob")
     }
     
     func testParseStringWithEscapedQuote() {
@@ -105,7 +105,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "Bob \"the man \" Roberts")
+        XCTAssertEqual(jsvalue.string, "Bob \"the man \" Roberts")
     }
 
     func testParseStringWithEscapedQuoteMatchingEndQuotes() {
@@ -113,7 +113,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "Bob \"the man\" Roberts")
+        XCTAssertEqual(jsvalue.string, "Bob \"the man\" Roberts")
     }
     
     func testParseStringWithMultipleEscapes() {
@@ -121,7 +121,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "e&\\첊xz坍崦ݻ鍴\"嵥B3\u{000b}㢊\u{0015}L臯.샥")
+        XCTAssertEqual(jsvalue.string, "e&\\첊xz坍崦ݻ鍴\"嵥B3\u{000b}㢊\u{0015}L臯.샥")
     }
     
     func testParseStringWithMultipleUnicodeTypes() {
@@ -129,7 +129,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\")
+        XCTAssertEqual(jsvalue.string, "(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\")
     }
     
     func testParseStringWithTrailingEscapedQuotes() {
@@ -137,7 +137,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\"")
+        XCTAssertEqual(jsvalue.string, "\"䬰ỐwD捾V`邀⠕VD㺝sH6[칑.:醥葹*뻵倻aD\"")
     }
 
     func testParseInteger() {
@@ -145,7 +145,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertTrue(jsvalue?.number == 101)
+        XCTAssertTrue(jsvalue.number == 101)
     }
 
     func testParseNegativeInteger() {
@@ -153,7 +153,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertTrue(jsvalue?.number == -109234)
+        XCTAssertTrue(jsvalue.number == -109234)
     }
     
     func testParseDouble() {
@@ -335,34 +335,32 @@ class JSValueParsingTests : XCTestCase {
     
     func testParsePrettyPrintedNestedMixedTypes() {
         let string = "{\"key1\": 1, \"key2\": [        -12 , 12        ], \"key3\": \"Bob\", \"\\n鱿aK㝡␒㼙2촹f\": { 'foo': 'bar' }, \"key5\": false, \"key6\": null, \"key\\\"7\": -2.11234123}"
-        let json1 = try! JSON.parse(string)
+        let json1 = try? JSON.parse(string)
         
-        XCTAssertTrue(json1.error == nil, json1.error?.userInfo?.description ?? "No error info")
+        XCTAssertTrue(json1 != nil)
         
-        let prettyPrinted = json1.stringify()
-        let json2 = try! JSON.parse(prettyPrinted)
-        
-        XCTAssertTrue(json2.error == nil, json2.error?.userInfo?.description ?? "No error info")
+        let prettyPrinted = json1?.stringify() ?? ""
+        let json2 = try? JSON.parse(prettyPrinted)
         XCTAssertEqual(json1, json2)
     }
 
     func testPrettyPrintedNestedObjectType() {
         let string = "{\"key\": { 'foo': 'bar' }}"
-        let json1 = try! JSON.parse(string)
+        let json1 = try? JSON.parse(string)
 
-        XCTAssertTrue(json1.error == nil, json1.error?.userInfo?.description ?? "No error info")
+        XCTAssertTrue(json1 != nil)
 
-        let prettyPrinted = json1.stringify()
+        let prettyPrinted = json1?.stringify() ?? ""
         XCTAssertEqual(prettyPrinted, "{\n  \"key\": {\n    \"foo\": \"bar\"\n  }\n}")
     }
 
     func testPrettyPrintedNestedArrayType() {
         let string = "{\"key\": [ 'foo', 'bar' ]}"
-        let json1 = try! JSON.parse(string)
+        let json1 = try? JSON.parse(string)
 
-        XCTAssertTrue(json1.error == nil, json1.error?.userInfo?.description ?? "No error info")
+        XCTAssertTrue(json1 != nil)
 
-        let prettyPrinted = json1.stringify()
+        let prettyPrinted = json1?.stringify() ?? ""
         XCTAssertEqual(prettyPrinted, "{\n  \"key\": [\n    \"foo\",\n    \"bar\"\n  ]\n}")
     }
     
@@ -378,7 +376,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
 
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "\n")
+        XCTAssertEqual(jsvalue.string, "\n")
         
         let data = string.data(using: String.Encoding.utf8, allowLossyConversion: false)
         let json: Any!
@@ -396,7 +394,7 @@ class JSValueParsingTests : XCTestCase {
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "\\/\n\r\t")
+        XCTAssertEqual(jsvalue.string, "\\/\n\r\t")
         
         let data = string.data(using: String.Encoding.utf8, allowLossyConversion: false)
         let json: Any!
@@ -406,14 +404,14 @@ class JSValueParsingTests : XCTestCase {
             json = nil
         };
         let jsonString = json as! String
-        XCTAssertEqual(jsvalue?.string, jsonString)
+        XCTAssertEqual(jsvalue.string, jsonString)
     }
     
     func testParseStringWithUnicodeEscapes() {
         let string = "\"value=\\u0026\\u03c6\\u00DF\""
         let jsvalue = try? JSValue.parse(string)
         XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue?.string, "value=&\u{03C6}ß")
+        XCTAssertEqual(jsvalue.string, "value=&\u{03C6}ß")
     }
 
     func testParseStringWithInvalidUnicodeEscapes() {
@@ -471,6 +469,12 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue != nil)
     }
 
+    // func testParseNumberNetIntStartingWithZero() {
+    //     let string = "[-012]"
+    //     let jsvalue = try? JSValue.parse(string)
+    //     XCTAssertTrue(jsvalue == nil)
+    // }
+
 // TODO(owensd): This should be redone to support Linux as well.
 #if os(macOS)
     func testParsingSampleJSON() {
@@ -486,8 +490,8 @@ class JSValueParsingTests : XCTestCase {
         }
         XCTAssertNotNil(string)
 
-        let json = try! JSON.parse(string! as String)
-        XCTAssertTrue(json.error == nil, json.error?.userInfo?.description ?? "No error message found")
+        let json = try? JSON.parse(string! as String)
+        XCTAssertTrue(json != nil)
     }
 #endif
     

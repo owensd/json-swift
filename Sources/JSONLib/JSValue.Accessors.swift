@@ -79,22 +79,59 @@ extension JSValue {
         default: return false
         }
     }
-    
-    /// Determines if the `JSValue` has a value stored within it.
+}
+
+/// Provide a usability extension to allow chaining index accessors without having to
+/// marked it as optional.
+/// e.g. foo["hi"]?["this"]?["sucks"]?.string vs. foo["so"]["much"]["better"].string
+extension Optional where Wrapped == JSValue {
+    /// Attempts to retrieve a `String` out of the `JSValue`.
     ///
-    /// - returns: `true` if the `JSValue` has a valid value stored, `false` if the `JSValue` is `Invalid`.
-    public var hasValue: Bool {
-        switch self {
-        case .invalid(_): return false
-        default: return true
-        }
+    /// - returns: If the `JSValue` is a `String`, then the stored `String` value is returned, otherwise `nil`.
+    public var string: String? {
+        return self?.string
+    }
+
+    /// Attempts to retrieve a `Double` out of the `JSValue`.
+    ///
+    /// - returns: If the `JSValue` is a `JSNumber`, then the stored `Double` value is returned, otherwise `nil`.
+    public var number: Double? {
+        return self?.number
+    }
+
+    /// Attempts to retrieve an `Int` out of the `JSValue`.
+    ///
+    /// - returns: If the `JSValue` is a `Double`, then the stored `Double` value is returned, otherwise `nil`.
+    public var integer: Int? {
+        return self?.integer
+    }
+
+    
+    /// Attempts to retrieve a `Bool` out of the `JSValue`.
+    ///
+    /// - returns: If the `JSValue` is a `Bool`, then the stored `Bool` value is returned, otherwise `nil`.
+    public var bool: Bool? {
+        return self?.bool
+    }
+
+    /// Attempts to retrieve a `[String:JSValue]` out of the `JSValue`.
+    ///
+    /// - returns: If the `JSValue` is a `[String:JSValue]`, then the stored `[String:JSValue]` value is returned, otherwise `nil`.
+    public var object: [String:JSValue]? {
+        return self?.object
     }
     
-    /// The error information that is held when `hasValue` is `false`.
-    public var error: Error? {
-        switch self {
-        case .invalid(let error): return error
-        default: return nil
-        }
+    /// Attempts to retrieve a `[JSValue]` out of the `JSValue`.
+    ///
+    /// - returns: If the `JSValue` is a `JSArray`, then the stored `[JSValue]` value is returned, otherwise `nil`.
+    public var array: [JSValue]? {
+        return self?.array
+    }
+    
+    /// Used to determine if a `nil` value is stored within `JSValue`. There is no intrinsic type for this value.
+    ///
+    /// - returns: If the `JSValue` is a `JSNull`, then the `true` is returned, otherwise `false`.
+    public var null: Bool {
+        return self?.null ?? false
     }
 }

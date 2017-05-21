@@ -3,15 +3,8 @@
  * Licensed under the MIT License. See License in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
-/// Creates a new type that is used to represent error information in Swift.
-///
-/// This is a new Swift-specific error type used to return error information. The primary usage of this object is to
-/// return it as a `Failable` or `FailableOf<T>` from function that could fail.
-///
-/// Example:
-///   `func readContentsOfFileAtPath(path: String) -> Failable<String>`
-///
-public final class Error: Swift.Error {
+/// Represents error information for JSON parsing issues.
+public final class JsonParserError: Swift.Error {
     public typealias ErrorInfoDictionary = [String:String]
 
     /// The error code used to differentiate between various error states.
@@ -48,8 +41,8 @@ public struct ErrorKeys {
     public static let FilePath                               = "NSFilePath"
 }
 
-extension Error: CustomStringConvertible {
+extension JsonParserError: CustomStringConvertible {
     public var description: String {
-        return "an error..."
+        return "Error code: \(self.code), domain: \(self.domain)\ninfo: \(String(describing: self.userInfo))"
     }
 }

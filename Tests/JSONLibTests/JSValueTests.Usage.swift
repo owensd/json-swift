@@ -70,23 +70,13 @@ class JSValueUsageTests : XCTestCase {
     func testValidateSingleLevelAccessInDictionaryUsage() {
         var json: JSValue = ["status": "ok"]
         
-        if let status = json["status"].string {
-            XCTAssertEqual(status, "ok")
-        }
-        else {
-            XCTFail()
-        }
+        XCTAssertEqual(json["status"].string, "ok")
     }
 
     func testValidateMultipleLevelAccessInDictionaryUsage() {
         var json: JSValue = ["item": ["info": ["name": "Item #1"]]]
         
-        if let name = json["item"]["info"]["name"].string {
-            XCTAssertEqual(name, "Item #1")
-        }
-        else {
-            XCTFail()
-        }
+        XCTAssertEqual(json["item"]["info"]["name"].string, "Item #1")
     }
     
     func testValidateMultipleLevelAccessInDictionaryUsageNonLiterals() {
@@ -94,20 +84,13 @@ class JSValueUsageTests : XCTestCase {
         
         var json: JSValue = ["item": ["info": ["name": JSValue(item1) ]]]
         
-        if let name = json["item"]["info"]["name"].string {
-            XCTAssertEqual(name, "Item #1")
-        }
-        else {
-            XCTFail()
-        }
+        XCTAssertEqual(json["item"]["info"]["name"].string, "Item #1")
     }
     
     func testValidateSingleLevelAccessInDictionaryUsageWithMissingKey() {
         var json: JSValue = ["status": "ok"]
         
-        if let _ = json["stat"].string {
-            XCTFail()
-        }
+        XCTAssertTrue(json["stat"].string == nil)
     }
     
     func testValidateArrayUsageNonLiterals() {
@@ -116,12 +99,7 @@ class JSValueUsageTests : XCTestCase {
         
         var json = JSValue(array)
         
-        if let name = json[0].string {
-            XCTAssertEqual(name, "Item #1")
-        }
-        else {
-            XCTFail()
-        }
+        XCTAssertEqual(json[0].string, "Item #1")
     }
 
   /*
@@ -295,54 +273,54 @@ func make(_ id: Int?)
     }
 }
 
-func makeFailable(_ id: (Int?, JSONLib.Error?))
-    -> (String?, JSONLib.Error?)
-    -> (Bool?, JSONLib.Error?)
-    -> (URL?, JSONLib.Error?)
-    -> (Blog?, JSONLib.Error?)
+func makeFailable(_ id: Int?)
+    -> (String?)
+    -> (Bool?)
+    -> (URL?)
+    -> Blog?
 {
     return { name in
         return { needsPassword in
             return { url in
-                if let error = id.1 { return (nil, error) }
-                if let error = name.1 { return (nil, error) }
-                if let error = needsPassword.1 { return (nil, error) }
-                if let error = url.1 { return (nil, error) }
+                guard let id = id else { return nil }
+                guard let name = name else { return nil }
+                guard let needsPassword = needsPassword else { return nil }
+                guard let url = url else { return nil }
                 
-                return (Blog(id: id.0!, name: name.0!, needsPassword: needsPassword.0!, url: url.0!), nil)
+                return Blog(id: id, name: name, needsPassword: needsPassword, url: url)
             }
         }
     }
 }
 
-func toInt(_ value: JSValue) -> (Int?, JSONLib.Error?) {
+func toInt(_ value: JSValue) -> Int? {
     if let value = value.number {
-        return (Int(value), nil)
+        return Int(value)
     }
     
-    return (nil, value.error)
+    return nil
 }
 
-func toURL(_ value: JSValue) -> (URL?, JSONLib.Error?) {
+func toURL(_ value: JSValue) -> URL? {
     if let url = value.string {
-        return (URL(string: url), nil)
+        return URL(string: url)
     }
     
-    return (nil, value.error)
+    return nil
 }
 
-func toBool(_ value: JSValue) -> (Bool?, JSONLib.Error?) {
+func toBool(_ value: JSValue) -> Bool? {
     if let bool = value.bool {
-        return (bool, nil)
+        return bool
     }
     
-    return (nil, value.error)
+    return nil
 }
 
-func toString(_ value: JSValue) -> (String?, JSONLib.Error?) {
+func toString(_ value: JSValue) -> String? {
     if let string = value.string {
-        return (string, nil)
+        return string
     }
     
-    return (nil, value.error)
+    return nil
 }

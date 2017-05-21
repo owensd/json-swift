@@ -37,9 +37,6 @@ public enum JSValue : Equatable {
     
     /// Holds the value that corresponds to `null`.
     case null
-    
-    /// Holds the error information when the `JSValue` could not be made into a valid item.
-    case invalid(Error)
 
     /// Initializes a new `JSValue` with a `[JSValue]` value.
     public init(_ value: [JSValue]) {
@@ -64,11 +61,6 @@ public enum JSValue : Equatable {
     /// Initializes a new `JSValue` with a `Bool` value.
     public init(_ value: Bool) {
         self = .bool(value)
-    }
-
-    /// Initializes a new `JSValue` with an `Error` value.
-    init(_ error: Error) {
-        self = .invalid(error)
     }
 }
 
@@ -241,9 +233,6 @@ extension JSValue {
             
         case .null:
             return "null"
-            
-        case .invalid(let error):
-            return "<Invalid JSON: \(error.description)>"
             
         }
     }

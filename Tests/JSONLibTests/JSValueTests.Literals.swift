@@ -10,71 +10,41 @@ class JSValueLiteralsTests : XCTestCase {
     
     func testStringValue() {
         let value: JSValue = "hello world"
-        XCTAssertTrue(value.hasValue)
         XCTAssertTrue(value.string?.compare("hello world") == ComparisonResult.orderedSame)
     }
 
     func testCompareStringToNonStringValue() {
         let value: JSValue = 1234
-        XCTAssertTrue(value.hasValue)
         XCTAssertFalse(value.string?.compare("1234") == ComparisonResult.orderedSame)
     }
 
     func testIntegerValue() {
         let value: JSValue = 123
-        XCTAssertTrue(value.hasValue)
         XCTAssertTrue(value.number == 123)
-    }
-    
-    func testUnderUnsafeMinimumIntegerValue() {
-        let value: JSValue = -9007199254740992
-        XCTAssertFalse(value.hasValue)
-        XCTAssertTrue(value.error != nil)
-    }
-    
-    func testOverUnsafeMaximumIntegerValue() {
-        let value: JSValue = 9007199254740992
-        XCTAssertFalse(value.hasValue)
-        XCTAssertTrue(value.error != nil)
-    }
-    
-    func testUnsafeMinimumIntegerValue() {
-        let value: JSValue = -9007199254740991
-        XCTAssertTrue(value.hasValue)
-    }
-    
-    func testUnsafeMaximumIntegerValue() {
-        let value: JSValue = 9007199254740991
-        XCTAssertTrue(value.hasValue)
     }
     
     func testDoubleValue() {
         let value: JSValue = 3.1245123123
-        XCTAssertTrue(value.hasValue)
         XCTAssertTrue(value.number == 3.1245123123)
     }
 
     func testBoolTrueValue() {
         let value: JSValue = true
-        XCTAssertTrue(value.hasValue)
         XCTAssertTrue(value.bool == true)
     }
     
     func testBoolFalseValue() {
         let value: JSValue = false
-        XCTAssertTrue(value.hasValue)
         XCTAssertTrue(value.bool == false)
     }
 
     func testNilValue() {
         let value: JSValue = nil
-        XCTAssertTrue(value.hasValue)
         XCTAssertTrue(value.null)
     }
     
     func testBasicArray() {
         let value: JSON = [1, "Dog", 3.412, true]
-        XCTAssertTrue(value.hasValue)
         XCTAssertTrue(value[0].number == 1)
         XCTAssertTrue(value[1].string == "Dog")
         XCTAssertTrue(value[2].number == 3.412)
@@ -83,7 +53,6 @@ class JSValueLiteralsTests : XCTestCase {
     
     func testNestedArray() {
         let value: JSON = [1, "Dog", [3.412, true]]
-        XCTAssertTrue(value.hasValue)
         XCTAssertTrue(value[0].number == 1)
         XCTAssertTrue(value[1].string == "Dog")
         
@@ -122,11 +91,7 @@ class JSValueLiteralsTests : XCTestCase {
             ]
         ]
         
-        XCTAssertTrue(json.hasValue)
-        
         XCTAssertTrue(json["stat"].string == "ok")
-
-        XCTAssertTrue(json["blogs"]["blog"].hasValue)
         XCTAssertTrue(json["blogs"]["blog"][0]["id"].number == 73)
         XCTAssertTrue(json["blogs"]["blog"][0]["needspassword"].bool == true)
     }
@@ -135,10 +100,6 @@ class JSValueLiteralsTests : XCTestCase {
         ("testStringValue", testStringValue),
         ("testCompareStringToNonStringValue", testCompareStringToNonStringValue),
         ("testIntegerValue", testIntegerValue),
-        ("testUnderUnsafeMinimumIntegerValue", testUnderUnsafeMinimumIntegerValue),
-        ("testOverUnsafeMaximumIntegerValue", testOverUnsafeMaximumIntegerValue),
-        ("testUnsafeMinimumIntegerValue", testUnsafeMinimumIntegerValue),
-        ("testUnsafeMaximumIntegerValue", testUnsafeMaximumIntegerValue),
         ("testDoubleValue", testDoubleValue),
         ("testBoolTrueValue", testBoolTrueValue),
         ("testBoolFalseValue", testBoolFalseValue),
