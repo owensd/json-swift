@@ -6,7 +6,9 @@
 import Foundation
 import JSONLib
 import QuartzCore
-import Freddy
+
+// Must load locally.
+// import Freddy
 
 func printUsage() -> Never {
     print("usage: ParserPerfTestHarness [test file]")
@@ -96,6 +98,7 @@ print("\nJSONLib:")
 let jsonlibPerfResults = try performance { let _ = try JSON.parse(data) }
 print("performance results: \(jsonlibPerfResults)")
 
-print("\nFreddy Results:")
-let freddyPerfResults = try performance { let _ = try? JSON(data: data) }
-print("performance results: \(freddyPerfResults.description)")
+// Must enable locally.
+// print("\nFreddy Results:")
+// let freddyPerfResults = try performance { let _ = try? JSON(data: data) }
+// print("performance results: \(freddyPerfResults.description)")

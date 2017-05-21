@@ -8,7 +8,9 @@
 
 import Foundation
 import JSONLib
-import Freddy
+
+// Load this locally...
+// import Freddy
 
 func printUsage() -> Never {
     print("usage: ParserTestHarness [-freddy] -file:[test file]")
@@ -49,7 +51,10 @@ if let testFile = file {
 
     do {
         if useFreddy {
-            let _ = try JSON(data: data)
+            // Must do this locally
+            // let _ = try JSON(data: data)
+            print("Must load Freddy locally")
+            exit(-101)
         }
         else {
             let _ = try JSON.parse(data)
