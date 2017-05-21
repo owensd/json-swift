@@ -3,11 +3,15 @@ json-swift
 
 ![build status badge](https://travis-ci.org/owensd/json-swift.svg?branch=master)
 
-A practical JSON parsing library for Swift. It provides a fully typed and validated API surface for working with JSON, including the ability to base64 items with your JSON.
+A practical JSON parsing library for Swift. It provides a fully typed and validated API surface for
+working with JSON, including the ability to base64 items with your JSON.
 
-All of the JSON APIs return back of `Optional<T>`. This allows for easier use for deep indexing.
+All of the JSON APIs return back of `Optional<T>`. This allows for easier use for deep indexing. In
+addition, there is an `Optional<JSValue>` wrapper for all indexers and accessors which removes all
+of the `?` jumping that is normally required.
 
-Also, there is a functional API set for the library as well. For an in-depth overview of that, see: [Functional JSON](http://owensd.io/2014/08/06/functional-json.html).
+Also, there is a functional API set for the library as well. For an in-depth overview of that, see:
+[Functional JSON](http://owensd.io/2014/08/06/functional-json.html).
 
 **Initializing a JSON value**
 
