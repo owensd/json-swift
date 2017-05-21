@@ -512,28 +512,10 @@ extension JSValue {
                     throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
             
-            case (_, Token.HorizontalTab):
+            case (_, Token.Null...Token.ShiftIn):
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "An unescaped TAB character is not allowed in a string."]
-                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
-
-            case (_, Token.Linefeed):
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "An unescaped linefeed character is not allowed in a string."]
-                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
-
-            case (_, Token.CarriageReturn):
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "An unescaped carriage return character is not allowed in a string."]
-                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
-
-            case (_, Token.Formfeed):
-                    let info = [
-                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "An unescaped formfeed character is not allowed in a string."]
+                        ErrorKeys.LocalizedFailureReason: "An unescaped control character is not allowed in a string."]
                     throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
 
             case (_, Token.Backslash):
@@ -712,23 +694,15 @@ extension UInt8 {
 
     /// Determines if the `UnicodeScalar` represents one of the standard Unicode whitespace characters.
     ///
-    /// :return: `true` if the scalar is a Unicode whitespace character; `false` otherwise.
+    /// :return: `true` if the scalar is a valid JSON whitespace character; `false` otherwise.
     func isWhitespace() -> Bool {
-        if self >= 0x09 && self <= 0x0D        { return true }     // White_Space # Cc   [5] <control-0009>..<control-000D>
-        if self == 0x20                        { return true }     // White_Space # Zs       SPACE
-        if self == 0x85                        { return true }     // White_Space # Cc       <control-0085>
-        if self == 0xA0                        { return true }     // White_Space # Zs       NO-BREAK SPACE
-
-        // TODO: These are no longer possible to be hit... does it matter???
-        //        if self == 0x1680                      { return true }     // White_Space # Zs       OGHAM SPACE MARK
-        //        if self >= 0x2000 && self <= 0x200A    { return true }     // White_Space # Zs  [11] EN QUAD..HAIR SPACE
-        //        if self == 0x2028                      { return true }     // White_Space # Zl       LINE SEPARATOR
-        //        if self == 0x2029                      { return true }     // White_Space # Zp       PARAGRAPH SEPARATOR
-        //        if self == 0x202F                      { return true }     // White_Space # Zs       NARROW NO-BREAK SPACE
-        //        if self == 0x205F                      { return true }     // White_Space # Zs       MEDIUM MATHEMATICAL SPACE
-        //        if self == 0x3000                      { return true }     // White_Space # Zs       IDEOGRAPHIC SPACE
-
-        return false
+        switch self {
+        case 0x09: return true /* horizontal tab */
+        case 0x0A: return true /* line feed or new line */
+        case 0x20: return true /* space */
+        case 0x0D: return true /* carriage return */
+        default: return false
+        }
     }
 
     /// Determines if the `UnicodeScalar` represents a numeric digit.
@@ -786,11 +760,13 @@ struct Token {
     fileprivate init() {}
 
     // Control Codes
-    static let Linefeed         = UInt8(10)
+    static let Null             = UInt8(0)
     static let Backspace        = UInt8(8)
+    static let HorizontalTab    = UInt8(9)
+    static let Linefeed         = UInt8(10)
     static let Formfeed         = UInt8(12)
     static let CarriageReturn   = UInt8(13)
-    static let HorizontalTab    = UInt8(9)
+    static let ShiftIn          = UInt8(15)
 
     // Tokens for JSON
     static let LeftBracket      = UInt8(91)
