@@ -18,7 +18,9 @@ done
 
 for f in $TestCollateral/JSONTestSuite/test_parsing/n_*.json; do
     $TestHarness $f
-    if [ $? -eq 0 ]; then
+    if [ $? -eq 139 ]; then
+        echo "!!!!! Crash while testing: $f"
+    elif [ $? -eq 0 ]; then
         SuccessCount=$(expr $SuccessCount + 1)
     else
         FailureCount=$(expr $FailureCount + 1)

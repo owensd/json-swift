@@ -115,7 +115,7 @@ class JSValueParsingTests : XCTestCase {
     }
     
     func testParseStringWithMultipleEscapes() {
-        let string = "\"e&\\\\첊xz坍崦ݻ鍴\\\"嵥B3\u{000b}㢊\u{0015}L臯.샥\""
+        let string = "\"e&\\\\첊xz坍崦ݻ鍴\\\"嵥B3\\u000b㢊\\u0015L臯.샥\""
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
@@ -123,7 +123,7 @@ class JSValueParsingTests : XCTestCase {
     }
     
     func testParseStringWithMultipleUnicodeTypes() {
-        let string = "\"(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\u{202a}꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\u{001a}sD7IK5Wxo8\u{0006}p弊⼂ꯍ扵\u{0003}`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\\\\""
+        let string = "\"(\u{20da}g8큽튣>^Y{뤋.袊䂓;_g]S\\u202a꽬L;^'#땏bႌ?C緡<䝲䲝断ꏏ6\\u001asD7IK5Wxo8\\u0006p弊⼂ꯍ扵\\u0003`뵂픋%ꄰ⫙됶l囏尛+䗅E쟇\\\\\""
         let jsvalue = try? JSValue.parse(string)
         
         XCTAssertTrue(jsvalue != nil)
