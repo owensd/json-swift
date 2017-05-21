@@ -103,11 +103,20 @@ extension JSValue {
 
         var key = ""
         var dict = [String:JSValue]()
+        var needsComma = false
+        var lastParsedComma = false
 
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
             case (0, Token.LeftCurly): continue
             case (_, Token.RightCurly):
+                if lastParsedComma {
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "A trailing `,` is not supported. Context: '\(contextualString(generator))'."]
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                }
+
                 switch state {
                 case .initial: fallthrough
                 case .value:
@@ -122,6 +131,13 @@ extension JSValue {
                 }
 
             case (_, Token.DoubleQuote):
+                if needsComma {
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "Unable to parse object. Expected `,` to separate values. Context: '\(contextualString(generator))'."]
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                }
+
                 switch state {
                 case .initial:
                     state = .key
@@ -145,6 +161,8 @@ extension JSValue {
                     let value = try parse(generator)
                     dict[key] = value
                     generator.replay()
+                    needsComma = true
+                    lastParsedComma = false
 
                 default:
                     let info = [
@@ -154,6 +172,15 @@ extension JSValue {
                 }
 
             case (_, Token.Comma):
+                if !needsComma {
+                    let info = [
+                        ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                        ErrorKeys.LocalizedFailureReason: "A `,` can only separate values. Context: '\(contextualString(generator))'."]
+                    throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+                }
+                needsComma = false
+                lastParsedComma = true
+
                 switch state {
                 case .value:
                     state = .initial
@@ -204,7 +231,7 @@ extension JSValue {
                 if !needsComma {
                     let info = [
                         ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
-                        ErrorKeys.LocalizedFailureReason: "A `,` can on separate values. Context: '\(contextualString(generator))'."]
+                        ErrorKeys.LocalizedFailureReason: "A `,` can only separate values. Context: '\(contextualString(generator))'."]
                     throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
                 needsComma = false

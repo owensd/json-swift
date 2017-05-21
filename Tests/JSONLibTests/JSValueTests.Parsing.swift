@@ -527,6 +527,12 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue == nil)
     }
 
+    func testParseObjectTrailingComma() {
+        let string = "{\"id\":0,}"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
 // TODO(owensd): This should be redone to support Linux as well.
 #if os(macOS)
     func testParsingSampleJSON() {
