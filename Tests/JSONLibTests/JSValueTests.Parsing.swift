@@ -96,16 +96,14 @@ class JSValueParsingTests : XCTestCase {
         let string = "'Bob'"
         let jsvalue = try? JSValue.parse(string)
         
-        XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue.string, "Bob")
+        XCTAssertTrue(jsvalue == nil)
     }
     
     func testParseStringWithEscapedQuote() {
         let string = "'Bob \"the man \" Roberts'"
         let jsvalue = try? JSValue.parse(string)
         
-        XCTAssertTrue(jsvalue != nil)
-        XCTAssertEqual(jsvalue.string, "Bob \"the man \" Roberts")
+        XCTAssertTrue(jsvalue == nil)
     }
 
     func testParseStringWithEscapedQuoteMatchingEndQuotes() {
@@ -312,7 +310,7 @@ class JSValueParsingTests : XCTestCase {
     }
     
     func testParseNestedMixedTypes() {
-        let string = "{\"key1\": 1, \"key2\": [        -12 , 12        ], \"key3\": \"Bob\", \"\\n鱿aK㝡␒㼙2촹f\": { 'foo': 'bar' }, \"key5\": false, \"key6\": null, \"key\\\"7\": -2.11234123}"
+        let string = "{\"key1\": 1, \"key2\": [        -12 , 12        ], \"key3\": \"Bob\", \"\\n鱿aK㝡␒㼙2촹f\": { \"foo\": \"bar\" }, \"key5\": false, \"key6\": null, \"key\\\"7\": -2.11234123}"
         let json = try? JSON.parse(string)
         
         XCTAssertTrue(json != nil)
@@ -334,7 +332,7 @@ class JSValueParsingTests : XCTestCase {
     }
     
     func testParsePrettyPrintedNestedMixedTypes() {
-        let string = "{\"key1\": 1, \"key2\": [        -12 , 12        ], \"key3\": \"Bob\", \"\\n鱿aK㝡␒㼙2촹f\": { 'foo': 'bar' }, \"key5\": false, \"key6\": null, \"key\\\"7\": -2.11234123}"
+        let string = "{\"key1\": 1, \"key2\": [        -12 , 12        ], \"key3\": \"Bob\", \"\\n鱿aK㝡␒㼙2촹f\": { \"foo\": \"bar\" }, \"key5\": false, \"key6\": null, \"key\\\"7\": -2.11234123}"
         let json1 = try? JSON.parse(string)
         
         XCTAssertTrue(json1 != nil)
@@ -345,7 +343,7 @@ class JSValueParsingTests : XCTestCase {
     }
 
     func testPrettyPrintedNestedObjectType() {
-        let string = "{\"key\": { 'foo': 'bar' }}"
+        let string = "{\"key\": { \"foo\": \"bar\" }}"
         let json1 = try? JSON.parse(string)
 
         XCTAssertTrue(json1 != nil)
@@ -355,7 +353,7 @@ class JSValueParsingTests : XCTestCase {
     }
 
     func testPrettyPrintedNestedArrayType() {
-        let string = "{\"key\": [ 'foo', 'bar' ]}"
+        let string = "{\"key\": [ \"foo\", \"bar\" ]}"
         let json1 = try? JSON.parse(string)
 
         XCTAssertTrue(json1 != nil)

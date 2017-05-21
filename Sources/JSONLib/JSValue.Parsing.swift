@@ -78,8 +78,8 @@ extension JSValue {
             else if codeunit == Token.n {
                 return try JSValue.parseNull(generator)
             }
-            else if codeunit == Token.DoubleQuote || codeunit == Token.SingleQuote {
-                return try JSValue.parseString(generator, quote: codeunit)
+            else if codeunit == Token.DoubleQuote {
+                return try JSValue.parseString(generator)
             }
             else {
                 break
@@ -121,13 +121,12 @@ extension JSValue {
                     throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
                 }
 
-            case (_, Token.SingleQuote): fallthrough
             case (_, Token.DoubleQuote):
                 switch state {
                 case .initial:
                     state = .key
 
-                    key = try parseString(generator, quote: codeunit).string!
+                    key = try parseString(generator).string!
                     generator.replay()
 
                 default:
@@ -467,13 +466,13 @@ extension JSValue {
     // Implementation Note: This is move outside here to avoid the re-allocation of this buffer each time.
     // This has a significant impact on performance.
     static var stringStorage: [UInt8] = []
-    static func parseString(_ generator: ReplayableGenerator, quote: UInt8) throws -> JSValue {
+    static func parseString(_ generator: ReplayableGenerator) throws -> JSValue {
         stringStorage.removeAll(keepingCapacity: true)
 
         for (idx, codeunit) in generator.enumerated() {
             switch (idx, codeunit) {
-            case (0, quote): continue
-            case (_, quote):
+            case (0, Token.DoubleQuote): continue
+            case (_, Token.DoubleQuote):
                 let _ = generator.next()        // eat the quote
 
                 if let string = String(bytes: stringStorage, encoding: .utf8) {
@@ -522,7 +521,7 @@ extension JSValue {
                     case Token.Forwardslash:
                         stringStorage.append(Token.Forwardslash)
 
-                    case quote:
+                    case Token.DoubleQuote:
                         stringStorage.append(Token.DoubleQuote)
 
                     case Token.n:
