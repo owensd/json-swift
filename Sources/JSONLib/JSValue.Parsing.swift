@@ -401,7 +401,27 @@ extension JSValue {
                     ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
                     ErrorKeys.LocalizedFailureReason: "A trailing period is not allowed."]
                 throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+            }
 
+            if state == .exponent {
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "A trailing 'e' or 'E' is not allowed."]
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+            }
+
+            if state == .exponentSign {
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "A exponent sign is not allowed."]
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
+            }
+
+            if state == .leadingNegativeSign {
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "A number cannot just be a leading negative sign."]
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
 
             let value: Double = sign * exp((value + fraction), Int(exponentSign * exponent))

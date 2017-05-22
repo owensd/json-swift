@@ -557,6 +557,72 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue == nil)
     }
 
+    func testParseNumberMinus() {
+        let string = "-"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberZeroDot3EPlus() {
+        let string = "0.3e+"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberZero3e() {
+        let string = "0.3e"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberZero3eMinus() {
+        let string = "0.e3-"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberOneDot0EPlus() {
+        let string = "1.0e+"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberOneDot0EMinus() {
+        let string = "1.0e-"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberOneDot0e() {
+        let string = "1.0e"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberOneDot0E() {
+        let string = "1.0E"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberZeroEPlus() {
+        let string = "0E+"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberZeroeMinus() {
+        let string = "0e-"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberZeroE() {
+        let string = "0E"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
     func testParseObjectTrailingComma() {
         let string = "{\"id\":0,}"
         let jsvalue = try? JSValue.parse(string)
