@@ -424,8 +424,14 @@ extension JSValue {
                 throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)
             }
 
-            let value: Double = sign * exp((value + fraction), Int(exponentSign * exponent))
-            return JSValue(value)
+            guard let exponentValue = Int(exactly: exponentSign * exponent) else {
+                let info = [
+                    ErrorKeys.LocalizedDescription: ErrorCode.ParsingError.message,
+                    ErrorKeys.LocalizedFailureReason: "The exponent is too large to process."]
+                throw JsonParserError(code: ErrorCode.ParsingError.code, domain: JSValueErrorDomain, userInfo: info)                
+            }
+
+            return JSValue(sign * exp((value + fraction), exponentValue))
         }
 
         let info = [

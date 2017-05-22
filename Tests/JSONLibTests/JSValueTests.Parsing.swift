@@ -629,6 +629,12 @@ class JSValueParsingTests : XCTestCase {
         XCTAssertTrue(jsvalue == nil)
     }
 
+    func testParseNumberHugeExp() {
+        let string = "[0.4e00669999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999969999999006]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
 // TODO(owensd): This should be redone to support Linux as well.
 #if os(macOS)
     func testParsingSampleJSON() {
