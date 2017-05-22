@@ -56,7 +56,7 @@ extension JSValue {
         }
     }
 
-    static let maximumDepth = 2250
+    static let maximumDepth = 1000
     static var depthGuard: Int = 0
     static func parse(_ generator: ReplayableGenerator) throws -> JSValue {
         for codeunit in generator {
