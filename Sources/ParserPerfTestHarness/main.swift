@@ -3,6 +3,7 @@
  * Licensed under the MIT License. See License in the project root for license information.
  */
 
+#if os(macOS)
 import Foundation
 import JSONLib
 import QuartzCore
@@ -102,3 +103,6 @@ print("performance results: \(jsonlibPerfResults)")
 // print("\nFreddy Results:")
 // let freddyPerfResults = try performance { let _ = try? JSON(data: data) }
 // print("performance results: \(freddyPerfResults.description)")
+#else
+print("Sadly, only macOS is supported for the perf infrastructure at this time.")
+#endif
