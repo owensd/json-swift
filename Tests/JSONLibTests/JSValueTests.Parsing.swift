@@ -516,7 +516,37 @@ class JSValueParsingTests : XCTestCase {
     }
 
     func testParseNumberTwoDotE3() {
+        let string = "[2.e3]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberTwoDotEMinus3() {
         let string = "[2.e-3]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberTwoDotEPlus3() {
+        let string = "[2.e+3]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberOneDot() {
+        let string = "[1.]"
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseEmpty() {
+        let string = ""
+        let jsvalue = try? JSValue.parse(string)
+        XCTAssertTrue(jsvalue == nil)
+    }
+
+    func testParseNumberZeroDotE1() {
+        let string = "[0.e1]"
         let jsvalue = try? JSValue.parse(string)
         XCTAssertTrue(jsvalue == nil)
     }
