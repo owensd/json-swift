@@ -16,35 +16,20 @@ func printUsage() -> Never {
     exit(-1)
 }
 
-struct Results<T>: CustomStringConvertible {
-    let minimum: T
-    let maximum: T
-    let average: T
+struct Results {
+    let minimum: Double
+    let maximum: Double
+    let average: Double
 
     var description: String {
-        return "min: \(minimum), max: \(maximum), avg: \(average)"
+        let min = String(format: "%.3fms", minimum * 1000)
+        let max = String(format: "%.3fms", maximum * 1000)
+        let avg = String(format: "%.3fms", average * 1000)
+        return "min: \(min), max: \(max), avg: \(avg)"
     }
 }
 
-func memory(iterations: Int = 10, fn: @escaping () throws -> Void) throws -> Results<Int> {
-    var min: Int = Int.max
-    var max: Int = Int.min
-    var counter: Int = 0
-
-    for _ in 0..<iterations {
-        let before = mstats()
-        try fn()
-        let after = mstats()
-        let used = after.bytes_used - before.bytes_used
-        if used < min { min = used }
-        if used > max { max = used }
-        counter += used
-    }
-
-    return Results(minimum: min, maximum: max, average: Int(counter / iterations))
-}
-
-func performance(iterations: Int = 10, fn: () throws -> Void) throws -> Results<CFTimeInterval> {
+func performance(iterations: Int = 1000, fn: () throws -> Void) throws -> Results {
     var min: CFTimeInterval = 999999999999
     var max: CFTimeInterval = 0
     var counter: CFTimeInterval = 0
@@ -92,12 +77,12 @@ let shouldParse = filename.hasPrefix("y_")
 
 
 print("NSJONSerialization:")
-let nsjsonSerializationPerfResults = try performance { let _ = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) }
-print("performance results: \(nsjsonSerializationPerfResults)")
+let nsjsonSerializationPerfResults = try performance { let _ = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) }
+print("performance results: \(nsjsonSerializationPerfResults.description)")
 
 print("\nJSONLib:")
 let jsonlibPerfResults = try performance { let _ = try JSON.parse(data) }
-print("performance results: \(jsonlibPerfResults)")
+print("performance results: \(jsonlibPerfResults.description)")
 
 // Must enable locally.
 // print("\nFreddy Results:")
